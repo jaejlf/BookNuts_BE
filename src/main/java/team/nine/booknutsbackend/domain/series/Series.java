@@ -1,4 +1,4 @@
-package team.nine.booknutsbackend.domain.Series;
+package team.nine.booknutsbackend.domain.series;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;

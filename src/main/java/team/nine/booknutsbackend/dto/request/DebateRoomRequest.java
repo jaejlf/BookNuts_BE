@@ -1,7 +1,7 @@
-package team.nine.booknutsbackend.dto.Request;
+package team.nine.booknutsbackend.dto.request;
 
 import lombok.Getter;
-import team.nine.booknutsbackend.domain.Debate.DebateRoom;
+import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.User;
 
 import javax.validation.constraints.NotBlank;

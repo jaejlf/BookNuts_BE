@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.Response.BoardResponse;
+import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
 import team.nine.booknutsbackend.exception.board.NoAccessException;
 import team.nine.booknutsbackend.repository.BoardRepository;

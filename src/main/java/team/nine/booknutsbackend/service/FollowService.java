@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.Response.UserResponse;
+import team.nine.booknutsbackend.dto.response.UserResponse;
 import team.nine.booknutsbackend.exception.follow.FollowDuplicateException;
 import team.nine.booknutsbackend.repository.FollowRepository;
 

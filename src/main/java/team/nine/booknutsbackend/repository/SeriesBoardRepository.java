@@ -2,8 +2,8 @@ package team.nine.booknutsbackend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import team.nine.booknutsbackend.domain.Board;
-import team.nine.booknutsbackend.domain.Series.Series;
-import team.nine.booknutsbackend.domain.Series.SeriesBoard;
+import team.nine.booknutsbackend.domain.series.Series;
+import team.nine.booknutsbackend.domain.series.SeriesBoard;
 
 import java.util.List;
 import java.util.Optional;

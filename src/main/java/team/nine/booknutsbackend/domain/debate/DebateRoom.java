@@ -1,4 +1,4 @@
-package team.nine.booknutsbackend.domain.Debate;
+package team.nine.booknutsbackend.domain.debate;
 
 import lombok.Getter;
 import lombok.Setter;

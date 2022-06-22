@@ -1,8 +1,8 @@
-package team.nine.booknutsbackend.dto.Response;
+package team.nine.booknutsbackend.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
-import team.nine.booknutsbackend.domain.Debate.DebateRoom;
+import team.nine.booknutsbackend.domain.debate.DebateRoom;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

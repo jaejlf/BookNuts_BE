@@ -1,4 +1,4 @@
-package team.nine.booknutsbackend.dto.Response;
+package team.nine.booknutsbackend.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team.nine.booknutsbackend.domain.Debate.DebateRoom;
+import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.Request.DebateRoomRequest;
-import team.nine.booknutsbackend.dto.Response.DebateRoomResponse;
-import team.nine.booknutsbackend.exception.Debate.CannotJoinException;
-import team.nine.booknutsbackend.exception.Debate.StatusChangeException;
+import team.nine.booknutsbackend.dto.request.DebateRoomRequest;
+import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
+import team.nine.booknutsbackend.exception.debate.CannotJoinException;
+import team.nine.booknutsbackend.exception.debate.StatusChangeException;
 import team.nine.booknutsbackend.service.DebateService;
 import team.nine.booknutsbackend.service.AuthService;
 

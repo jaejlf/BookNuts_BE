@@ -1,4 +1,4 @@
-package team.nine.booknutsbackend.dto.Request;
+package team.nine.booknutsbackend.dto.request;
 
 import lombok.Getter;
 import team.nine.booknutsbackend.domain.Board;

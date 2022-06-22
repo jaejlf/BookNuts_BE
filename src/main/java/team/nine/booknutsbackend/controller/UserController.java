@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.Response.UserProfileResponse;
+import team.nine.booknutsbackend.dto.response.UserProfileResponse;
 import team.nine.booknutsbackend.service.AuthService;
 import team.nine.booknutsbackend.service.FollowService;
 

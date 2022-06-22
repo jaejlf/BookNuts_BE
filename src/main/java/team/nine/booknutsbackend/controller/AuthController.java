@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import team.nine.booknutsbackend.config.JwtTokenProvider;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.Request.UserRequest;
+import team.nine.booknutsbackend.dto.request.UserRequest;
 import team.nine.booknutsbackend.exception.user.PasswordErrorException;
 import team.nine.booknutsbackend.service.AuthService;
 

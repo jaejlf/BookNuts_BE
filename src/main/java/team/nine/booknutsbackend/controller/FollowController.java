@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.Response.UserResponse;
+import team.nine.booknutsbackend.dto.response.UserResponse;
 import team.nine.booknutsbackend.service.FollowService;
 import team.nine.booknutsbackend.service.AuthService;
 
