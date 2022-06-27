@@ -59,17 +59,7 @@ public class AuthController {
         String token = jwtTokenProvider.createToken(loginUser.getUsername(), loginUser.getRoles()); //getUsername -> 이메일 반환
         userService.updateToken(loginUser.getUserId(), token);
 
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("nickname", loginUser.getNickname());
-        map.put("token", token);
-        return new ResponseEntity<>(map, HttpStatus.OK);
-    }
-
-    //현재 유저 정보 - 헤더 토큰으로 조회
-    @GetMapping("/userinfo")
-    public ResponseEntity<Object> userInfoByHeaderToken(Principal principal) {
-        User user = userService.loadUserByUsername(principal.getName());
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(userService.loadUserByUsername(loginUser.getUsername()), HttpStatus.OK);
     }
 
 }

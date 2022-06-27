@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.response.UserResponse;
+import team.nine.booknutsbackend.dto.response.FollowResponse;
 import team.nine.booknutsbackend.service.FollowService;
 import team.nine.booknutsbackend.service.AuthService;
 
@@ -48,7 +48,7 @@ public class FollowController {
 
     //팔로잉 리스트
     @GetMapping("/followinglist/{userId}")
-    public ResponseEntity<List<UserResponse>> findMyFollowingList(@PathVariable Long userId, Principal principal) {
+    public ResponseEntity<List<FollowResponse>> findMyFollowingList(@PathVariable Long userId, Principal principal) {
         User currentLoginId = userService.loadUserByUsername(principal.getName());
         User user = userService.findUserById(userId);
         return new ResponseEntity<>(followService.getMyFollowingList(user), HttpStatus.OK);
@@ -56,7 +56,7 @@ public class FollowController {
 
     //팔로워 리스트
     @GetMapping("/followerlist/{userId}")
-    public ResponseEntity<List<UserResponse>> findMyFollowerList(@PathVariable Long userId, Principal principal) {
+    public ResponseEntity<List<FollowResponse>> findMyFollowerList(@PathVariable Long userId, Principal principal) {
         User currentLoginId = userService.loadUserByUsername(principal.getName());
         User user = userService.findUserById(userId);
         return new ResponseEntity<>(followService.getMyFollowerList(user), HttpStatus.OK);

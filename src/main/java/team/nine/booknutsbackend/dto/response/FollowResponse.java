@@ -6,7 +6,7 @@ import team.nine.booknutsbackend.domain.User;
 
 @Getter
 @Builder
-public class UserResponse {
+public class FollowResponse {
 
     Long userId;
     String loginId;
@@ -14,8 +14,8 @@ public class UserResponse {
     String nickname;
     String email;
 
-    public static UserResponse newUserResponse(User user) {
-        return UserResponse.builder()
+    public static FollowResponse followUserResponse(User user) {
+        return FollowResponse.builder()
                 .userId(user.getUserId())
                 .loginId(user.getLoginId())
                 .username(user.getUsername())

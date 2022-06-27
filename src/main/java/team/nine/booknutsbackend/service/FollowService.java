@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.response.UserResponse;
+import team.nine.booknutsbackend.dto.response.FollowResponse;
 import team.nine.booknutsbackend.exception.follow.FollowDuplicateException;
 import team.nine.booknutsbackend.repository.FollowRepository;
 
@@ -44,12 +44,12 @@ public class FollowService {
 
     //나의 팔로잉 리스트
     @Transactional(readOnly = true)
-    public List<UserResponse> getMyFollowingList(User user) {
+    public List<FollowResponse> getMyFollowingList(User user) {
         List<Follow> followList = followRepository.findByFollower(user);
-        List<UserResponse> followingList = new ArrayList<>();
+        List<FollowResponse> followingList = new ArrayList<>();
 
         for (Follow follow : followList) {
-            followingList.add(UserResponse.newUserResponse(follow.getFollowing()));
+            followingList.add(FollowResponse.followUserResponse(follow.getFollowing()));
         }
 
         return followingList;
@@ -57,12 +57,12 @@ public class FollowService {
 
     //나의 팔로워 리스트
     @Transactional(readOnly = true)
-    public List<UserResponse> getMyFollowerList(User user) {
+    public List<FollowResponse> getMyFollowerList(User user) {
         List<Follow> followList = followRepository.findByFollowing(user);
-        List<UserResponse> followerList = new ArrayList<>();
+        List<FollowResponse> followerList = new ArrayList<>();
 
         for (Follow follow : followList) {
-            followerList.add(UserResponse.newUserResponse(follow.getFollower()));
+            followerList.add(FollowResponse.followUserResponse(follow.getFollower()));
         }
 
         return followerList;

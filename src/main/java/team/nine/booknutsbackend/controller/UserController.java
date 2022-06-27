@@ -22,6 +22,12 @@ public class UserController {
     private final FollowService followService;
     private final AuthService userService;
 
+    //현재 유저 정보 - 헤더 토큰으로 조회
+    @GetMapping("/info")
+    public ResponseEntity<Object> userInfoByHeaderToken(Principal principal) {
+        return new ResponseEntity<>(userService.loadUserByUsername(principal.getName()), HttpStatus.OK);
+    }
+
     //사용자 프로필 조회
     @GetMapping("/profile/{userId}")
     public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable Long userId, Principal principal) {
