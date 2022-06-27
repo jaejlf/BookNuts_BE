@@ -26,33 +26,33 @@ public class SeriesController {
     private final SeriesService seriesService;
     private final AuthService userService;
 
-    //내 시리즈 조회
+    //시리즈 목록 조회
     @GetMapping("/list")
-    public ResponseEntity<List<SeriesResponse>> allMySeries(Principal principal) {
+    public ResponseEntity<List<SeriesResponse>> getSeriesList(Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        return new ResponseEntity<>(seriesService.allMySeries(user), HttpStatus.OK);
+        return new ResponseEntity<>(seriesService.getSeriesList(user), HttpStatus.OK);
     }
 
     //시리즈 발행
-    @PostMapping("/grouping")
-    public ResponseEntity<SeriesResponse> grouping(@RequestBody SeriesRequest series, Principal principal) {
+    @PostMapping("/create")
+    public ResponseEntity<SeriesResponse> createSeries(@RequestBody SeriesRequest series, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        Series newSeries = seriesService.saveSeries(series, user);
+        Series newSeries = seriesService.createSeries(series, user);
         return new ResponseEntity<>(SeriesResponse.seriesResponse(newSeries), HttpStatus.CREATED);
     }
 
     //특정 시리즈 조회
     @GetMapping("/{seriesId}")
-    public ResponseEntity<List<BoardResponse>> findMySeries(@PathVariable Long seriesId, Principal principal) {
+    public ResponseEntity<List<BoardResponse>> getSeries(@PathVariable Long seriesId, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        return new ResponseEntity<>(seriesService.findSeriesBoards(seriesId, user), HttpStatus.OK);
+        return new ResponseEntity<>(seriesService.getSeries(seriesId, user), HttpStatus.OK);
     }
 
     //시리즈 삭제
     @DeleteMapping("/{seriesId}")
-    public ResponseEntity<Object> delete(@PathVariable Long seriesId, Principal principal) throws NoAccessException {
+    public ResponseEntity<Object> deleteSeries(@PathVariable Long seriesId, Principal principal) throws NoAccessException {
         User user = userService.loadUserByUsername(principal.getName());
-        seriesService.delete(seriesId, user);
+        seriesService.deleteSeries(seriesId, user);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "삭제 완료");
@@ -60,10 +60,10 @@ public class SeriesController {
     }
 
     //시리즈에 게시글 추가
-    @GetMapping("/addseries/{seriesId}/{boardId}")
-    public ResponseEntity<Object> addToSeries(@PathVariable Long seriesId, @PathVariable Long boardId, Principal principal) {
+    @PatchMapping("/add/{seriesId}/{boardId}")
+    public ResponseEntity<Object> addPostToSeries(@PathVariable Long seriesId, @PathVariable Long boardId, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        seriesService.addToSeries(seriesId, boardId);
+        seriesService.addPostToSeries(seriesId, boardId);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "추가 완료");

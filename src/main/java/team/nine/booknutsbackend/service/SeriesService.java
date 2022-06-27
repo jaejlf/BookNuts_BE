@@ -31,9 +31,9 @@ public class SeriesService {
     private final BoardRepository boardRepository;
     private final BoardService boardService;
 
-    //내 시리즈 조회
+    //시리즈 목록 조회
     @Transactional(readOnly = true)
-    public List<SeriesResponse> allMySeries(User user) {
+    public List<SeriesResponse> getSeriesList(User user) {
         List<Series> stories = seriesRepository.findAllByOwner(user);
         List<SeriesResponse> seriesResponseList = new ArrayList<>();
 
@@ -45,13 +45,13 @@ public class SeriesService {
         return seriesResponseList;
     }
 
-    //새로운 시리즈 발행
+    //시리즈 발행
     @Transactional
-    public Series saveSeries(SeriesRequest seriesRequest, User user) {
-        List<Long> boardIdlist = seriesRequest.getBoardIdlist();
+    public Series createSeries(SeriesRequest seriesRequest, User user) {
+        List<Long> boardIdList = seriesRequest.getBoardIdlist();
         Series series = seriesRepository.save(SeriesRequest.newSeries(seriesRequest, user));
 
-        for (Long boardId : boardIdlist) {
+        for (Long boardId : boardIdList) {
             SeriesBoard seriesBoard = new SeriesBoard();
             seriesBoard.setSeries(series);
             seriesBoard.setBoard(boardService.getPost(boardId));
@@ -61,9 +61,9 @@ public class SeriesService {
         return series;
     }
 
-    //특정 시리즈 내의 게시글 조회
+    //특정 시리즈 조회
     @Transactional(readOnly = true)
-    public List<BoardResponse> findSeriesBoards(Long seriesId, User user) throws SeriesNotFoundException {
+    public List<BoardResponse> getSeries(Long seriesId, User user) throws SeriesNotFoundException {
         Series series = seriesRepository.findById(seriesId)
                 .orElseThrow(() -> new SeriesNotFoundException("존재하지 않는 시리즈 아이디입니다."));
         List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
@@ -79,7 +79,7 @@ public class SeriesService {
 
     //시리즈 삭제
     @Transactional
-    public void delete(Long seriesId, User user) throws NoAccessException {
+    public void deleteSeries(Long seriesId, User user) throws NoAccessException {
         Series series = seriesRepository.findBySeriesIdAndOwner(seriesId, user)
                 .orElseThrow(() -> new NoAccessException("해당 유저는 삭제 권한이 없습니다."));
         List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
@@ -90,7 +90,7 @@ public class SeriesService {
 
     //시리즈에 게시글 추가
     @Transactional
-    public void addToSeries(Long seriesId, Long boardId) {
+    public void addPostToSeries(Long seriesId, Long boardId) {
         Series series = seriesRepository.findById(seriesId)
                 .orElseThrow(() -> new SeriesNotFoundException("존재하지 않는 시리즈 아이디입니다."));
         Board board = boardRepository.findById(boardId)
