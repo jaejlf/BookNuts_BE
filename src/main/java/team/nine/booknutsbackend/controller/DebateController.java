@@ -58,7 +58,7 @@ public class DebateController {
     }
 
     //토론 나가기
-    @GetMapping("/exit/{roomId}")
+    @PatchMapping("/exit/{roomId}")
     public ResponseEntity<Object> exitRoom(@PathVariable Long roomId, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
         debateService.exitRoom(debateService.getRoom(roomId), user);
