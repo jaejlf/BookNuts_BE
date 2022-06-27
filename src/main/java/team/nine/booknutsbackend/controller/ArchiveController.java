@@ -43,9 +43,9 @@ public class ArchiveController {
 
     //특정 아카이브 조회
     @GetMapping("/{archiveId}")
-    public ResponseEntity<List<BoardResponse>> findArchive(@PathVariable Long archiveId, Principal principal) {
+    public ResponseEntity<List<BoardResponse>> getArchive(@PathVariable Long archiveId, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        return new ResponseEntity<>(archiveService.findArchive(archiveId, user), HttpStatus.OK);
+        return new ResponseEntity<>(archiveService.getArchive(archiveId, user), HttpStatus.OK);
     }
 
     //아카이브에 게시글 추가

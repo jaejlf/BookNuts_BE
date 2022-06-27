@@ -29,7 +29,7 @@ public class ArchiveService {
     private final ArchiveBoardRepository archiveBoardRepository;
     private final BoardRepository boardRepository;
 
-    //아카이브 리스트 조회
+    //아카이브 목록 조회
     @Transactional(readOnly = true)
     public List<ArchiveResponse> getArchiveList(User user) {
         List<Archive> archives = archiveRepository.findAllByOwner(user);
@@ -51,7 +51,7 @@ public class ArchiveService {
 
     //특정 아카이브 조회
     @Transactional(readOnly = true)
-    public List<BoardResponse> findArchive(Long archiveId, User user) throws ArchiveNotFoundException {
+    public List<BoardResponse> getArchive(Long archiveId, User user) throws ArchiveNotFoundException {
         Archive archive = archiveRepository.findById(archiveId)
                 .orElseThrow(() -> new ArchiveNotFoundException("존재하지 않는 아카이브 아이디입니다."));
         List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
