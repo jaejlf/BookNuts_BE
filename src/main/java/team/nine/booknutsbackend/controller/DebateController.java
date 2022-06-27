@@ -33,35 +33,35 @@ public class DebateController {
     public ResponseEntity<DebateRoomResponse> createRoom(@RequestBody @Valid DebateRoomRequest room, Principal principal) throws CannotJoinException {
         User user = userService.loadUserByUsername(principal.getName());
         DebateRoom newRoom = debateService.createRoom(DebateRoomRequest.newRoom(room, user));
-        DebateRoom saveRoom = debateService.join(newRoom.getDebateRoomId(), user, room.isOpinion());
+        DebateRoom saveRoom = debateService.enterRoom(newRoom.getDebateRoomId(), user, room.isOpinion());
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(saveRoom), HttpStatus.CREATED);
     }
 
     //특정 토론장 조회
     @GetMapping("/{roomId}")
-    public ResponseEntity<DebateRoomResponse> findRoom(@PathVariable Long roomId) {
-        return new ResponseEntity<>(DebateRoomResponse.roomResponse(debateService.findRoom(roomId)), HttpStatus.OK);
+    public ResponseEntity<DebateRoomResponse> getRoom(@PathVariable Long roomId) {
+        return new ResponseEntity<>(DebateRoomResponse.roomResponse(debateService.getRoom(roomId)), HttpStatus.OK);
     }
 
     //참여 가능 여부
-    @GetMapping("/canjoin/{roomId}")
-    public ResponseEntity<Object> canJoin(@PathVariable Long roomId) {
-        return new ResponseEntity<>(debateService.canJoin(roomId), HttpStatus.OK);
+    @GetMapping("/canenter/{roomId}")
+    public ResponseEntity<Object> canEnter(@PathVariable Long roomId) {
+        return new ResponseEntity<>(debateService.canEnter(roomId), HttpStatus.OK);
     }
 
     //토론 참여
-    @GetMapping("/join/{roomId}")
-    public ResponseEntity<DebateRoomResponse> join(@PathVariable Long roomId, @RequestParam Boolean opinion, Principal principal) throws CannotJoinException {
+    @PatchMapping("/enter/{roomId}")
+    public ResponseEntity<DebateRoomResponse> enterRoom(@PathVariable Long roomId, @RequestParam Boolean opinion, Principal principal) throws CannotJoinException {
         User user = userService.loadUserByUsername(principal.getName());
-        DebateRoom room = debateService.join(roomId, user, opinion);
+        DebateRoom room = debateService.enterRoom(roomId, user, opinion);
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(room), HttpStatus.OK);
     }
 
     //토론 나가기
     @GetMapping("/exit/{roomId}")
-    public ResponseEntity<Object> exit(@PathVariable Long roomId, Principal principal) {
+    public ResponseEntity<Object> exitRoom(@PathVariable Long roomId, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        debateService.exit(debateService.findRoom(roomId), user);
+        debateService.exitRoom(debateService.getRoom(roomId), user);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "나가기 완료");
@@ -76,7 +76,7 @@ public class DebateController {
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(updateRoom), HttpStatus.OK);
     }
 
-    //토론장 리스트
+    //토론장 목록 조회
     //텍스트 = 0, 음성 = 1, 전체 = 2
     @GetMapping("/list/{type}")
     public ResponseEntity<Object> roomList(@PathVariable int type) {

@@ -31,8 +31,8 @@ public class DebateService {
 
     //참여 가능 여부
     @Transactional(readOnly = true)
-    public Object canJoin(Long roomId) {
-        DebateRoom room = findRoom(roomId);
+    public Object canEnter(Long roomId) {
+        DebateRoom room = getRoom(roomId);
         int sideUser = room.getMaxUser() / 2;
         int curYesUser = room.getCurYesUser();
         int curNoUser = room.getCurNoUser();
@@ -45,8 +45,8 @@ public class DebateService {
 
     //토론장 참여
     @Transactional
-    public DebateRoom join(Long roomId, User user, boolean opinion) throws CannotJoinException {
-        DebateRoom room = findRoom(roomId);
+    public DebateRoom enterRoom(Long roomId, User user, boolean opinion) throws CannotJoinException {
+        DebateRoom room = getRoom(roomId);
 
         if (debateUserRepository.findByDebateRoomAndUser(room, user).isPresent())
             throw new CannotJoinException("이미 참여 중인 유저입니다.");
@@ -62,22 +62,22 @@ public class DebateService {
         debateUser.setOpinion(opinion);
         debateUserRepository.save(debateUser);
 
-        return updateCount(room);
+        return updateUserCount(room);
     }
 
     //토론 나가기
     @Transactional
-    public void exit(DebateRoom room, User user) {
+    public void exitRoom(DebateRoom room, User user) {
         DebateUser debateUser = debateUserRepository.findByDebateRoomAndUser(room, user)
                 .orElseThrow(() -> new UserNotFoundException("토론에 참여한 유저가 아닙니다."));
         debateUserRepository.delete(debateUser);
-        updateCount(room);
+        updateUserCount(room);
     }
 
     //토론장 상태 변경
     @Transactional
     public DebateRoom changeStatus(Long roomId, int status, User user) throws StatusChangeException {
-        DebateRoom room = findRoom(roomId);
+        DebateRoom room = getRoom(roomId);
 
         if (room.getOwner().getUserId() != user.getUserId()) throw new StatusChangeException("토론 개설자만 상태를 변경할 수 있습니다.");
         if (status <= 0 || status > 2) throw new StatusChangeException("상태값은 토론 진행 중(=1) 또는 토론 종료(=2) 여야 합니다.");
@@ -88,15 +88,15 @@ public class DebateService {
 
     //참여 유저 수 업데이트
     @Transactional
-    public DebateRoom updateCount(DebateRoom room) {
+    public DebateRoom updateUserCount(DebateRoom room) {
         room.setCurYesUser(debateUserRepository.countByDebateRoomAndOpinion(room, true));
         room.setCurNoUser(debateUserRepository.countByDebateRoomAndOpinion(room, false));
         return debateRoomRepository.save(room);
     }
 
-    //토론장 조회
+    //토론장 목록 조회
     @Transactional(readOnly = true)
-    public DebateRoom findRoom(Long roomId) {
+    public DebateRoom getRoom(Long roomId) {
         return debateRoomRepository.findById(roomId)
                 .orElseThrow(() -> new RoomNotFoundException("존재하지 않는 토론장 아이디입니다."));
     }
