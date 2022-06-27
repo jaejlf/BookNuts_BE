@@ -22,14 +22,14 @@ public class BoardService {
 
     //게시글 작성
     @Transactional
-    public Board write(Board newBoard) {
+    public Board writePost(Board newBoard) {
         return boardRepository.save(newBoard);
     }
 
-    //게시글 조회
+    //게시글 목록 조회
     //*** 타입에 따른 반환 구현 전 ***
     @Transactional(readOnly = true)
-    public List<BoardResponse> boardList(User user, int type) {
+    public List<BoardResponse> getBoard(User user, int type) {
         List<Board> boards = boardRepository.findAll();
         List<BoardResponse> boardDtoList = new ArrayList<>();
 
@@ -41,9 +41,9 @@ public class BoardService {
         return boardDtoList;
     }
 
-    //내가 작성한 게시글
+    //내가 작성한 게시글 목록
     @Transactional(readOnly = true)
-    public List<BoardResponse> myBoardList(User user) {
+    public List<BoardResponse> getMyBoard(User user) {
         List<Board> myBoards = boardRepository.findByUser(user);
         List<BoardResponse> boardDtoList = new ArrayList<>();
 
@@ -57,14 +57,14 @@ public class BoardService {
     
     //특정 게시글 조회
     @Transactional(readOnly = true)
-    public Board findBoard(Long boardId) throws BoardNotFoundException {
+    public Board getPost(Long boardId) throws BoardNotFoundException {
         return boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 아이디입니다."));
     }
 
     //게시글 수정
     @Transactional
-    public Board update(Board board, User user) throws NoAccessException {
+    public Board updatePost(Board board, User user) throws NoAccessException {
         boardRepository.findByBoardIdAndUser(board.getBoardId(), user)
                 .orElseThrow(() -> new NoAccessException("해당 유저는 수정 권한이 없습니다."));
 
@@ -73,7 +73,7 @@ public class BoardService {
 
     //게시글 삭제
     @Transactional
-    public void delete(Long boardId, User user) throws NoAccessException {
+    public void deletePost(Long boardId, User user) throws NoAccessException {
         Board board = boardRepository.findByBoardIdAndUser(boardId, user)
                 .orElseThrow(() -> new NoAccessException("해당 유저는 삭제 권한이 없습니다."));
 

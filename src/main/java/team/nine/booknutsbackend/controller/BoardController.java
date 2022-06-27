@@ -28,52 +28,52 @@ public class BoardController {
 
     //게시글 작성
     @PostMapping("/write")
-    public ResponseEntity<BoardResponse> write(@RequestBody @Valid BoardRequest board, Principal principal) {
+    public ResponseEntity<BoardResponse> writePost(@RequestBody @Valid BoardRequest board, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        Board newBoard = boardService.write(BoardRequest.newBoard(board, user));
+        Board newBoard = boardService.writePost(BoardRequest.newBoard(board, user));
         return new ResponseEntity<>(BoardResponse.boardResponse(newBoard, user), HttpStatus.CREATED);
     }
 
-    //게시글 조회
+    //게시글 목록 조회
     //나의 구독 = 0, 오늘 추천 = 1, 독립 출판 = 2
     @GetMapping("/list/{type}")
-    public ResponseEntity<List<BoardResponse>> boardList(@PathVariable int type, Principal principal) {
+    public ResponseEntity<List<BoardResponse>> getBoard(@PathVariable int type, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        return new ResponseEntity<>(boardService.boardList(user, type), HttpStatus.OK);
+        return new ResponseEntity<>(boardService.getBoard(user, type), HttpStatus.OK);
     }
 
-    //내가 작성한 게시글
+    //내가 작성한 게시글 목록
     @GetMapping("/mypost")
-    public ResponseEntity<List<BoardResponse>> myBoardList(Principal principal){
+    public ResponseEntity<List<BoardResponse>> getMyBoard(Principal principal){
         User user = userService.loadUserByUsername(principal.getName());
-        return new ResponseEntity<>(boardService.myBoardList(user), HttpStatus.OK);
+        return new ResponseEntity<>(boardService.getMyBoard(user), HttpStatus.OK);
     }
 
     //특정 게시글 조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> findPost(@PathVariable Long boardId, Principal principal) {
+    public ResponseEntity<BoardResponse> getPost(@PathVariable Long boardId, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        return new ResponseEntity<>(BoardResponse.boardResponse(boardService.findBoard(boardId), user), HttpStatus.OK);
+        return new ResponseEntity<>(BoardResponse.boardResponse(boardService.getPost(boardId), user), HttpStatus.OK);
     }
 
     //게시글 수정
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> update(@PathVariable Long boardId, @RequestBody BoardRequest board, Principal principal) throws NoAccessException {
-        Board originBoard = boardService.findBoard(boardId);
+    public ResponseEntity<BoardResponse> updatePost(@PathVariable Long boardId, @RequestBody BoardRequest board, Principal principal) throws NoAccessException {
+        Board originBoard = boardService.getPost(boardId);
         User user = userService.loadUserByUsername(principal.getName());
 
         if (board.getTitle() != null) originBoard.setTitle(board.getTitle());
         if (board.getContent() != null) originBoard.setContent(board.getContent());
 
-        Board updateBoard = boardService.update(originBoard, user);
+        Board updateBoard = boardService.updatePost(originBoard, user);
         return new ResponseEntity<>(BoardResponse.boardResponse(updateBoard, user), HttpStatus.OK);
     }
 
     //게시글 삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Object> delete(@PathVariable Long boardId, Principal principal) throws NoAccessException {
+    public ResponseEntity<Object> deletePost(@PathVariable Long boardId, Principal principal) throws NoAccessException {
         User user = userService.loadUserByUsername(principal.getName());
-        boardService.delete(boardId, user);
+        boardService.deletePost(boardId, user);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "삭제 완료");
