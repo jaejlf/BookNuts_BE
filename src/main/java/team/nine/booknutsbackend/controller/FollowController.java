@@ -27,8 +27,7 @@ public class FollowController {
     public ResponseEntity<Object> follow(@PathVariable Long followingId, Principal principal) {
         User follower = userService.loadUserByUsername(principal.getName());
         User following = userService.findUserById(followingId);
-
-        followService.save(following, follower);
+        followService.follow(following, follower);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "팔로우 완료");
@@ -40,8 +39,7 @@ public class FollowController {
     public ResponseEntity<Object> unfollow(@PathVariable Long unfollowingId, Principal principal) {
         User follower = userService.loadUserByUsername(principal.getName());    //나(팔로워)
         User unfollowing = userService.findUserById(unfollowingId);
-
-        followService.deleteByFollowingIdAndFollowerId(unfollowing, follower);
+        followService.unfollow(unfollowing, follower);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "언팔로우 완료");
@@ -53,7 +51,7 @@ public class FollowController {
     public ResponseEntity<List<UserResponse>> findMyFollowingList(@PathVariable Long userId, Principal principal) {
         User currentLoginId = userService.loadUserByUsername(principal.getName());
         User user = userService.findUserById(userId);
-        return new ResponseEntity<>(followService.findMyFollowingList(user), HttpStatus.OK);
+        return new ResponseEntity<>(followService.getMyFollowingList(user), HttpStatus.OK);
     }
 
     //팔로워 리스트
@@ -61,7 +59,7 @@ public class FollowController {
     public ResponseEntity<List<UserResponse>> findMyFollowerList(@PathVariable Long userId, Principal principal) {
         User currentLoginId = userService.loadUserByUsername(principal.getName());
         User user = userService.findUserById(userId);
-        return new ResponseEntity<>(followService.findMyFollowerList(user), HttpStatus.OK);
+        return new ResponseEntity<>(followService.getMyFollowerList(user), HttpStatus.OK);
     }
 
 }

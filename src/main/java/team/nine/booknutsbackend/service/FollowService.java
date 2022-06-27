@@ -22,7 +22,7 @@ public class FollowService {
 
     //팔로우
     @Transactional
-    public void save(User following, User follower) {
+    public void follow(User following, User follower) {
         Follow follow = new Follow();
 
         if (followRepository.findByFollowingAndFollower(following, follower).isPresent())
@@ -36,7 +36,7 @@ public class FollowService {
 
     //언팔로우
     @Transactional
-    public void deleteByFollowingIdAndFollowerId(User unfollowing, User follower) {
+    public void unfollow(User unfollowing, User follower) {
         Follow follow = followRepository.findByFollowingAndFollower(unfollowing, follower)
                 .orElseThrow(() -> new FollowDuplicateException("팔로우하지 않은 계정입니다."));
         followRepository.delete(follow);
@@ -44,28 +44,28 @@ public class FollowService {
 
     //나의 팔로잉 리스트
     @Transactional(readOnly = true)
-    public List<UserResponse> findMyFollowingList(User user) {
-        List<Follow> followlist = followRepository.findByFollower(user);
-        List<UserResponse> followingUserList = new ArrayList<>();
+    public List<UserResponse> getMyFollowingList(User user) {
+        List<Follow> followList = followRepository.findByFollower(user);
+        List<UserResponse> followingList = new ArrayList<>();
 
-        for (Follow follow : followlist) {
-            followingUserList.add(UserResponse.newUserResponse(follow.getFollowing()));
+        for (Follow follow : followList) {
+            followingList.add(UserResponse.newUserResponse(follow.getFollowing()));
         }
 
-        return followingUserList;
+        return followingList;
     }
 
     //나의 팔로워 리스트
     @Transactional(readOnly = true)
-    public List<UserResponse> findMyFollowerList(User user) {
-        List<Follow> followlist = followRepository.findByFollowing(user);
-        List<UserResponse> followerUserList = new ArrayList<>();
+    public List<UserResponse> getMyFollowerList(User user) {
+        List<Follow> followList = followRepository.findByFollowing(user);
+        List<UserResponse> followerList = new ArrayList<>();
 
-        for (Follow follow : followlist) {
-            followerUserList.add(UserResponse.newUserResponse(follow.getFollower()));
+        for (Follow follow : followList) {
+            followerList.add(UserResponse.newUserResponse(follow.getFollower()));
         }
 
-        return followerUserList;
+        return followerList;
 
     }
 
