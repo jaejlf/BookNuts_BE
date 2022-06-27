@@ -28,16 +28,16 @@ public class ArchiveController {
 
     //아카이브 목록 조회
     @GetMapping("/list")
-    public ResponseEntity<List<ArchiveResponse>> archiveList(Principal principal) {
+    public ResponseEntity<List<ArchiveResponse>> getArchiveList(Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        return new ResponseEntity<>(archiveService.archiveList(user), HttpStatus.OK);
+        return new ResponseEntity<>(archiveService.getArchiveList(user), HttpStatus.OK);
     }
 
     //아카이브 생성
-    @PostMapping("/createarchive")
-    public ResponseEntity<ArchiveResponse> create(@RequestBody ArchiveRequest archiveRequest, Principal principal) {
+    @PostMapping("/create")
+    public ResponseEntity<ArchiveResponse> createArchive(@RequestBody ArchiveRequest archiveRequest, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        Archive newArchive = archiveService.create(ArchiveRequest.newArchive(archiveRequest, user));
+        Archive newArchive = archiveService.createArchive(ArchiveRequest.newArchive(archiveRequest, user));
         return new ResponseEntity<>(ArchiveResponse.archiveResponse(newArchive), HttpStatus.CREATED);
     }
 
@@ -48,8 +48,8 @@ public class ArchiveController {
         return new ResponseEntity<>(archiveService.findArchive(archiveId, user), HttpStatus.OK);
     }
 
-    //아카이브에 추가
-    @GetMapping("/addarchive/{archiveId}/{boardId}")
+    //아카이브에 게시글 추가
+    @PatchMapping("/add/{archiveId}/{boardId}")
     public ResponseEntity<Object> addPostToArchive(@PathVariable Long archiveId, @PathVariable Long boardId, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
         archiveService.addPostToArchive(archiveId, boardId, user);
@@ -61,9 +61,9 @@ public class ArchiveController {
 
     //아카이브 삭제
     @DeleteMapping("/{archiveId}")
-    public ResponseEntity<Object> delete(@PathVariable Long archiveId, Principal principal) throws NoAccessException {
+    public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveId, Principal principal) throws NoAccessException {
         User user = userService.loadUserByUsername(principal.getName());
-        archiveService.delete(archiveId, user);
+        archiveService.deleteArchive(archiveId, user);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "삭제 완료");
@@ -72,9 +72,9 @@ public class ArchiveController {
 
     //아카이브 내의 게시글 삭제
     @DeleteMapping("/{archiveId}/{boardId}")
-    public ResponseEntity<Object> deletePostFromArchive(@PathVariable Long archiveId, @PathVariable Long boardId, Principal principal) {
+    public ResponseEntity<Object> deleteArchivePost(@PathVariable Long archiveId, @PathVariable Long boardId, Principal principal) {
         User user = userService.loadUserByUsername(principal.getName());
-        archiveService.deletePostFromArchive(archiveId, boardId);
+        archiveService.deleteArchivePost(archiveId, boardId);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "삭제 완료");
@@ -83,7 +83,7 @@ public class ArchiveController {
 
     //아카이브 수정
     @PatchMapping("/{archiveId}")
-    public ResponseEntity<ArchiveResponse> update(@PathVariable Long archiveId, @RequestBody ArchiveRequest archiveRequest, Principal principal) throws NoAccessException {
+    public ResponseEntity<ArchiveResponse> updateArchive(@PathVariable Long archiveId, @RequestBody ArchiveRequest archiveRequest, Principal principal) throws NoAccessException {
         Archive archive = archiveService.findByArchiveId(archiveId);
         User user = userService.loadUserByUsername(principal.getName());
 
@@ -91,7 +91,7 @@ public class ArchiveController {
         if (archiveRequest.getContent() != null) archive.setContent(archiveRequest.getContent());
         if (archiveRequest.getImgUrl() != null) archive.setImgUrl(archiveRequest.getImgUrl());
 
-        Archive updateArchive = archiveService.update(archive, user);
+        Archive updateArchive = archiveService.updateArchive(archive, user);
         return new ResponseEntity<>(ArchiveResponse.archiveResponse(updateArchive), HttpStatus.OK);
     }
 
