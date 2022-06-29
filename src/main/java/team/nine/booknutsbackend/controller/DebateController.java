@@ -11,7 +11,7 @@ import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
 import team.nine.booknutsbackend.exception.debate.CannotJoinException;
 import team.nine.booknutsbackend.exception.debate.StatusChangeException;
 import team.nine.booknutsbackend.service.DebateService;
-import team.nine.booknutsbackend.service.AuthService;
+import team.nine.booknutsbackend.service.UserService;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -26,12 +26,12 @@ import java.util.Map;
 public class DebateController {
 
     private final DebateService debateService;
-    private final AuthService userService;
+    private final UserService userService;
 
     //토론장 개설
     @PostMapping("/create")
     public ResponseEntity<DebateRoomResponse> createRoom(@RequestBody @Valid DebateRoomRequest room, Principal principal) throws CannotJoinException {
-        User user = userService.loadUserByUsername(principal.getName());
+        User user = userService.findUserByEmail(principal.getName());
         DebateRoom newRoom = debateService.createRoom(DebateRoomRequest.newRoom(room, user));
         DebateRoom saveRoom = debateService.enterRoom(newRoom.getDebateRoomId(), user, room.isOpinion());
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(saveRoom), HttpStatus.CREATED);
@@ -52,7 +52,7 @@ public class DebateController {
     //토론 참여
     @PatchMapping("/enter/{roomId}")
     public ResponseEntity<DebateRoomResponse> enterRoom(@PathVariable Long roomId, @RequestParam Boolean opinion, Principal principal) throws CannotJoinException {
-        User user = userService.loadUserByUsername(principal.getName());
+        User user = userService.findUserByEmail(principal.getName());
         DebateRoom room = debateService.enterRoom(roomId, user, opinion);
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(room), HttpStatus.OK);
     }
@@ -60,7 +60,7 @@ public class DebateController {
     //토론 나가기
     @PatchMapping("/exit/{roomId}")
     public ResponseEntity<Object> exitRoom(@PathVariable Long roomId, Principal principal) {
-        User user = userService.loadUserByUsername(principal.getName());
+        User user = userService.findUserByEmail(principal.getName());
         debateService.exitRoom(debateService.getRoom(roomId), user);
 
         Map<String, String> map = new HashMap<>();
@@ -71,7 +71,7 @@ public class DebateController {
     //토론장 상태 변경
     @PatchMapping("/update/{roomId}")
     public ResponseEntity<DebateRoomResponse> changeStatus(@PathVariable Long roomId, @RequestParam int status, Principal principal) throws StatusChangeException {
-        User user = userService.loadUserByUsername(principal.getName());
+        User user = userService.findUserByEmail(principal.getName());
         DebateRoom updateRoom = debateService.changeStatus(roomId, status, user);
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(updateRoom), HttpStatus.OK);
     }

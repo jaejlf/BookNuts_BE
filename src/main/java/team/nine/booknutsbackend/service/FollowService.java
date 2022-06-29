@@ -18,7 +18,7 @@ import java.util.List;
 public class FollowService {
 
     private final FollowRepository followRepository;
-    private final AuthService userService;
+    private final UserService userService;
 
     //팔로우
     @Transactional

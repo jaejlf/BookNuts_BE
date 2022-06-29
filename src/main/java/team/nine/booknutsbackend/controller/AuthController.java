@@ -5,25 +5,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import team.nine.booknutsbackend.config.JwtTokenProvider;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.UserRequest;
 import team.nine.booknutsbackend.exception.user.PasswordErrorException;
-import team.nine.booknutsbackend.service.AuthService;
+import team.nine.booknutsbackend.service.UserService;
 
 import javax.validation.Valid;
-import java.security.Principal;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService userService;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    //private final JwtTokenProvider jwtTokenProvider;
 
     //회원가입
     @PostMapping("/join")
@@ -47,7 +43,7 @@ public class AuthController {
     //로그인
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserRequest user) {
-        User loginUser = userService.loadUserByUsername(user.getEmail());
+        User loginUser = userService.findUserByEmail(user.getEmail());
         if (!passwordEncoder.matches(user.getPassword(), loginUser.getPassword())) {
             throw new PasswordErrorException("잘못된 비밀번호입니다.");
         }
@@ -56,10 +52,10 @@ public class AuthController {
         * refresh 토큰 구현 전,
         * 로그인할 때마다 token 새로 생성
         */
-        String token = jwtTokenProvider.createToken(loginUser.getUsername(), loginUser.getRoles()); //getUsername -> 이메일 반환
-        userService.updateToken(loginUser.getUserId(), token);
+        //String token = jwtTokenProvider.createToken(loginUser.getUsername(), loginUser.getRoles()); //getUsername -> 이메일 반환
+        //userService.updateToken(loginUser.getUserId(), token);
 
-        return new ResponseEntity<>(userService.loadUserByUsername(loginUser.getUsername()), HttpStatus.OK);
+        return new ResponseEntity<>(userService.findUserByEmail(loginUser.getUsername()), HttpStatus.OK);
     }
 
 }
