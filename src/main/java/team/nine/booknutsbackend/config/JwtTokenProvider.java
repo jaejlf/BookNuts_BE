@@ -23,8 +23,8 @@ public class JwtTokenProvider {
 
     private String secretKey = "booknutssecret";
 
-    //토큰 유효시간 30분
-    private long tokenValidTime = 30 * 60 * 1000L;
+    private long accessTokenValidTime = 30 * 60 * 1000L; //30분
+    private long refreshTokenValidTime = 7 * 24 * 60 * 60 * 1000L; //7일
 
     private final UserDetailsService userDetailsService;
 
@@ -33,15 +33,25 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    //JWT 토큰 생성
-    public String createToken(String userPk, List<String> roles) {
+    //access token 생성
+    public String createAccessToken(String userPk, List<String> roles) {
         Claims claims = Jwts.claims().setSubject(userPk);
         claims.put("roles", roles);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims) //정보 저장
                 .setIssuedAt(now) //토큰 발행 시간 정보
-                .setExpiration(new Date(now.getTime() + tokenValidTime))
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    //refresh token 생성
+    public String createRefreshToken() {
+        Date now = new Date();
+        return Jwts.builder()
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
