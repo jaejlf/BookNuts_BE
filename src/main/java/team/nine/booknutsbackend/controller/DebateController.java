@@ -32,7 +32,7 @@ public class DebateController {
     @PostMapping("/create")
     public ResponseEntity<DebateRoomResponse> createRoom(@RequestBody @Valid DebateRoomRequest room, Principal principal) throws CannotJoinException {
         User user = userService.findUserByEmail(principal.getName());
-        DebateRoom newRoom = debateService.createRoom(DebateRoomRequest.newRoom(room, user));
+        DebateRoom newRoom = debateService.createRoom(DebateRoomRequest.roomRequest(room, user));
         DebateRoom saveRoom = debateService.enterRoom(newRoom.getDebateRoomId(), user, room.isOpinion());
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(saveRoom), HttpStatus.CREATED);
     }

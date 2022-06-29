@@ -20,7 +20,7 @@ public class AuthController {
     //회원가입
     @PostMapping("/join")
     public ResponseEntity<Object> join(@RequestBody @Valid UserRequest user) {
-        User newUser = userService.join(UserRequest.newUser(user));
+        User newUser = userService.join(UserRequest.userRequest(user));
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 

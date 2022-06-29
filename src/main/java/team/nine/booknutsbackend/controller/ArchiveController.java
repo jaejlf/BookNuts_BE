@@ -37,7 +37,7 @@ public class ArchiveController {
     @PostMapping("/create")
     public ResponseEntity<ArchiveResponse> createArchive(@RequestBody ArchiveRequest archiveRequest, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        Archive newArchive = archiveService.createArchive(ArchiveRequest.newArchive(archiveRequest, user));
+        Archive newArchive = archiveService.createArchive(ArchiveRequest.archiveRequest(archiveRequest, user));
         return new ResponseEntity<>(ArchiveResponse.archiveResponse(newArchive), HttpStatus.CREATED);
     }
 

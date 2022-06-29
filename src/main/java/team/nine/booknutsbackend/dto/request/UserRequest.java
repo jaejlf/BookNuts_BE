@@ -16,7 +16,7 @@ public class UserRequest {
     @NotBlank String email;
     String roles;
 
-    public static User newUser(UserRequest userRequest) {
+    public static User userRequest(UserRequest userRequest) {
         User user = new User();
         user.setLoginId(userRequest.getLoginId());
         user.setPassword(userRequest.password);

@@ -15,7 +15,7 @@ public class ArchiveRequest {
     @NotBlank String content;
     @NotBlank String imgUrl;
 
-    public static Archive newArchive(ArchiveRequest archiveRequest, User user) {
+    public static Archive archiveRequest(ArchiveRequest archiveRequest, User user) {
         Archive archive = new Archive();
         archive.setTitle(archiveRequest.getTitle());
         archive.setContent(archiveRequest.getContent());

@@ -30,7 +30,7 @@ public class BoardController {
     @PostMapping("/write")
     public ResponseEntity<BoardResponse> writePost(@RequestBody @Valid BoardRequest board, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        Board newBoard = boardService.writePost(BoardRequest.newBoard(board, user));
+        Board newBoard = boardService.writePost(BoardRequest.boardRequest(board, user));
         return new ResponseEntity<>(BoardResponse.boardResponse(newBoard, user), HttpStatus.CREATED);
     }
 
