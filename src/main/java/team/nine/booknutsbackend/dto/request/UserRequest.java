@@ -16,10 +16,10 @@ public class UserRequest {
     @NotBlank String email;
     String roles;
 
-    public static User newUser(UserRequest userRequest, String encodePW) {
+    public static User newUser(UserRequest userRequest) {
         User user = new User();
         user.setLoginId(userRequest.getLoginId());
-        user.setPassword(encodePW);
+        user.setPassword(userRequest.password);
         user.setUsername(userRequest.getUsername());
         user.setNickname(userRequest.getNickname());
         user.setEmail(userRequest.getEmail());
