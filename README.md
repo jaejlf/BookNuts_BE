@@ -18,7 +18,7 @@
 
 <br><br>
 ## 📑 API 문서
-[BookNuts, API Documentation](https://jaejeong-sohn.gitbook.io/booknuts-apis/)
+[BookNuts, API Documentation](https://documenter.getpostman.com/view/18461572/UyxqC3LC)
 
 
 <br><br>
