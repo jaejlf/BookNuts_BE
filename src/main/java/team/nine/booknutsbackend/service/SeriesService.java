@@ -49,7 +49,7 @@ public class SeriesService {
     @Transactional
     public Series createSeries(SeriesRequest seriesRequest, User user) {
         List<Long> boardIdList = seriesRequest.getBoardIdlist();
-        Series series = seriesRepository.save(SeriesRequest.newSeries(seriesRequest, user));
+        Series series = seriesRepository.save(SeriesRequest.seriesRequest(seriesRequest, user));
 
         for (Long boardId : boardIdList) {
             SeriesBoard seriesBoard = new SeriesBoard();

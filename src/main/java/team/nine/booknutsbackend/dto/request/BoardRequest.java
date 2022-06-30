@@ -16,7 +16,7 @@ public class BoardRequest {
     @NotBlank String bookImgUrl;
     @NotBlank String bookGenre;
 
-    public static Board newBoard(BoardRequest boardRequest, User user) {
+    public static Board boardRequest(BoardRequest boardRequest, User user) {
         Board board = new Board();
         board.setTitle(boardRequest.getTitle());
         board.setContent(boardRequest.getContent());

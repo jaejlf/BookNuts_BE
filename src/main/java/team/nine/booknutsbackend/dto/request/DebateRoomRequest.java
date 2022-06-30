@@ -21,7 +21,7 @@ public class DebateRoomRequest {
     @NotNull boolean opinion;
     User owner;
 
-    public static DebateRoom newRoom(DebateRoomRequest roomRequest, User user) {
+    public static DebateRoom roomRequest(DebateRoomRequest roomRequest, User user) {
         DebateRoom room = new DebateRoom();
         room.setBookTitle(roomRequest.getBookTitle());
         room.setBookAuthor(roomRequest.getBookAuthor());

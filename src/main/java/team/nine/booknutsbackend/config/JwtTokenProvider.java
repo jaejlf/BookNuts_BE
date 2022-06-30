@@ -1,15 +1,13 @@
 package team.nine.booknutsbackend.config;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import team.nine.booknutsbackend.exception.user.InvalidTokenException;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -23,8 +21,11 @@ public class JwtTokenProvider {
 
     private String secretKey = "booknutssecret";
 
-    //토큰 유효시간 30분
-    private long tokenValidTime = 30 * 60 * 1000L;
+    private long accessTokenValidTime = 1 * 60 * 1000L; //30분
+    private long refreshTokenValidTime = 30 * 24 * 60 * 60 * 1000L; //30일 (한 달)
+
+    //private long accessTokenValidTime = 30 * 60 * 1000L; //30분
+    //private long refreshTokenValidTime = 30 * 24 * 60 * 60 * 1000L; //30일 (한 달)
 
     private final UserDetailsService userDetailsService;
 
@@ -33,15 +34,27 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    //JWT 토큰 생성
-    public String createToken(String userPk, List<String> roles) {
+    //access token 생성
+    public String createAccessToken(String userPk, List<String> roles) {
         Claims claims = Jwts.claims().setSubject(userPk);
-        claims.put("roles", roles);
+        claims.put("roles", roles.get(0));
         Date now = new Date();
         return Jwts.builder()
-                .setClaims(claims) //정보 저장
-                .setIssuedAt(now) //토큰 발행 시간 정보
-                .setExpiration(new Date(now.getTime() + tokenValidTime))
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    //refresh token 생성
+    public String createRefreshToken(String userPk) {
+        Claims claims = Jwts.claims().setSubject(userPk);
+        Date now = new Date();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
@@ -62,14 +75,23 @@ public class JwtTokenProvider {
         return request.getHeader("X-AUTH-TOKEN");
     }
 
-    //토큰의 유효성 + 만료일자 확인
-    public boolean validateToken(String jwtToken) {
+    //토큰의 유효성 체크
+    public boolean validateToken(String jwtToken) throws InvalidTokenException {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return !claims.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
+        } catch (ExpiredJwtException e) {
             return false;
+        } catch (Exception e) {
+            throw new InvalidTokenException("잘못된 토큰입니다.");
         }
+    }
+
+    //토큰의 만료 일자 확인
+    public Long getValidTime(String jwtToken) {
+        Date now = new Date();
+        Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
+        return claims.getBody().getExpiration().getTime() - now.getTime();
     }
 
 }

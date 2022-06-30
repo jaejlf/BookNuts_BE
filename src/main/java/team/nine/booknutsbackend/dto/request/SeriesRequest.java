@@ -15,7 +15,7 @@ public class SeriesRequest {
     @NotBlank String imgUrl;
     @NotBlank List<Long> boardIdlist;
 
-    public static Series newSeries(SeriesRequest seriesRequest, User user) {
+    public static Series seriesRequest(SeriesRequest seriesRequest, User user) {
         Series series = new Series();
         series.setTitle(seriesRequest.getTitle());
         series.setContent(seriesRequest.getContent());

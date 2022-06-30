@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.service.AuthService;
+import team.nine.booknutsbackend.service.UserService;
 import team.nine.booknutsbackend.service.ReactionService;
 
 import java.security.Principal;
@@ -20,12 +20,12 @@ import java.util.Map;
 @RequestMapping("/reaction")
 public class ReactionController {
 
-    private final AuthService userService;
+    private final UserService userService;
     private final ReactionService reactionService;
 
     @PutMapping("/nuts/{boardId}")
     public ResponseEntity<Object> clickNuts(@PathVariable Long boardId, Principal principal) {
-        User user = userService.loadUserByUsername(principal.getName());
+        User user = userService.findUserByEmail(principal.getName());
 
         Map<String, String> map = new HashMap<>();
         map.put("result", reactionService.clickNuts(boardId, user));
@@ -34,7 +34,7 @@ public class ReactionController {
 
     @PutMapping("/heart/{boardId}")
     public ResponseEntity<Object> clickHeart(@PathVariable Long boardId, Principal principal) {
-        User user = userService.loadUserByUsername(principal.getName());
+        User user = userService.findUserByEmail(principal.getName());
 
         Map<String, String> map = new HashMap<>();
         map.put("result", reactionService.clickHeart(boardId, user));

@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import team.nine.booknutsbackend.config.JwtTokenProvider;
-import team.nine.booknutsbackend.exception.user.UnAuthTokenException;
+import team.nine.booknutsbackend.exception.user.ExpiredTokenException;
+import team.nine.booknutsbackend.exception.user.InvalidTokenException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,12 +19,11 @@ public class JWTAuthInterceptor implements HandlerInterceptor {
     //컨트롤러 실행 전 수행 (true -> 컨트롤러로 진입, false -> 진입 X)
     @Override
     public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response, Object handler) throws Exception {
+                             HttpServletResponse response, Object handler) throws InvalidTokenException {
 
         String token = jwtTokenProvider.resolveToken(request);
-
         if (!jwtTokenProvider.validateToken(token)) {
-            throw new UnAuthTokenException("유효하지 않은 X-AUTH-TOKEN");
+            throw new ExpiredTokenException("토큰이 만료되었습니다.");
         }
 
         return true;
