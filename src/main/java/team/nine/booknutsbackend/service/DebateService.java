@@ -7,7 +7,7 @@ import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.debate.DebateUser;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
-import team.nine.booknutsbackend.exception.debate.CannotJoinException;
+import team.nine.booknutsbackend.exception.debate.CannotEnterException;
 import team.nine.booknutsbackend.exception.debate.RoomNotFoundException;
 import team.nine.booknutsbackend.exception.debate.StatusChangeException;
 import team.nine.booknutsbackend.exception.debate.UserNotFoundException;
@@ -45,16 +45,16 @@ public class DebateService {
 
     //토론장 참여
     @Transactional
-    public DebateRoom enterRoom(Long roomId, User user, boolean opinion) throws CannotJoinException {
+    public DebateRoom enterRoom(Long roomId, User user, boolean opinion) throws CannotEnterException {
         DebateRoom room = getRoom(roomId);
 
         if (debateUserRepository.findByDebateRoomAndUser(room, user).isPresent())
-            throw new CannotJoinException("이미 참여 중인 유저입니다.");
-        if (room.getStatus() != 0) throw new CannotJoinException("참여할 수 없는 토론 상태입니다.");
+            throw new CannotEnterException("이미 참여 중인 유저입니다.");
+        if (room.getStatus() != 0) throw new CannotEnterException("참여할 수 없는 토론 상태입니다.");
         if (opinion && (room.getMaxUser() / 2 <= room.getCurYesUser()))
-            throw new CannotJoinException("찬성측 인원 초과로 참여할 수 없습니다.");
+            throw new CannotEnterException("찬성측 인원 초과로 참여할 수 없습니다.");
         if (!opinion && (room.getMaxUser() / 2 <= room.getCurNoUser()))
-            throw new CannotJoinException("반대측 인원 초과로 참여할 수 없습니다.");
+            throw new CannotEnterException("반대측 인원 초과로 참여할 수 없습니다.");
 
         DebateUser debateUser = new DebateUser();
         debateUser.setUser(user);

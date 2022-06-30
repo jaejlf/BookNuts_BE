@@ -8,7 +8,7 @@ import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.DebateRoomRequest;
 import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
-import team.nine.booknutsbackend.exception.debate.CannotJoinException;
+import team.nine.booknutsbackend.exception.debate.CannotEnterException;
 import team.nine.booknutsbackend.exception.debate.StatusChangeException;
 import team.nine.booknutsbackend.service.DebateService;
 import team.nine.booknutsbackend.service.UserService;
@@ -30,7 +30,7 @@ public class DebateController {
 
     //토론장 개설
     @PostMapping("/create")
-    public ResponseEntity<DebateRoomResponse> createRoom(@RequestBody @Valid DebateRoomRequest room, Principal principal) throws CannotJoinException {
+    public ResponseEntity<DebateRoomResponse> createRoom(@RequestBody @Valid DebateRoomRequest room, Principal principal) throws CannotEnterException {
         User user = userService.findUserByEmail(principal.getName());
         DebateRoom newRoom = debateService.createRoom(DebateRoomRequest.roomRequest(room, user));
         DebateRoom saveRoom = debateService.enterRoom(newRoom.getDebateRoomId(), user, room.isOpinion());
@@ -51,7 +51,7 @@ public class DebateController {
 
     //토론 참여
     @PatchMapping("/enter/{roomId}")
-    public ResponseEntity<DebateRoomResponse> enterRoom(@PathVariable Long roomId, @RequestParam Boolean opinion, Principal principal) throws CannotJoinException {
+    public ResponseEntity<DebateRoomResponse> enterRoom(@PathVariable Long roomId, @RequestParam Boolean opinion, Principal principal) throws CannotEnterException {
         User user = userService.findUserByEmail(principal.getName());
         DebateRoom room = debateService.enterRoom(roomId, user, opinion);
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(room), HttpStatus.OK);
