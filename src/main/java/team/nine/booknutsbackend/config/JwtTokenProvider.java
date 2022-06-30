@@ -21,11 +21,8 @@ public class JwtTokenProvider {
 
     private String secretKey = "booknutssecret";
 
-    private long accessTokenValidTime = 1 * 60 * 1000L; //30분
+    private long accessTokenValidTime = 30 * 60 * 1000L; //30분
     private long refreshTokenValidTime = 30 * 24 * 60 * 60 * 1000L; //30일 (한 달)
-
-    //private long accessTokenValidTime = 30 * 60 * 1000L; //30분
-    //private long refreshTokenValidTime = 30 * 24 * 60 * 60 * 1000L; //30일 (한 달)
 
     private final UserDetailsService userDetailsService;
 
