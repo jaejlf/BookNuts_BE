@@ -22,11 +22,11 @@ public class HttpStatusMap {
             case "NoSuchElementException":
                 code = HttpStatus.NOT_FOUND;
                 break;
-            case "ExpiredJwtException":     //토큰 관련 예외
-            case "MalformedJwtException":
-            case "UnsupportedJwtException":
-            case "UnAuthTokenException":
+            case "ExpiredTokenException": //토큰 만료
                 code = HttpStatus.UNAUTHORIZED;
+                break;
+            case "InvalidTokenException": //잘못된 토큰
+                code = HttpStatus.FORBIDDEN;
                 break;
             default:
                 code = HttpStatus.BAD_REQUEST;

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Entity
 @Getter
 @Setter
-@JsonIgnoreProperties(value = {"password", "enabled", "authorities", "accountNonLocked", "accountNonExpired", "credentialsNonExpired"})
+@JsonIgnoreProperties(value = {"authorities"})
 public class User implements UserDetails {
 
     @Id
@@ -32,6 +32,7 @@ public class User implements UserDetails {
     private String loginId;
 
     @Column(length = 300, nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(length = 100, nullable = false)
@@ -44,10 +45,7 @@ public class User implements UserDetails {
     private String email;
 
     @Column(length = 300)
-    private String accessToken;
-
-    @Column(length = 300)
-    private String refreshToken;
+    private String refreshToken = "";
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
@@ -81,26 +79,31 @@ public class User implements UserDetails {
     private List<Follow> followings = new ArrayList<>();
 
     @Override
+    @JsonIgnore
     public String getUsername() {
         return email;
     } // userPk -> email
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return true;
     }
