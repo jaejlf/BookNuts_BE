@@ -19,6 +19,7 @@ public class HttpStatusMap {
         HttpStatus code;
 
         switch (exception) {
+            case "EmptyFileException":
             case "NoSuchElementException":
                 code = HttpStatus.NOT_FOUND;
                 break;
