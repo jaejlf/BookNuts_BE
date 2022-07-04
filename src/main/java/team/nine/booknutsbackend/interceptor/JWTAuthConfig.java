@@ -1,4 +1,4 @@
-package team.nine.booknutsbackend.config.interceptor;
+package team.nine.booknutsbackend.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
