@@ -57,9 +57,9 @@ public class BoardService {
     
     //특정 게시글 조회
     @Transactional(readOnly = true)
-    public Board getPost(Long boardId) throws BoardNotFoundException {
+    public Board findBoard(Long boardId) throws BoardNotFoundException {
         return boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 아이디입니다."));
+            .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 아이디입니다."));
     }
 
     //게시글 수정

@@ -8,6 +8,7 @@ import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,6 +32,8 @@ public class BoardResponse {
     Boolean isHeart;
     Boolean isArchived;
     Boolean curUser;
+
+    //List<> comments = new ArrayList<>();
 
     public static BoardResponse boardResponse(Board board, User user) {
         return BoardResponse.builder()

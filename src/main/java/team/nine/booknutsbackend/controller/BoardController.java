@@ -53,13 +53,13 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponse> getPost(@PathVariable Long boardId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(BoardResponse.boardResponse(boardService.getPost(boardId), user), HttpStatus.OK);
+        return new ResponseEntity<>(BoardResponse.boardResponse(boardService.findBoard(boardId), user), HttpStatus.OK);
     }
 
     //게시글 수정
     @PatchMapping("/{boardId}")
     public ResponseEntity<BoardResponse> updatePost(@PathVariable Long boardId, @RequestBody BoardRequest board, Principal principal) throws NoAccessException {
-        Board originBoard = boardService.getPost(boardId);
+        Board originBoard = boardService.findBoard(boardId);
         User user = userService.findUserByEmail(principal.getName());
 
         if (board.getTitle() != null) originBoard.setTitle(board.getTitle());
