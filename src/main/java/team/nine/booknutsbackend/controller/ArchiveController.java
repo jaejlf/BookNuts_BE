@@ -9,7 +9,6 @@ import team.nine.booknutsbackend.domain.archive.Archive;
 import team.nine.booknutsbackend.dto.request.ArchiveRequest;
 import team.nine.booknutsbackend.dto.response.ArchiveResponse;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
-import team.nine.booknutsbackend.exception.board.NoAccessException;
 import team.nine.booknutsbackend.service.ArchiveService;
 import team.nine.booknutsbackend.service.UserService;
 
@@ -61,7 +60,7 @@ public class ArchiveController {
 
     //아카이브 삭제
     @DeleteMapping("/{archiveId}")
-    public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveId, Principal principal) throws NoAccessException {
+    public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         archiveService.deleteArchive(archiveId, user);
 
@@ -83,7 +82,7 @@ public class ArchiveController {
 
     //아카이브 수정
     @PatchMapping("/{archiveId}")
-    public ResponseEntity<ArchiveResponse> updateArchive(@PathVariable Long archiveId, @RequestBody ArchiveRequest archiveRequest, Principal principal) throws NoAccessException {
+    public ResponseEntity<ArchiveResponse> updateArchive(@PathVariable Long archiveId, @RequestBody ArchiveRequest archiveRequest, Principal principal) {
         Archive archive = archiveService.findByArchiveId(archiveId);
         User user = userService.findUserByEmail(principal.getName());
 

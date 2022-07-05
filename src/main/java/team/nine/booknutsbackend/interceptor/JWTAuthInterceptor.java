@@ -23,7 +23,7 @@ public class JWTAuthInterceptor implements HandlerInterceptor {
 
         String token = jwtTokenProvider.resolveToken(request);
         if (!jwtTokenProvider.validateToken(token)) {
-            throw new ExpiredTokenException("토큰이 만료되었습니다.");
+            throw new ExpiredTokenException();
         }
 
         return true;

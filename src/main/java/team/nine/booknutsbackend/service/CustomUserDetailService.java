@@ -17,7 +17,7 @@ public class CustomUserDetailService implements UserDetailsService {
     //이메일로 유저 정보 조회
     @Transactional(readOnly = true)
     @Override
-    public User loadUserByUsername(String email) throws UsernameNotFoundException {
+    public User loadUserByUsername(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("가입되지 않은 이메일입니다."));
     }

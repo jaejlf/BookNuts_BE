@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Board;
+import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.series.Series;
 import team.nine.booknutsbackend.domain.series.SeriesBoard;
-import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.SeriesRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.dto.response.SeriesResponse;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
-import team.nine.booknutsbackend.exception.board.NoAccessException;
+import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.exception.series.SeriesDuplicateException;
 import team.nine.booknutsbackend.exception.series.SeriesNotFoundException;
 import team.nine.booknutsbackend.repository.BoardRepository;
@@ -63,9 +63,9 @@ public class SeriesService {
 
     //특정 시리즈 조회
     @Transactional(readOnly = true)
-    public List<BoardResponse> getSeries(Long seriesId, User user) throws SeriesNotFoundException {
+    public List<BoardResponse> getSeries(Long seriesId, User user) {
         Series series = seriesRepository.findById(seriesId)
-                .orElseThrow(() -> new SeriesNotFoundException("존재하지 않는 시리즈 아이디입니다."));
+                .orElseThrow(SeriesNotFoundException::new);
         List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
         List<BoardResponse> boardList = new ArrayList<>();
 
@@ -79,9 +79,9 @@ public class SeriesService {
 
     //시리즈 삭제
     @Transactional
-    public void deleteSeries(Long seriesId, User user) throws NoAccessException {
+    public void deleteSeries(Long seriesId, User user) {
         Series series = seriesRepository.findBySeriesIdAndOwner(seriesId, user)
-                .orElseThrow(() -> new NoAccessException("해당 유저는 삭제 권한이 없습니다."));
+                .orElseThrow(NoAuthException::new);
         List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
 
         seriesBoardRepository.deleteAll(seriesBoards);
@@ -92,13 +92,13 @@ public class SeriesService {
     @Transactional
     public void addPostToSeries(Long seriesId, Long boardId) {
         Series series = seriesRepository.findById(seriesId)
-                .orElseThrow(() -> new SeriesNotFoundException("존재하지 않는 시리즈 아이디입니다."));
+                .orElseThrow(SeriesNotFoundException::new);
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 번호입니다."));
+                .orElseThrow(BoardNotFoundException::new);
 
         //시리즈 중복체크
         if (seriesBoardRepository.findByBoardAndSeries(board, series).isPresent())
-            throw new SeriesDuplicateException("이미 시리즈에 게시글이 존재합니다.");
+            throw new SeriesDuplicateException();
 
         SeriesBoard seriesBoard = new SeriesBoard();
         seriesBoard.setSeries(series);

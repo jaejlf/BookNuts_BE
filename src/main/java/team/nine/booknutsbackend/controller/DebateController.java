@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.dto.request.DebateRoomRequest;
 import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
-import team.nine.booknutsbackend.exception.debate.CannotEnterException;
-import team.nine.booknutsbackend.exception.debate.StatusChangeException;
 import team.nine.booknutsbackend.service.DebateService;
 import team.nine.booknutsbackend.service.UserService;
 
@@ -30,7 +28,7 @@ public class DebateController {
 
     //토론장 개설
     @PostMapping("/create")
-    public ResponseEntity<DebateRoomResponse> createRoom(@RequestBody @Valid DebateRoomRequest room, Principal principal) throws CannotEnterException {
+    public ResponseEntity<DebateRoomResponse> createRoom(@RequestBody @Valid DebateRoomRequest room, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         DebateRoom newRoom = debateService.createRoom(DebateRoomRequest.roomRequest(room, user));
         DebateRoom saveRoom = debateService.enterRoom(newRoom.getDebateRoomId(), user, room.isOpinion());
@@ -51,7 +49,7 @@ public class DebateController {
 
     //토론 참여
     @PatchMapping("/enter/{roomId}")
-    public ResponseEntity<DebateRoomResponse> enterRoom(@PathVariable Long roomId, @RequestParam Boolean opinion, Principal principal) throws CannotEnterException {
+    public ResponseEntity<DebateRoomResponse> enterRoom(@PathVariable Long roomId, @RequestParam Boolean opinion, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         DebateRoom room = debateService.enterRoom(roomId, user, opinion);
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(room), HttpStatus.OK);
@@ -70,7 +68,7 @@ public class DebateController {
 
     //토론장 상태 변경
     @PatchMapping("/update/{roomId}")
-    public ResponseEntity<DebateRoomResponse> changeStatus(@PathVariable Long roomId, @RequestParam int status, Principal principal) throws StatusChangeException {
+    public ResponseEntity<DebateRoomResponse> changeStatus(@PathVariable Long roomId, @RequestParam int status, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         DebateRoom updateRoom = debateService.changeStatus(roomId, status, user);
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(updateRoom), HttpStatus.OK);

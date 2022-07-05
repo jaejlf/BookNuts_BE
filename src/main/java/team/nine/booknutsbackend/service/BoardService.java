@@ -7,7 +7,7 @@ import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
-import team.nine.booknutsbackend.exception.board.NoAccessException;
+import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.BoardRepository;
 
 import java.util.ArrayList;
@@ -54,30 +54,30 @@ public class BoardService {
         Collections.reverse(boardDtoList); //최신순
         return boardDtoList;
     }
-    
+
     //특정 게시글 조회
     @Transactional(readOnly = true)
-    public Board findBoard(Long boardId) throws BoardNotFoundException {
+    public Board getPost(Long boardId) {
         return boardRepository.findById(boardId)
-            .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 아이디입니다."));
+                .orElseThrow(BoardNotFoundException::new);
     }
 
     //게시글 수정
     @Transactional
-    public Board updatePost(Board board, User user) throws NoAccessException {
+    public Board updatePost(Board board, User user) {
         boardRepository.findByBoardIdAndUser(board.getBoardId(), user)
-                .orElseThrow(() -> new NoAccessException("해당 유저는 수정 권한이 없습니다."));
+                .orElseThrow(NoAuthException::new);
 
         return boardRepository.save(board);
     }
 
     //게시글 삭제
     @Transactional
-    public void deletePost(Long boardId, User user) throws NoAccessException {
+    public void deletePost(Long boardId, User user) {
         Board board = boardRepository.findByBoardIdAndUser(boardId, user)
-                .orElseThrow(() -> new NoAccessException("해당 유저는 삭제 권한이 없습니다."));
+                .orElseThrow(NoAuthException::new);
 
         boardRepository.delete(board);
     }
-    
+
 }

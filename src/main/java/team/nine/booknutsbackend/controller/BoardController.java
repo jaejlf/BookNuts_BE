@@ -8,7 +8,6 @@ import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.BoardRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
-import team.nine.booknutsbackend.exception.board.NoAccessException;
 import team.nine.booknutsbackend.service.BoardService;
 import team.nine.booknutsbackend.service.UserService;
 
@@ -44,7 +43,7 @@ public class BoardController {
 
     //내가 작성한 게시글 목록
     @GetMapping("/mypost")
-    public ResponseEntity<List<BoardResponse>> getMyBoard(Principal principal){
+    public ResponseEntity<List<BoardResponse>> getMyBoard(Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         return new ResponseEntity<>(boardService.getMyBoard(user), HttpStatus.OK);
     }
@@ -53,13 +52,13 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponse> getPost(@PathVariable Long boardId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(BoardResponse.boardResponse(boardService.findBoard(boardId), user), HttpStatus.OK);
+        return new ResponseEntity<>(BoardResponse.boardResponse(boardService.getPost(boardId), user), HttpStatus.OK);
     }
 
     //게시글 수정
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> updatePost(@PathVariable Long boardId, @RequestBody BoardRequest board, Principal principal) throws NoAccessException {
-        Board originBoard = boardService.findBoard(boardId);
+    public ResponseEntity<BoardResponse> updatePost(@PathVariable Long boardId, @RequestBody BoardRequest board, Principal principal) {
+        Board originBoard = boardService.getPost(boardId);
         User user = userService.findUserByEmail(principal.getName());
 
         if (board.getTitle() != null) originBoard.setTitle(board.getTitle());
@@ -71,7 +70,7 @@ public class BoardController {
 
     //게시글 삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Object> deletePost(@PathVariable Long boardId, Principal principal) throws NoAccessException {
+    public ResponseEntity<Object> deletePost(@PathVariable Long boardId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         boardService.deletePost(boardId, user);
 
