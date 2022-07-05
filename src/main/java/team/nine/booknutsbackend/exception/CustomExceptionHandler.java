@@ -15,6 +15,7 @@ import team.nine.booknutsbackend.exception.debate.StatusChangeException;
 import team.nine.booknutsbackend.exception.follow.AlreadyFollowingException;
 import team.nine.booknutsbackend.exception.follow.NotFollowingException;
 import team.nine.booknutsbackend.exception.s3.EmptyFileException;
+import team.nine.booknutsbackend.exception.s3.UploadFailedException;
 import team.nine.booknutsbackend.exception.series.SeriesDuplicateException;
 import team.nine.booknutsbackend.exception.series.SeriesNotFoundException;
 import team.nine.booknutsbackend.exception.user.*;
@@ -195,6 +196,13 @@ public class CustomExceptionHandler {
         map.put("error", e.getClass().getSimpleName());
         map.put("msg", e.getMessage());
         return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(UploadFailedException.class)
+    public ResponseEntity<Object> handleUploadFailedException(UploadFailedException e) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("error", e.getClass().getSimpleName());
+        map.put("msg", e.getMessage());
+        return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
