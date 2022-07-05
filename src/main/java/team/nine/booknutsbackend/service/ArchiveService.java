@@ -12,7 +12,7 @@ import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.exception.archive.ArchiveDuplicateException;
 import team.nine.booknutsbackend.exception.archive.ArchiveNotFoundException;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
-import team.nine.booknutsbackend.exception.board.NoAccessException;
+import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.ArchiveBoardRepository;
 import team.nine.booknutsbackend.repository.ArchiveRepository;
 import team.nine.booknutsbackend.repository.BoardRepository;
@@ -51,9 +51,9 @@ public class ArchiveService {
 
     //특정 아카이브 조회
     @Transactional(readOnly = true)
-    public List<BoardResponse> getArchive(Long archiveId, User user) throws ArchiveNotFoundException {
+    public List<BoardResponse> getArchive(Long archiveId, User user) {
         Archive archive = archiveRepository.findById(archiveId)
-                .orElseThrow(() -> new ArchiveNotFoundException("존재하지 않는 아카이브 아이디입니다."));
+                .orElseThrow(ArchiveNotFoundException::new);
         List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
         List<BoardResponse> boardList = new ArrayList<>();
 
@@ -69,13 +69,13 @@ public class ArchiveService {
     @Transactional
     public void addPostToArchive(Long archiveId, Long boardId, User user) {
         Archive archive = archiveRepository.findById(archiveId)
-                .orElseThrow(() -> new ArchiveNotFoundException("존재하지 않는 아카이브 아이디입니다."));
+                .orElseThrow(ArchiveNotFoundException::new);
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 번호입니다."));
+                .orElseThrow(BoardNotFoundException::new);
 
         //아카이브 중복체크
         if (archiveBoardRepository.findByBoardAndOwner(board, user).isPresent())
-            throw new ArchiveDuplicateException("이미 아카이브에 게시글이 존재합니다");
+            throw new ArchiveDuplicateException();
 
         ArchiveBoard archiveBoard = new ArchiveBoard();
         archiveBoard.setArchive(archive);
@@ -86,9 +86,9 @@ public class ArchiveService {
 
     //아카이브 삭제
     @Transactional
-    public void deleteArchive(Long archiveId, User user) throws NoAccessException {
+    public void deleteArchive(Long archiveId, User user) {
         Archive archive = archiveRepository.findByArchiveIdAndOwner(archiveId, user)
-                .orElseThrow(() -> new NoAccessException("해당 유저는 삭제 권한이 없습니다."));
+                .orElseThrow(NoAuthException::new);
         List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
 
         archiveBoardRepository.deleteAll(archiveBoards);
@@ -99,9 +99,9 @@ public class ArchiveService {
     @Transactional
     public void deleteArchivePost(Long archiveId, Long boardId) {
         Archive archive = archiveRepository.findById(archiveId)
-                .orElseThrow(() -> new ArchiveNotFoundException("존재하지 않는 아카이브 아이디입니다."));
+                .orElseThrow(ArchiveNotFoundException::new);
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 번호입니다."));
+                .orElseThrow(BoardNotFoundException::new);
 
         ArchiveBoard archiveBoard = archiveBoardRepository.findByArchiveAndBoard(archive, board);
         archiveBoardRepository.delete(archiveBoard);
@@ -109,16 +109,16 @@ public class ArchiveService {
 
     //아카이브 조회 (아카이브명, 내용, 이미지)
     @Transactional(readOnly = true)
-    public Archive findByArchiveId(Long archiveId) throws ArchiveNotFoundException {
+    public Archive findByArchiveId(Long archiveId) {
         return archiveRepository.findById(archiveId)
-                .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 아카이브 아이디입니다."));
+                .orElseThrow(BoardNotFoundException::new);
     }
 
     //아카이브 수정
     @Transactional
-    public Archive updateArchive(Archive archive, User user) throws NoAccessException {
+    public Archive updateArchive(Archive archive, User user) {
         archiveRepository.findByArchiveIdAndOwner(archive.getArchiveId(), user)
-                .orElseThrow(() -> new NoAccessException("해당 유저는 수정 권한이 없습니다."));
+                .orElseThrow(NoAuthException::new);
 
         return archiveRepository.save(archive);
     }

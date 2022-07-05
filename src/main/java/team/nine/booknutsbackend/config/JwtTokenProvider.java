@@ -80,7 +80,7 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             return false;
         } catch (Exception e) {
-            throw new InvalidTokenException("잘못된 토큰입니다.");
+            throw new InvalidTokenException();
         }
     }
 

@@ -1,9 +1,7 @@
 package team.nine.booknutsbackend.exception.user;
 
-import io.jsonwebtoken.JwtException;
-
-public class ExpiredTokenException extends JwtException {
-    public ExpiredTokenException(String msg) {
-        super(msg);
+public class ExpiredTokenException extends RuntimeException {
+    public ExpiredTokenException() {
+        super("토큰이 만료되었습니다.");
     }
 }

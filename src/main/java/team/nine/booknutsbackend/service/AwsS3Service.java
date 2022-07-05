@@ -25,20 +25,18 @@ public class AwsS3Service {
     private final AmazonS3 amazonS3;
 
     //이미지 업로드
-    public String uploadFile(MultipartFile file) throws EmptyFileException {
-        if (file.isEmpty()) {
-            throw new EmptyFileException("파일이 존재하지 않습니다.");
-        }
+    public String uploadFile(MultipartFile file) {
+        if (file.isEmpty()) throw new EmptyFileException();
 
         String fileName = "first-test-img";
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(file.getSize());
         objectMetadata.setContentType(file.getContentType());
 
-        try(InputStream inputStream = file.getInputStream()) {
+        try (InputStream inputStream = file.getInputStream()) {
             amazonS3.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 

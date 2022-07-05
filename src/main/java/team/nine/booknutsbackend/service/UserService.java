@@ -8,11 +8,11 @@ import team.nine.booknutsbackend.config.JwtTokenProvider;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.exception.user.InvalidTokenException;
 import team.nine.booknutsbackend.exception.user.PasswordErrorException;
+import team.nine.booknutsbackend.exception.user.UserNotFoundException;
 import team.nine.booknutsbackend.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @Service
@@ -34,7 +34,7 @@ public class UserService {
     @Transactional
     public User login(User user, String inputPassword) {
         if (!passwordEncoder.matches(inputPassword, user.getPassword())) {
-            throw new PasswordErrorException("잘못된 비밀번호입니다.");
+            throw new PasswordErrorException();
         }
 
         user.setRefreshToken(jwtTokenProvider.createRefreshToken(user.getEmail()));
@@ -45,7 +45,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 유저의 아이디입니다."));
+                .orElseThrow(UserNotFoundException::new);
     }
 
     //메일로 유저 정보 조회 (UserDetailService - loadUserByUsername)
@@ -68,9 +68,9 @@ public class UserService {
 
     //토큰 재발급
     @Transactional
-    public Object tokenReIssue(String refreshToken) throws InvalidTokenException {
+    public Object tokenReIssue(String refreshToken) {
         User user = userRepository.findByRefreshToken(refreshToken) //db에 해당 refresh token이 존재하지 않는 경우
-                .orElseThrow(() -> new InvalidTokenException("잘못된 토큰입니다."));
+                .orElseThrow(InvalidTokenException::new);
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername(), user.getRoles());
 
         //refresh token 만료 기간 체크 -> 2일 이하로 남은 경우 재발급

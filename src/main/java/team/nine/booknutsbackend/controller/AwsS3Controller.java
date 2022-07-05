@@ -15,7 +15,7 @@ public class AwsS3Controller {
 
     //이미지 업로드
     @PostMapping("/upload")
-    public String post( @RequestPart("file") MultipartFile file) throws EmptyFileException {
+    public String post( @RequestPart("file") MultipartFile file) {
         return awsS3Service.uploadFile(file);
     }
 
