@@ -15,6 +15,7 @@ public class UserResponse {
     String email;
     String accessToken;
     String refreshToken;
+    String profileImgUrl;
 
     public static UserResponse userResponse(User user, String accessToken){
         return UserResponse.builder()
@@ -25,6 +26,7 @@ public class UserResponse {
                 .email(user.getEmail())
                 .accessToken(accessToken)
                 .refreshToken(user.getRefreshToken())
+                .profileImgUrl(user.getProfileImgUrl())
                 .build();
     }
 

@@ -14,6 +14,7 @@ public class UserRequest {
     @NotBlank String username;
     @NotBlank String nickname;
     @NotBlank String email;
+    String profileImgUrl;
     String roles;
 
     public static User userRequest(UserRequest userRequest) {
@@ -23,6 +24,7 @@ public class UserRequest {
         user.setUsername(userRequest.getUsername());
         user.setNickname(userRequest.getNickname());
         user.setEmail(userRequest.getEmail());
+        user.setProfileImgUrl(userRequest.getProfileImgUrl());
         user.setRoles(Collections.singletonList("ROLE_USER"));
 
         return user;

@@ -47,6 +47,9 @@ public class User implements UserDetails {
     @Column(length = 300)
     private String refreshToken = "";
 
+    @Column(length = 300)
+    private String profileImgUrl;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
