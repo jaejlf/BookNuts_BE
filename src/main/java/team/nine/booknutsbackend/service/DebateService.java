@@ -3,14 +3,15 @@ package team.nine.booknutsbackend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.debate.DebateUser;
-import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
+import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.exception.debate.CannotEnterException;
 import team.nine.booknutsbackend.exception.debate.RoomNotFoundException;
 import team.nine.booknutsbackend.exception.debate.StatusChangeException;
-import team.nine.booknutsbackend.exception.debate.UserNotFoundException;
+import team.nine.booknutsbackend.exception.debate.DebateUserNotFoundException;
 import team.nine.booknutsbackend.repository.DebateRoomRepository;
 import team.nine.booknutsbackend.repository.DebateUserRepository;
 
@@ -45,7 +46,7 @@ public class DebateService {
 
     //토론장 참여
     @Transactional
-    public DebateRoom enterRoom(Long roomId, User user, boolean opinion) throws CannotEnterException {
+    public DebateRoom enterRoom(Long roomId, User user, boolean opinion) {
         DebateRoom room = getRoom(roomId);
 
         if (debateUserRepository.findByDebateRoomAndUser(room, user).isPresent())
@@ -69,18 +70,18 @@ public class DebateService {
     @Transactional
     public void exitRoom(DebateRoom room, User user) {
         DebateUser debateUser = debateUserRepository.findByDebateRoomAndUser(room, user)
-                .orElseThrow(() -> new UserNotFoundException("토론에 참여한 유저가 아닙니다."));
+                .orElseThrow(DebateUserNotFoundException::new);
         debateUserRepository.delete(debateUser);
         updateUserCount(room);
     }
 
     //토론장 상태 변경
     @Transactional
-    public DebateRoom changeStatus(Long roomId, int status, User user) throws StatusChangeException {
+    public DebateRoom changeStatus(Long roomId, int status, User user) {
         DebateRoom room = getRoom(roomId);
 
-        if (room.getOwner().getUserId() != user.getUserId()) throw new StatusChangeException("토론 개설자만 상태를 변경할 수 있습니다.");
-        if (status <= 0 || status > 2) throw new StatusChangeException("상태값은 토론 진행 중(=1) 또는 토론 종료(=2) 여야 합니다.");
+        if (room.getOwner().getUserId() != user.getUserId()) throw new NoAuthException("토론 개설자만 상태를 변경할 수 있습니다.");
+        if (status <= 0 || status > 2) throw new StatusChangeException();
 
         room.setStatus(status);
         return debateRoomRepository.save(room);
@@ -94,11 +95,11 @@ public class DebateService {
         return debateRoomRepository.save(room);
     }
 
-    //토론장 목록 조회
+    //특정 토론장 조회
     @Transactional(readOnly = true)
     public DebateRoom getRoom(Long roomId) {
         return debateRoomRepository.findById(roomId)
-                .orElseThrow(() -> new RoomNotFoundException("존재하지 않는 토론장 아이디입니다."));
+                .orElseThrow(RoomNotFoundException::new);
     }
 
     //맞춤 토론 리스트

@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team.nine.booknutsbackend.domain.series.Series;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.domain.series.Series;
 import team.nine.booknutsbackend.dto.request.SeriesRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.dto.response.SeriesResponse;
-import team.nine.booknutsbackend.exception.board.NoAccessException;
 import team.nine.booknutsbackend.service.SeriesService;
 import team.nine.booknutsbackend.service.UserService;
 
@@ -50,7 +49,7 @@ public class SeriesController {
 
     //시리즈 삭제
     @DeleteMapping("/{seriesId}")
-    public ResponseEntity<Object> deleteSeries(@PathVariable Long seriesId, Principal principal) throws NoAccessException {
+    public ResponseEntity<Object> deleteSeries(@PathVariable Long seriesId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         seriesService.deleteSeries(seriesId, user);
 

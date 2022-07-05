@@ -6,7 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.FollowResponse;
-import team.nine.booknutsbackend.exception.follow.FollowDuplicateException;
+import team.nine.booknutsbackend.exception.follow.AlreadyFollowingException;
+import team.nine.booknutsbackend.exception.follow.NotFollowingException;
 import team.nine.booknutsbackend.repository.FollowRepository;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class FollowService {
         Follow follow = new Follow();
 
         if (followRepository.findByFollowingAndFollower(following, follower).isPresent())
-            throw new FollowDuplicateException("이미 팔로잉한 계정입니다");
+            throw new AlreadyFollowingException();
 
         follow.setFollowing(userService.findUserById(following.getUserId()));
         follow.setFollower(userService.findUserById(follower.getUserId()));
@@ -38,7 +39,7 @@ public class FollowService {
     @Transactional
     public void unfollow(User unfollowing, User follower) {
         Follow follow = followRepository.findByFollowingAndFollower(unfollowing, follower)
-                .orElseThrow(() -> new FollowDuplicateException("팔로우하지 않은 계정입니다."));
+                .orElseThrow(NotFollowingException::new);
         followRepository.delete(follow);
     }
 

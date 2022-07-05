@@ -25,7 +25,7 @@ public class ReactionService {
     @Transactional
     public String clickNuts(Long boardId, User user) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 아이디입니다."));
+                .orElseThrow(BoardNotFoundException::new);
 
         List<Nuts> nutsList = user.getNutsList();
         Nuts targetNuts = nutsRepository.findByBoardAndUser(board, user);
@@ -45,7 +45,7 @@ public class ReactionService {
     @Transactional
     public String clickHeart(Long boardId, User user) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardNotFoundException("존재하지 않는 게시글 아이디입니다."));
+                .orElseThrow(BoardNotFoundException::new);
 
         List<Heart> hearts = user.getHearts();
         Heart targetHeart = heartRepository.findByBoardAndUser(board, user);

@@ -8,6 +8,7 @@ import team.nine.booknutsbackend.config.JwtTokenProvider;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.UserRequest;
 import team.nine.booknutsbackend.dto.response.UserResponse;
+import team.nine.booknutsbackend.exception.user.ExpiredRefreshTokenException;
 import team.nine.booknutsbackend.exception.user.InvalidTokenException;
 import team.nine.booknutsbackend.service.UserService;
 
@@ -55,10 +56,10 @@ public class AuthController {
      * refresh token도 만료되었을 경우(= 403 Forbidden) 재로그인 요청
      */
     @GetMapping("/refresh")
-    public ResponseEntity<Object> refreshToken(HttpServletRequest request) throws InvalidTokenException {
+    public ResponseEntity<Object> refreshToken(HttpServletRequest request) {
         String refreshToken = jwtTokenProvider.resolveToken(request);
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new InvalidTokenException("오랜 시간 사용하지 않아, 토큰이 만료되었습니다.");
+            throw new ExpiredRefreshTokenException();
         }
 
         return new ResponseEntity<>(userService.tokenReIssue(refreshToken), HttpStatus.OK);
