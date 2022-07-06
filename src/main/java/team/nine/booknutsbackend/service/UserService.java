@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.config.JwtTokenProvider;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.exception.user.InvalidTokenException;
@@ -22,10 +23,12 @@ public class UserService {
     private final CustomUserDetailService customUserDetailService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AwsS3Service awsS3Service;
 
     //회원가입
     @Transactional
-    public User join(User user) {
+    public User join(MultipartFile file, User user) {
+        if (!file.isEmpty()) user.setProfileImgUrl(awsS3Service.uploadImg(file, user));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -88,6 +91,20 @@ public class UserService {
         map.put("refreshToken", refreshToken);
 
         return map;
+    }
+
+    //프로필 이미지 업데이트
+    public User updateProfileImg(MultipartFile file, User user) {
+        awsS3Service.deleteImg(user.getProfileImgUrl());  //기존 이미지 버킷에서 삭제
+
+        String imgUrl;
+        if (file.isEmpty()) {
+            imgUrl = null;
+        } else {
+            imgUrl = awsS3Service.uploadImg(file, user);
+        }
+        user.setProfileImgUrl(imgUrl);
+        return userRepository.save(user);
     }
 
 }

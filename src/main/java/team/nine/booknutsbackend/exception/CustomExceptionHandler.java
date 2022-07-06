@@ -14,7 +14,6 @@ import team.nine.booknutsbackend.exception.debate.RoomNotFoundException;
 import team.nine.booknutsbackend.exception.debate.StatusChangeException;
 import team.nine.booknutsbackend.exception.follow.AlreadyFollowingException;
 import team.nine.booknutsbackend.exception.follow.NotFollowingException;
-import team.nine.booknutsbackend.exception.s3.EmptyFileException;
 import team.nine.booknutsbackend.exception.s3.UploadFailedException;
 import team.nine.booknutsbackend.exception.series.SeriesDuplicateException;
 import team.nine.booknutsbackend.exception.series.SeriesNotFoundException;
@@ -120,14 +119,6 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(NotFollowingException.class)
     public ResponseEntity<Object> handleNotFollowingException(NotFollowingException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(EmptyFileException.class)
-    public ResponseEntity<Object> handleEmptyFileException(EmptyFileException e) {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("error", e.getClass().getSimpleName());
         map.put("msg", e.getMessage());

@@ -1,5 +1,6 @@
 package team.nine.booknutsbackend.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.exception.s3.EmptyFileException;
 import team.nine.booknutsbackend.exception.s3.UploadFailedException;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class AwsS3Service {
 
     //이미지 업로드
     public String uploadImg(MultipartFile file, User user) {
-        if (file.isEmpty()) throw new EmptyFileException();
+        if (file.isEmpty()) return null;
 
         String fileName = user.getNickname() + UUID.randomUUID();
         String path = bucketName;
@@ -43,6 +43,17 @@ public class AwsS3Service {
         }
 
         return amazonS3.getUrl(bucketName, fileName).toString();
+    }
+
+    //이미지 삭제
+    public void deleteImg(String originImgUrl) {
+        if(originImgUrl == null) return;
+
+        try {
+            amazonS3.deleteObject(bucketName, originImgUrl.split("/")[3]);
+        } catch (AmazonServiceException e) {
+            e.printStackTrace();
+        }
     }
 
 }
