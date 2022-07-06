@@ -54,7 +54,7 @@ public class SeriesService {
         for (Long boardId : boardIdList) {
             SeriesBoard seriesBoard = new SeriesBoard();
             seriesBoard.setSeries(series);
-            seriesBoard.setBoard(boardService.findBoard(boardId));
+            seriesBoard.setBoard(boardService.getPost(boardId));
             seriesBoardRepository.save(seriesBoard);
         }
 

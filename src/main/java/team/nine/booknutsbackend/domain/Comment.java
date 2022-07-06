@@ -25,11 +25,8 @@ public class Comment {
     @Column(nullable = false)
     private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-    @Column(nullable = false)
-    private String isDeleted;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer")
+    @JoinColumn(name = "commentWriter")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
