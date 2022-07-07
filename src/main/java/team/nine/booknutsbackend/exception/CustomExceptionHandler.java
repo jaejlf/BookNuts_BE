@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import team.nine.booknutsbackend.exception.archive.ArchiveDuplicateException;
 import team.nine.booknutsbackend.exception.archive.ArchiveNotFoundException;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
+import team.nine.booknutsbackend.exception.comment.CommentNotFoundException;
 import team.nine.booknutsbackend.exception.debate.CannotEnterException;
 import team.nine.booknutsbackend.exception.debate.DebateUserNotFoundException;
 import team.nine.booknutsbackend.exception.debate.RoomNotFoundException;
@@ -71,6 +72,14 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(BoardNotFoundException.class)
     public ResponseEntity<Object> handleBoardNotFoundException(BoardNotFoundException e) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("error", e.getClass().getSimpleName());
+        map.put("msg", e.getMessage());
+        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<Object> handleCommentNotFoundException(CommentNotFoundException e) {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("error", e.getClass().getSimpleName());
         map.put("msg", e.getMessage());
