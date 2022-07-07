@@ -1,8 +1,6 @@
 package team.nine.booknutsbackend.domain;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,6 +11,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Comment {
 
     @Id
@@ -31,14 +31,23 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentId")
-    private Comment parentComment;
+    private Comment parent;
 
     @Builder.Default
-    @OneToMany(mappedBy = "parentComment", orphanRemoval = true)
-    private List<Comment> childrenComment = new ArrayList<>();
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<Comment> children = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "boardId")
     private Board board;
+
+    public static Comment createComment(String content, Board board, User commentWriter, Comment parent) {
+        Comment comment = new Comment();
+        comment.content = content;
+        comment.board = board;
+        comment.user = commentWriter;
+        comment.parent = parent;
+        return comment;
+    }
 
 }

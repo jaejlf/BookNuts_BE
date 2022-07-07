@@ -11,14 +11,19 @@ import java.util.Optional;
 
 public class BoardRepositoryImpl implements BoardRepositoryCustom{
 
-    private final JPAQueryFactory queryFactory;
+//    private final JPAQueryFactory queryFactory;
+//
+//    @Override
+//    public Optional<Board> findByBoardIdAndUser(Long boardId, User user) {
+//        Optional<BoardResponse> boardResponse = Optional.ofNullable(queryFactory
+//                .selectFrom(Comment)
+//                .leftJoin(Comment.parent)
+//
+//        return Optional.empty();
+//    }
 
     @Override
     public Optional<Board> findByBoardIdAndUser(Long boardId, User user) {
-        Optional<BoardResponse> boardResponse = Optional.ofNullable(queryFactory
-                .selectFrom(Comment)
-                .leftJoin(Comment.parent)
-
         return Optional.empty();
     }
 
