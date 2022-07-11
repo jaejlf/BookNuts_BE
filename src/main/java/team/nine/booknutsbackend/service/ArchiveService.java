@@ -7,6 +7,7 @@ import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.archive.Archive;
 import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
+import team.nine.booknutsbackend.dto.request.ArchiveRequest;
 import team.nine.booknutsbackend.dto.response.ArchiveResponse;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.exception.archive.ArchiveDuplicateException;
@@ -29,10 +30,17 @@ public class ArchiveService {
     private final ArchiveBoardRepository archiveBoardRepository;
     private final BoardRepository boardRepository;
 
-    //아카이브 목록 조회
+    //아카이브 조회
     @Transactional(readOnly = true)
-    public List<ArchiveResponse> getArchiveList(User user) {
-        List<Archive> archives = archiveRepository.findAllByOwner(user);
+    public Archive getArchive(Long archiveId) {
+        return archiveRepository.findById(archiveId)
+                .orElseThrow(ArchiveNotFoundException::new);
+    }
+
+    //특정 유저의 아카이브 목록 조회
+    @Transactional(readOnly = true)
+    public List<ArchiveResponse> getArchiveList(User owner) {
+        List<Archive> archives = archiveRepository.findAllByOwner(owner);
         List<ArchiveResponse> archiveResponseList = new ArrayList<>();
 
         for (Archive archive : archives) {
@@ -49,9 +57,9 @@ public class ArchiveService {
         return archiveRepository.save(archive);
     }
 
-    //특정 아카이브 조회
+    //특정 아카이브 내의 게시글 조회
     @Transactional(readOnly = true)
-    public List<BoardResponse> getArchive(Long archiveId, User user) {
+    public List<BoardResponse> getArchiveBoards(Long archiveId, User user) {
         Archive archive = archiveRepository.findById(archiveId)
                 .orElseThrow(ArchiveNotFoundException::new);
         List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
@@ -68,12 +76,12 @@ public class ArchiveService {
     //아카이브에 게시글 추가
     @Transactional
     public void addPostToArchive(Long archiveId, Long boardId, User user) {
-        Archive archive = archiveRepository.findById(archiveId)
-                .orElseThrow(ArchiveNotFoundException::new);
+        Archive archive = getArchive(archiveId);
+        if (archive.getOwner() != user) throw new NoAuthException();
+
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(BoardNotFoundException::new);
 
-        //아카이브 중복체크
         if (archiveBoardRepository.findByBoardAndOwner(board, user).isPresent())
             throw new ArchiveDuplicateException();
 
@@ -87,8 +95,9 @@ public class ArchiveService {
     //아카이브 삭제
     @Transactional
     public void deleteArchive(Long archiveId, User user) {
-        Archive archive = archiveRepository.findByArchiveIdAndOwner(archiveId, user)
-                .orElseThrow(NoAuthException::new);
+        Archive archive = getArchive(archiveId);
+        if (archive.getOwner() != user) throw new NoAuthException();
+
         List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
 
         archiveBoardRepository.deleteAll(archiveBoards);
@@ -97,9 +106,10 @@ public class ArchiveService {
 
     //아카이브 내의 게시글 삭제
     @Transactional
-    public void deleteArchivePost(Long archiveId, Long boardId) {
-        Archive archive = archiveRepository.findById(archiveId)
-                .orElseThrow(ArchiveNotFoundException::new);
+    public void deleteArchivePost(Long archiveId, Long boardId, User user) {
+        Archive archive = getArchive(archiveId);
+        if (archive.getOwner() != user) throw new NoAuthException();
+
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(BoardNotFoundException::new);
 
@@ -107,18 +117,15 @@ public class ArchiveService {
         archiveBoardRepository.delete(archiveBoard);
     }
 
-    //아카이브 조회 (아카이브명, 내용, 이미지)
-    @Transactional(readOnly = true)
-    public Archive findByArchiveId(Long archiveId) {
-        return archiveRepository.findById(archiveId)
-                .orElseThrow(BoardNotFoundException::new);
-    }
-
     //아카이브 수정
     @Transactional
-    public Archive updateArchive(Archive archive, User user) {
-        archiveRepository.findByArchiveIdAndOwner(archive.getArchiveId(), user)
-                .orElseThrow(NoAuthException::new);
+    public Archive updateArchive(Long archiveId, ArchiveRequest archiveRequest, User user) {
+        Archive archive = getArchive(archiveId);
+        if (archive.getOwner() != user) throw new NoAuthException();
+
+        if (archiveRequest.getTitle() != null) archive.setTitle(archiveRequest.getTitle());
+        if (archiveRequest.getContent() != null) archive.setContent(archiveRequest.getContent());
+        if (archiveRequest.getImgUrl() != null) archive.setImgUrl(archiveRequest.getImgUrl());
 
         return archiveRepository.save(archive);
     }

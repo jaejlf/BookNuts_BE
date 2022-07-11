@@ -25,11 +25,11 @@ public class ArchiveController {
     private final ArchiveService archiveService;
     private final UserService userService;
 
-    //아카이브 목록 조회
-    @GetMapping("/list")
-    public ResponseEntity<List<ArchiveResponse>> getArchiveList(Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(archiveService.getArchiveList(user), HttpStatus.OK);
+    //특정 유저의 아카이브 목록 조회
+    @GetMapping("/list/{userId}")
+    public ResponseEntity<List<ArchiveResponse>> getArchiveList(@PathVariable Long userId) {
+        User owner = userService.findUserById(userId);
+        return new ResponseEntity<>(archiveService.getArchiveList(owner), HttpStatus.OK);
     }
 
     //아카이브 생성
@@ -40,11 +40,11 @@ public class ArchiveController {
         return new ResponseEntity<>(ArchiveResponse.archiveResponse(newArchive), HttpStatus.CREATED);
     }
 
-    //특정 아카이브 조회
+    //특정 아카이브 내의 게시글 조회
     @GetMapping("/{archiveId}")
-    public ResponseEntity<List<BoardResponse>> getArchive(@PathVariable Long archiveId, Principal principal) {
+    public ResponseEntity<List<BoardResponse>> getArchiveBoards(@PathVariable Long archiveId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(archiveService.getArchive(archiveId, user), HttpStatus.OK);
+        return new ResponseEntity<>(archiveService.getArchiveBoards(archiveId, user), HttpStatus.OK);
     }
 
     //아카이브에 게시글 추가
@@ -73,7 +73,7 @@ public class ArchiveController {
     @DeleteMapping("/{archiveId}/{boardId}")
     public ResponseEntity<Object> deleteArchivePost(@PathVariable Long archiveId, @PathVariable Long boardId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        archiveService.deleteArchivePost(archiveId, boardId);
+        archiveService.deleteArchivePost(archiveId, boardId, user);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "삭제 완료");
@@ -83,14 +83,8 @@ public class ArchiveController {
     //아카이브 수정
     @PatchMapping("/{archiveId}")
     public ResponseEntity<ArchiveResponse> updateArchive(@PathVariable Long archiveId, @RequestBody ArchiveRequest archiveRequest, Principal principal) {
-        Archive archive = archiveService.findByArchiveId(archiveId);
         User user = userService.findUserByEmail(principal.getName());
-
-        if (archiveRequest.getTitle() != null) archive.setTitle(archiveRequest.getTitle());
-        if (archiveRequest.getContent() != null) archive.setContent(archiveRequest.getContent());
-        if (archiveRequest.getImgUrl() != null) archive.setImgUrl(archiveRequest.getImgUrl());
-
-        Archive updateArchive = archiveService.updateArchive(archive, user);
+        Archive updateArchive = archiveService.updateArchive(archiveId, archiveRequest, user);
         return new ResponseEntity<>(ArchiveResponse.archiveResponse(updateArchive), HttpStatus.OK);
     }
 
