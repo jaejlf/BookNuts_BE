@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import team.nine.booknutsbackend.exception.archive.ArchiveDuplicateException;
 import team.nine.booknutsbackend.exception.archive.ArchiveNotFoundException;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
+import team.nine.booknutsbackend.exception.board.OutOfIndexException;
 import team.nine.booknutsbackend.exception.debate.CannotEnterException;
 import team.nine.booknutsbackend.exception.debate.DebateUserNotFoundException;
 import team.nine.booknutsbackend.exception.debate.RoomNotFoundException;
@@ -75,6 +76,14 @@ public class CustomExceptionHandler {
         map.put("error", e.getClass().getSimpleName());
         map.put("msg", e.getMessage());
         return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OutOfIndexException.class)
+    public ResponseEntity<Object> handleOutOfIndexException(OutOfIndexException e) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("error", e.getClass().getSimpleName());
+        map.put("msg", e.getMessage());
+        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CannotEnterException.class)
