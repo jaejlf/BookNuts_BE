@@ -4,8 +4,8 @@
 ## 🥜 주요 기능
 - JWT + Spring security 을 이용한 회원 관리
 - 게시글 발행 및 리액션(넛츠, 좋아요)
-- 게시글 아카이빙
-- 시리즈 발행 (게시글 그룹핑)
+- 게시글 아카이빙, 시리즈 발행 (게시글 그룹핑)
+- 댓글/대댓글 작성
 - 텍스트/음성 채팅을 통한 토론
 
 
@@ -14,11 +14,11 @@
 - JAVA, Spring Boot (Build-Tool : Gradle)
 - Spring Data JPA
 - Spring Security
-- AWS EC2, AWS RDS(MySQL)
+- AWS EC2, AWS RDS(MySQL), AWS S3
 
 <br><br>
 ## 📑 API 문서
-[BookNuts, API Documentation](https://documenter.getpostman.com/view/18461572/UyxqC3LC)
+[BookNuts, API Documentation](https://documenter.getpostman.com/view/18461572/UzJQpDsB)
 
 
 <br><br>
