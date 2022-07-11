@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.dto.request.BoardRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
@@ -19,6 +20,13 @@ import java.util.List;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+
+    //특정 게시글 조회
+    @Transactional(readOnly = true)
+    public Board getPost(Long boardId) {
+        return boardRepository.findById(boardId)
+                .orElseThrow(BoardNotFoundException::new);
+    }
 
     //게시글 작성
     @Transactional
@@ -55,18 +63,14 @@ public class BoardService {
         return boardDtoList;
     }
 
-    //특정 게시글 조회
-    @Transactional(readOnly = true)
-    public Board getPost(Long boardId) {
-        return boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
-    }
-
     //게시글 수정
     @Transactional
-    public Board updatePost(Board board, User user) {
-        boardRepository.findByBoardIdAndUser(board.getBoardId(), user)
-                .orElseThrow(NoAuthException::new);
+    public Board updatePost(Long boardId, BoardRequest boardRequest, User user) {
+        Board board = getPost(boardId);
+        if (board.getUser() != user) throw new NoAuthException();
+
+        if (boardRequest.getTitle() != null) board.setTitle(boardRequest.getTitle());
+        if (boardRequest.getContent() != null) board.setContent(boardRequest.getContent());
 
         return boardRepository.save(board);
     }
@@ -74,9 +78,8 @@ public class BoardService {
     //게시글 삭제
     @Transactional
     public void deletePost(Long boardId, User user) {
-        Board board = boardRepository.findByBoardIdAndUser(boardId, user)
-                .orElseThrow(NoAuthException::new);
-
+        Board board = getPost(boardId);
+        if (board.getUser() != user) throw new NoAuthException();
         boardRepository.delete(board);
     }
 

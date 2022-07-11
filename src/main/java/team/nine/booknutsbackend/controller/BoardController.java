@@ -57,14 +57,9 @@ public class BoardController {
 
     //게시글 수정
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> updatePost(@PathVariable Long boardId, @RequestBody BoardRequest board, Principal principal) {
-        Board originBoard = boardService.getPost(boardId);
+    public ResponseEntity<BoardResponse> updatePost(@PathVariable Long boardId, @RequestBody BoardRequest boardRequest, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-
-        if (board.getTitle() != null) originBoard.setTitle(board.getTitle());
-        if (board.getContent() != null) originBoard.setContent(board.getContent());
-
-        Board updateBoard = boardService.updatePost(originBoard, user);
+        Board updateBoard = boardService.updatePost(boardId, boardRequest, user);
         return new ResponseEntity<>(BoardResponse.boardResponse(updateBoard, user), HttpStatus.OK);
     }
 
