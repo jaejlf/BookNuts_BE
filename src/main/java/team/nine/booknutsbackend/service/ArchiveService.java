@@ -3,6 +3,7 @@ package team.nine.booknutsbackend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.archive.Archive;
@@ -29,6 +30,7 @@ public class ArchiveService {
     private final ArchiveRepository archiveRepository;
     private final ArchiveBoardRepository archiveBoardRepository;
     private final BoardRepository boardRepository;
+    private final AwsS3Service awsS3Service;
 
     //아카이브 조회
     @Transactional(readOnly = true)
@@ -53,7 +55,8 @@ public class ArchiveService {
 
     //아카이브 생성
     @Transactional
-    public Archive createArchive(Archive archive) {
+    public Archive createArchive(MultipartFile file, Archive archive) {
+        archive.setImgUrl(awsS3Service.uploadImg(file, "archive-"));
         return archiveRepository.save(archive);
     }
 
@@ -125,7 +128,6 @@ public class ArchiveService {
 
         if (archiveRequest.getTitle() != null) archive.setTitle(archiveRequest.getTitle());
         if (archiveRequest.getContent() != null) archive.setContent(archiveRequest.getContent());
-        if (archiveRequest.getImgUrl() != null) archive.setImgUrl(archiveRequest.getImgUrl());
 
         return archiveRepository.save(archive);
     }

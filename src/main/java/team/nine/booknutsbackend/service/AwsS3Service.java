@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.exception.s3.UploadFailedException;
 
 import java.io.IOException;
@@ -26,11 +25,10 @@ public class AwsS3Service {
     private final AmazonS3 amazonS3;
 
     //이미지 업로드
-    public String uploadImg(MultipartFile file, User user) {
-        if (file.isEmpty()) return null;
+    public String uploadImg(MultipartFile file, String keymsg) {
+        if (file.isEmpty()) return "";
 
-        String fileName = user.getNickname() + UUID.randomUUID();
-        String path = bucketName;
+        String fileName = keymsg + UUID.randomUUID();
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(file.getSize());
         objectMetadata.setContentType(file.getContentType());
@@ -47,7 +45,7 @@ public class AwsS3Service {
 
     //이미지 삭제
     public void deleteImg(String originImgUrl) {
-        if(originImgUrl == null) return;
+        if (originImgUrl.equals("")) return;
 
         try {
             amazonS3.deleteObject(bucketName, originImgUrl.split("/")[3]);

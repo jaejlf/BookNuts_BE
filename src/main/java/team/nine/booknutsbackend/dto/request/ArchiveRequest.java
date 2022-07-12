@@ -13,13 +13,11 @@ public class ArchiveRequest {
 
     @NotBlank String title;
     @NotBlank String content;
-    @NotBlank String imgUrl;
 
     public static Archive archiveRequest(ArchiveRequest archiveRequest, User user) {
         Archive archive = new Archive();
         archive.setTitle(archiveRequest.getTitle());
         archive.setContent(archiveRequest.getContent());
-        archive.setImgUrl(archiveRequest.getImgUrl());
         archive.setOwner(user);
 
         return archive;

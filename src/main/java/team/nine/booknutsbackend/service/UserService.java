@@ -28,7 +28,7 @@ public class UserService {
     //회원가입
     @Transactional
     public User join(MultipartFile file, User user) {
-        if (!file.isEmpty()) user.setProfileImgUrl(awsS3Service.uploadImg(file, user));
+        user.setProfileImgUrl(awsS3Service.uploadImg(file, user.getNickname() + "-"));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -96,14 +96,7 @@ public class UserService {
     //프로필 이미지 업데이트
     public User updateProfileImg(MultipartFile file, User user) {
         awsS3Service.deleteImg(user.getProfileImgUrl());  //기존 이미지 버킷에서 삭제
-
-        String imgUrl;
-        if (file.isEmpty()) {
-            imgUrl = null;
-        } else {
-            imgUrl = awsS3Service.uploadImg(file, user);
-        }
-        user.setProfileImgUrl(imgUrl);
+        user.setProfileImgUrl(awsS3Service.uploadImg(file, "profile-"));
         return userRepository.save(user);
     }
 
