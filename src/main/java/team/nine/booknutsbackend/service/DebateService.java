@@ -3,6 +3,7 @@ package team.nine.booknutsbackend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.debate.DebateUser;
@@ -23,10 +24,12 @@ public class DebateService {
 
     private final DebateRoomRepository debateRoomRepository;
     private final DebateUserRepository debateUserRepository;
+    private final AwsS3Service awsS3Service;
 
     //토론장 개설
     @Transactional
-    public DebateRoom createRoom(DebateRoom newRoom) {
+    public DebateRoom createRoom(MultipartFile file, DebateRoom newRoom) {
+        newRoom.setCoverImgUrl(awsS3Service.uploadImg(file, "debate-"));
         return debateRoomRepository.save(newRoom);
     }
 

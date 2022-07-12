@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.archive.Archive;
 import team.nine.booknutsbackend.dto.request.ArchiveRequest;
@@ -34,9 +35,11 @@ public class ArchiveController {
 
     //아카이브 생성
     @PostMapping("/create")
-    public ResponseEntity<ArchiveResponse> createArchive(@RequestBody ArchiveRequest archiveRequest, Principal principal) {
+    public ResponseEntity<ArchiveResponse> createArchive(@RequestPart(value = "file") MultipartFile file,
+                                                         @RequestPart(value = "archive") ArchiveRequest archiveRequest,
+                                                         Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        Archive newArchive = archiveService.createArchive(ArchiveRequest.archiveRequest(archiveRequest, user));
+        Archive newArchive = archiveService.createArchive(file, ArchiveRequest.archiveRequest(archiveRequest, user));
         return new ResponseEntity<>(ArchiveResponse.archiveResponse(newArchive), HttpStatus.CREATED);
     }
 

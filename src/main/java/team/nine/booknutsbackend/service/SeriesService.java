@@ -3,6 +3,7 @@ package team.nine.booknutsbackend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.series.Series;
@@ -30,6 +31,7 @@ public class SeriesService {
     private final SeriesBoardRepository seriesBoardRepository;
     private final BoardRepository boardRepository;
     private final BoardService boardService;
+    private final AwsS3Service awsS3Service;
 
     //시리즈 조회
     @Transactional(readOnly = true)
@@ -54,9 +56,9 @@ public class SeriesService {
 
     //시리즈 발행
     @Transactional
-    public Series createSeries(SeriesRequest seriesRequest, User user) {
-        List<Long> boardIdList = seriesRequest.getBoardIdlist();
-        Series series = seriesRepository.save(SeriesRequest.seriesRequest(seriesRequest, user));
+    public Series createSeries(MultipartFile file, Series series, List<Long> boardIdList) {
+        series.setImgUrl(awsS3Service.uploadImg(file, "series-"));
+        seriesRepository.save(series);
 
         for (Long boardId : boardIdList) {
             SeriesBoard seriesBoard = new SeriesBoard();
@@ -123,7 +125,6 @@ public class SeriesService {
 
         if (seriesRequest.getTitle() != null) series.setTitle(seriesRequest.getTitle());
         if (seriesRequest.getContent() != null) series.setContent(seriesRequest.getContent());
-        if (seriesRequest.getImgUrl() != null) series.setImgUrl(seriesRequest.getImgUrl());
 
         return seriesRepository.save(series);
     }

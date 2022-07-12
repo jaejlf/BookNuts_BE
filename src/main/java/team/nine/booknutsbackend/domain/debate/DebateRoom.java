@@ -24,7 +24,7 @@ public class DebateRoom {
     @Column(length = 100, nullable = false)
     private String bookAuthor;
 
-    @Column(length = 300, nullable = false)
+    @Column(length = 300)
     private String bookImgUrl;
 
     @Column(length = 100, nullable = false)

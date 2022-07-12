@@ -14,7 +14,7 @@ import team.nine.booknutsbackend.exception.user.ExpiredRefreshTokenException;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -27,7 +27,7 @@ public class AuthController {
     //회원가입
     @PostMapping("/join")
     public ResponseEntity<UserResponse> join(@RequestPart(value = "file") MultipartFile file,
-                                             @RequestPart("user") @Valid UserRequest user) {
+                                             @RequestPart("user") UserRequest user) {
         User newUser = userService.join(file, UserRequest.userRequest(user));
         return new ResponseEntity<>(UserResponse.userResponse(newUser), HttpStatus.CREATED);
     }
@@ -46,8 +46,8 @@ public class AuthController {
 
     //로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody UserRequest user) {
-        User loginUser = userService.login(userService.findUserByEmail(user.getEmail()), user.getPassword());
+    public ResponseEntity<Object> login(@RequestBody Map<String, String> user) {
+        User loginUser = userService.login(user.get("id"), user.get("password"));
         String accessToken = jwtTokenProvider.createAccessToken(loginUser.getUsername(), loginUser.getRoles());
         return new ResponseEntity<>(LoginResponse.loginResponse(loginUser, accessToken), HttpStatus.OK);
     }

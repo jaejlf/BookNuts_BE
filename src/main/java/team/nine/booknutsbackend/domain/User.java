@@ -13,6 +13,7 @@ import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,6 +43,7 @@ public class User implements UserDetails {
     private String nickname;
 
     @Column(length = 100, nullable = false, unique = true)
+    @Email
     private String email;
 
     @Column(length = 300)

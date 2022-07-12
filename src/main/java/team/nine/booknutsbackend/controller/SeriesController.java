@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.series.Series;
 import team.nine.booknutsbackend.dto.request.SeriesRequest;
@@ -34,9 +35,10 @@ public class SeriesController {
 
     //시리즈 발행
     @PostMapping("/create")
-    public ResponseEntity<SeriesResponse> createSeries(@RequestBody SeriesRequest series, Principal principal) {
+    public ResponseEntity<SeriesResponse> createSeries(@RequestPart(value = "file") MultipartFile file,
+                                                       @RequestPart(value = "series") SeriesRequest seriesRequest, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        Series newSeries = seriesService.createSeries(series, user);
+        Series newSeries = seriesService.createSeries(file, SeriesRequest.seriesRequest(seriesRequest, user), seriesRequest.getBoardIdlist());
         return new ResponseEntity<>(SeriesResponse.seriesResponse(newSeries), HttpStatus.CREATED);
     }
 

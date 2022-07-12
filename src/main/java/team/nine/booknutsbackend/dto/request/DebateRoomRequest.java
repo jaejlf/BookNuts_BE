@@ -15,7 +15,6 @@ public class DebateRoomRequest {
     @NotBlank String bookImgUrl;
     @NotBlank String bookGenre;
     @NotBlank String topic;
-    @NotBlank String coverImgUrl;
     @NotNull int type;
     @NotNull int maxUser;
     @NotNull boolean opinion;
@@ -28,7 +27,6 @@ public class DebateRoomRequest {
         room.setBookImgUrl(roomRequest.getBookImgUrl());
         room.setBookGenre(roomRequest.getBookGenre());
         room.setTopic(roomRequest.getTopic());
-        room.setCoverImgUrl(roomRequest.getCoverImgUrl());
         room.setType(roomRequest.getType());
         room.setMaxUser(roomRequest.getMaxUser());
         room.setOwner(user);
