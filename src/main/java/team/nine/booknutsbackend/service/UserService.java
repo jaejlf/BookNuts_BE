@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,8 @@ import team.nine.booknutsbackend.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
@@ -35,10 +38,17 @@ public class UserService {
 
     //로그인
     @Transactional
-    public User login(User user, String inputPassword) {
-        if (!passwordEncoder.matches(inputPassword, user.getPassword())) {
-            throw new PasswordErrorException();
-        }
+    public User login(String id, String password) {
+        String regx = "^[A-Za-z0-9+_.-]+@(.+)$";
+        Pattern pattern = Pattern.compile(regx);
+        Matcher matcher = pattern.matcher(id);
+
+        User user;
+        if (matcher.matches()) user = findUserByEmail(id);
+        else user = userRepository.findByLoginId(id)
+                .orElseThrow(() -> new UsernameNotFoundException("가입되지 않은 이메일입니다."));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) throw new PasswordErrorException();
 
         user.setRefreshToken(jwtTokenProvider.createRefreshToken(user.getEmail()));
         return userRepository.save(user);
