@@ -6,9 +6,12 @@ import org.springframework.data.repository.query.Param;
 import team.nine.booknutsbackend.domain.Comment;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface CommentRepository extends JpaRepository<Comment, Long>, CustomCommentRepository {
+public interface CommentRepository extends JpaRepository<Comment, Long>{
 
-    @Query("select c from Comment c left join fetch c.parent where c.commentId = :commentId")
-    List<Comment> findCommentByCommentIdWithParent(@Param("commentId") Long commentId);
+    Optional<Comment> findById(Long commentId);
+
+//    @Query("select c from Comment c left join fetch c.parent where c.commentId = :commentId")
+//    List<Comment> findCommentByCommentIdWithParent(@Param("commentId") Long commentId);
 }

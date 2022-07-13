@@ -8,11 +8,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javax.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Comment {
 
     @Id
@@ -25,29 +25,21 @@ public class Comment {
     @Column(nullable = false)
     private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "commentWriter")
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "writer")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "parentId")
     private Comment parent;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "parent", orphanRemoval = true)
-    private List<Comment> children = new ArrayList<>();
+//    @Builder.Default
+//    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+//    private List<Comment> children = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "boardId")
     private Board board;
 
-    public static Comment createComment(String content, Board board, User commentWriter, Comment parent) {
-        Comment comment = new Comment();
-        comment.content = content;
-        comment.board = board;
-        comment.user = commentWriter;
-        comment.parent = parent;
-        return comment;
-    }
 
 }

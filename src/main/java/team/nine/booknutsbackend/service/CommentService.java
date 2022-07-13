@@ -23,36 +23,59 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CommentService {
 
-    private BoardRepository boardRepository;
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
+    private final BoardRepository boardRepository;
 
-    @Transactional(readOnly = true)
-    public List<CommentRequest> findCommentsByBoardId(Long boardId) {
-        //존재하는 게시글인지 확인
-        return convertNestedStructure(commentRepository.findCommentByCommentIdWithParent(boardId));
+    @Transactional
+    public Comment writeComment(Comment comment) {
+        System.out.println(comment.getBoard().getBoardId());
+        System.out.println(comment.getContent());
+        System.out.println(comment.getCreatedDate());
+        System.out.println(comment.getUser().getLoginId());
+        return commentRepository.save(comment);
     }
 
     @Transactional
-    public CommentRequest createComment(CommentCreateRequest commentCreateRequest, User user) {
-        Board board = boardRepository.findById(commentCreateRequest.getBoardId())
-                .orElseThrow(BoardNotFoundException::new);
-        Comment comment = commentRepository.save(
-                Comment.createComment(commentCreateRequest.getContent(), board, user,
-                        commentCreateRequest.getParentId() != null ?
-                                commentRepository.findById(commentCreateRequest.getParentId()).orElseThrow(CommentNotFoundException::new) : null)
-                        );
-        return CommentRequest.convertCommentToRequest(comment);
+    public Comment writeReComment(Comment comment) {
+        return commentRepository.save(comment);
     }
 
-    private List<CommentRequest> convertNestedStructure(List<Comment> comments) {
-        List<CommentRequest> commentsResult = new ArrayList<>();
-        Map<Long, CommentRequest> commentRequestMap = new HashMap<>();
-        comments.stream().forEach(c -> {
-            CommentRequest commentRequest = CommentRequest.convertCommentToRequest(c);
-            commentRequestMap.put(commentRequest.getCommentId(), commentRequest);
-            if(c.getParent() != null) commentRequestMap.get(c.getParent().getCommentId()).getChildren().add(commentRequest);
-            else commentsResult.add(commentRequest);
-        });
-        return  commentsResult;
+    @Transactional(readOnly = true)
+    public Comment getComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(CommentNotFoundException::new);
     }
+
+//    private BoardRepository boardRepository;
+//    private CommentRepository commentRepository;
+//
+//    @Transactional(readOnly = true)
+//    public List<CommentRequest> findCommentsByBoardId(Long boardId) {
+//        //존재하는 게시글인지 확인
+//        return convertNestedStructure(commentRepository.findCommentByCommentIdWithParent(boardId));
+//    }
+//
+//    @Transactional
+//    public CommentRequest createComment(CommentCreateRequest commentCreateRequest, User user) {
+//        Board board = boardRepository.findById(commentCreateRequest.getBoardId())
+//                .orElseThrow(BoardNotFoundException::new);
+//        Comment comment = commentRepository.save(
+//                Comment.createComment(commentCreateRequest.getContent(), board, user,
+//                        commentCreateRequest.getParentId() != null ?
+//                                commentRepository.findById(commentCreateRequest.getParentId()).orElseThrow(CommentNotFoundException::new) : null)
+//                        );
+//        return CommentRequest.convertCommentToRequest(comment);
+//    }
+//
+//    private List<CommentRequest> convertNestedStructure(List<Comment> comments) {
+//        List<CommentRequest> commentsResult = new ArrayList<>();
+//        Map<Long, CommentRequest> commentRequestMap = new HashMap<>();
+//        comments.stream().forEach(c -> {
+//            CommentRequest commentRequest = CommentRequest.convertCommentToRequest(c);
+//            commentRequestMap.put(commentRequest.getCommentId(), commentRequest);
+//            if(c.getParent() != null) commentRequestMap.get(c.getParent().getCommentId()).getChildren().add(commentRequest);
+//            else commentsResult.add(commentRequest);
+//        });
+//        return  commentsResult;
+//    }
 }

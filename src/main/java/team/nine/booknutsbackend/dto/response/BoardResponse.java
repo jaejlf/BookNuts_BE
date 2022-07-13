@@ -1,6 +1,5 @@
 package team.nine.booknutsbackend.dto.response;
 
-import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Getter;
 import team.nine.booknutsbackend.domain.Board;
@@ -29,7 +28,7 @@ public class BoardResponse {
     int nutsCnt;
     int heartCnt;
     int archiveCnt;
-    int commentCnt;
+    //int commentCnt;
     Boolean isNuts;
     Boolean isHeart;
     Boolean isArchived;
@@ -49,7 +48,7 @@ public class BoardResponse {
                 .bookGenre(board.getBookGenre())
                 .nutsCnt(board.getNutsList().size())
                 .heartCnt(board.getHearts().size())
-                .commentCnt(board.getComments().size())
+                //.commentCnt(board.getComments().size())
                 .archiveCnt(board.getArchiveBoards().size())
                 .isNuts(getIsNuts(board, user))
                 .isHeart(getIsHeart(board, user))

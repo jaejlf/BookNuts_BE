@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.Comment;
+import team.nine.booknutsbackend.domain.User;
 
 @Getter
 @Builder
@@ -12,17 +13,26 @@ public class CommentResponse {
     String content;
     String createdDate;
     String writer;
-    Board board;
-    Comment parent;
+    Long boardId;
 
-    public CommentResponse(Long commentId, String content, String createdDate, String writer){
-        this.commentId = commentId;
-        this.content = content;
-        this.createdDate = createdDate;
-        this.writer = writer;
+    public static CommentResponse commentResponse(Comment comment) {
+        return CommentResponse.builder()
+                .commentId(comment.getCommentId())
+                .content(comment.getContent())
+                .createdDate(comment.getCreatedDate())
+                .writer(comment.getUser().getNickname())
+                .boardId(comment.getBoard().getBoardId())
+                .build();
     }
-    public static CommentResponse converCommentToResponse(Comment comment){
-        return new CommentResponse(comment.getCommentId(), comment.getContent(), comment.getCreatedDate(), comment.getUser().getNickname());
-    }
+
+//    public CommentResponse(Long commentId, String content, String createdDate, String writer){
+//        this.commentId = commentId;
+//        this.content = content;
+//        this.createdDate = createdDate;
+//        this.writer = writer;
+//    }
+//    public static CommentResponse converCommentToResponse(Comment comment){
+//        return new CommentResponse(comment.getCommentId(), comment.getContent(), comment.getCreatedDate(), comment.getUser().getNickname());
+//    }
 
 }
