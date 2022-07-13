@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.series.Series;
 import team.nine.booknutsbackend.dto.request.SeriesRequest;
@@ -25,26 +26,27 @@ public class SeriesController {
     private final SeriesService seriesService;
     private final UserService userService;
 
-    //시리즈 목록 조회
-    @GetMapping("/list")
-    public ResponseEntity<List<SeriesResponse>> getSeriesList(Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(seriesService.getSeriesList(user), HttpStatus.OK);
+    //특정 유저의 시리즈 목록 조회
+    @GetMapping("/list/{userId}")
+    public ResponseEntity<List<SeriesResponse>> getSeriesList(@PathVariable Long userId) {
+        User owner = userService.findUserById(userId);
+        return new ResponseEntity<>(seriesService.getSeriesList(owner), HttpStatus.OK);
     }
 
     //시리즈 발행
     @PostMapping("/create")
-    public ResponseEntity<SeriesResponse> createSeries(@RequestBody SeriesRequest series, Principal principal) {
+    public ResponseEntity<SeriesResponse> createSeries(@RequestPart(value = "file") MultipartFile file,
+                                                       @RequestPart(value = "series") SeriesRequest seriesRequest, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        Series newSeries = seriesService.createSeries(series, user);
+        Series newSeries = seriesService.createSeries(file, SeriesRequest.seriesRequest(seriesRequest, user), seriesRequest.getBoardIdlist());
         return new ResponseEntity<>(SeriesResponse.seriesResponse(newSeries), HttpStatus.CREATED);
     }
 
-    //특정 시리즈 조회
+    //특정 시리즈 내의 게시글 조회
     @GetMapping("/{seriesId}")
-    public ResponseEntity<List<BoardResponse>> getSeries(@PathVariable Long seriesId, Principal principal) {
+    public ResponseEntity<List<BoardResponse>> getSeriesBoards(@PathVariable Long seriesId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(seriesService.getSeries(seriesId, user), HttpStatus.OK);
+        return new ResponseEntity<>(seriesService.getSeriesBoards(seriesId, user), HttpStatus.OK);
     }
 
     //시리즈 삭제
@@ -62,11 +64,19 @@ public class SeriesController {
     @PatchMapping("/add/{seriesId}/{boardId}")
     public ResponseEntity<Object> addPostToSeries(@PathVariable Long seriesId, @PathVariable Long boardId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        seriesService.addPostToSeries(seriesId, boardId);
+        seriesService.addPostToSeries(seriesId, boardId, user);
 
         Map<String, String> map = new HashMap<>();
         map.put("result", "추가 완료");
         return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
+    //시리즈 수정
+    @PatchMapping("/{seriesId}")
+    public ResponseEntity<SeriesResponse> updateArchive(@PathVariable Long seriesId, @RequestBody SeriesRequest seriesRequest, Principal principal) {
+        User user = userService.findUserByEmail(principal.getName());
+        Series updateSeries = seriesService.updateSeries(seriesId, seriesRequest, user);
+        return new ResponseEntity<>(SeriesResponse.seriesResponse(updateSeries), HttpStatus.OK);
     }
 
 }

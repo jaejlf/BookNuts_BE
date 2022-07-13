@@ -12,14 +12,12 @@ public class SeriesRequest {
 
     @NotBlank String title;
     @NotBlank String content;
-    @NotBlank String imgUrl;
     @NotBlank List<Long> boardIdlist;
 
     public static Series seriesRequest(SeriesRequest seriesRequest, User user) {
         Series series = new Series();
         series.setTitle(seriesRequest.getTitle());
         series.setContent(seriesRequest.getContent());
-        series.setImgUrl(seriesRequest.getImgUrl());
         series.setOwner(user);
 
         return series;

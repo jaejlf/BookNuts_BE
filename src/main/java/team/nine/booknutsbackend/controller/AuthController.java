@@ -4,16 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.config.JwtTokenProvider;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.UserRequest;
+import team.nine.booknutsbackend.dto.response.LoginResponse;
 import team.nine.booknutsbackend.dto.response.UserResponse;
 import team.nine.booknutsbackend.exception.user.ExpiredRefreshTokenException;
-import team.nine.booknutsbackend.exception.user.InvalidTokenException;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,9 +26,10 @@ public class AuthController {
 
     //회원가입
     @PostMapping("/join")
-    public ResponseEntity<Object> join(@RequestBody @Valid UserRequest user) {
-        User newUser = userService.join(UserRequest.userRequest(user));
-        return new ResponseEntity<>(UserResponse.userResponse(newUser, ""), HttpStatus.CREATED);
+    public ResponseEntity<UserResponse> join(@RequestPart(value = "file") MultipartFile file,
+                                             @RequestPart("user") UserRequest user) {
+        User newUser = userService.join(file, UserRequest.userRequest(user));
+        return new ResponseEntity<>(UserResponse.userResponse(newUser), HttpStatus.CREATED);
     }
 
     //유저 닉네임 중복 체크
@@ -44,10 +46,10 @@ public class AuthController {
 
     //로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody UserRequest user) {
-        User loginUser = userService.login(userService.findUserByEmail(user.getEmail()), user.getPassword());
+    public ResponseEntity<Object> login(@RequestBody Map<String, String> user) {
+        User loginUser = userService.login(user.get("id"), user.get("password"));
         String accessToken = jwtTokenProvider.createAccessToken(loginUser.getUsername(), loginUser.getRoles());
-        return new ResponseEntity<>(UserResponse.userResponse(loginUser, accessToken), HttpStatus.OK);
+        return new ResponseEntity<>(LoginResponse.loginResponse(loginUser, accessToken), HttpStatus.OK);
     }
 
     //토큰 재발급

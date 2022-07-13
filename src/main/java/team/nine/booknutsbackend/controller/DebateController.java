@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.dto.request.DebateRoomRequest;
@@ -11,7 +12,6 @@ import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
 import team.nine.booknutsbackend.service.DebateService;
 import team.nine.booknutsbackend.service.UserService;
 
-import javax.validation.Valid;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -28,9 +28,10 @@ public class DebateController {
 
     //토론장 개설
     @PostMapping("/create")
-    public ResponseEntity<DebateRoomResponse> createRoom(@RequestBody @Valid DebateRoomRequest room, Principal principal) {
+    public ResponseEntity<DebateRoomResponse> createRoom(@RequestPart(value = "file") MultipartFile file,
+                                                         @RequestPart(value = "room") DebateRoomRequest room, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        DebateRoom newRoom = debateService.createRoom(DebateRoomRequest.roomRequest(room, user));
+        DebateRoom newRoom = debateService.createRoom(file, DebateRoomRequest.roomRequest(room, user));
         DebateRoom saveRoom = debateService.enterRoom(newRoom.getDebateRoomId(), user, room.isOpinion());
         return new ResponseEntity<>(DebateRoomResponse.roomResponse(saveRoom), HttpStatus.CREATED);
     }

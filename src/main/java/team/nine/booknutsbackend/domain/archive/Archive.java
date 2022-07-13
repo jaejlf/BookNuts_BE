@@ -30,7 +30,7 @@ public class Archive {
     @JoinColumn(name = "owner")
     private User owner;
 
-    @Column(length = 300, nullable = false)
+    @Column(length = 300)
     private String imgUrl;
 
     @Column(nullable = false)

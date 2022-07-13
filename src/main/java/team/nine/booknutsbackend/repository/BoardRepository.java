@@ -5,8 +5,8 @@ import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface BoardRepository extends JpaRepository<Board, Long>, BoardRepositoryCustom {
-
+public interface BoardRepository extends JpaRepository<Board, Long> {
+    List<Board> findByUser(User user);
+    List<Board> findByBookGenre(String genre);
 }
