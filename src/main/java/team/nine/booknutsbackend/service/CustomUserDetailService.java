@@ -2,10 +2,10 @@ package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.exception.user.UserNotFoundException;
 import team.nine.booknutsbackend.repository.UserRepository;
 
 import java.util.regex.Matcher;
@@ -26,12 +26,10 @@ public class CustomUserDetailService implements UserDetailsService {
         Matcher matcher = pattern.matcher(id);
 
         User user;
-        if (matcher.matches()) user = userRepository.findByEmail(id)
-                .orElseThrow(() -> new UsernameNotFoundException("가입되지 않은 이메일입니다."));
-        else user = userRepository.findByLoginId(id)
-                .orElseThrow(() -> new UsernameNotFoundException("가입되지 않은 아이디입니다."));
+        if (matcher.matches()) user = userRepository.findByEmail(id).orElseThrow(UserNotFoundException::new);
+        else user = userRepository.findByLoginId(id).orElseThrow(UserNotFoundException::new);
+        if (!user.isEnabled()) throw new UserNotFoundException();
 
-        if (!user.isEnabled()) throw new UsernameNotFoundException("사용할 수 없는 계정입니다.");
         return user;
     }
 

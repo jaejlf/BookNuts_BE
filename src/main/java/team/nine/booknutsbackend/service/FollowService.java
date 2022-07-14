@@ -7,6 +7,7 @@ import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.FollowResponse;
 import team.nine.booknutsbackend.exception.follow.AlreadyFollowingException;
+import team.nine.booknutsbackend.exception.follow.CannotFollowException;
 import team.nine.booknutsbackend.exception.follow.NotFollowingException;
 import team.nine.booknutsbackend.repository.FollowRepository;
 
@@ -28,6 +29,7 @@ public class FollowService {
 
         if (followRepository.findByFollowingAndFollower(following, follower).isPresent())
             throw new AlreadyFollowingException();
+        if(following == follower) throw new CannotFollowException();
 
         follow.setFollowing(userService.findUserById(following.getUserId()));
         follow.setFollower(userService.findUserById(follower.getUserId()));

@@ -46,8 +46,11 @@ public class UserService {
     //ID로 유저 정보 조회
     @Transactional(readOnly = true)
     public User findUserById(Long id) {
-        return userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
+        if (!user.isEnabled()) throw new UserNotFoundException();
+
+        return user;
     }
 
     //이메일 또는 로그인 아이디로 유저 정보 조회 (UserDetailService - loadUserByUsername)
