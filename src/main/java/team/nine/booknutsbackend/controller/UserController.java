@@ -46,6 +46,17 @@ public class UserController {
         return new ResponseEntity<>(UserResponse.userResponse(updateUser), HttpStatus.OK);
     }
 
+    //비밀번호 재설정
+    @PatchMapping("/update/password")
+    public ResponseEntity<Object> updatePassword(@RequestBody Map<String, String> password, Principal principal) {
+        User user = userService.findUserByEmail(principal.getName());
+        userService.updatePassword(password.get("oldPw"), password.get("newPw"), user);
+
+        Map<String, String> map = new HashMap<>();
+        map.put("result", "비밀번호 변경 완료");
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+    
     //회원 탈퇴
     @DeleteMapping("/delete")
     public ResponseEntity<Object> deleteAccount(Principal principal) {

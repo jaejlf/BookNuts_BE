@@ -37,7 +37,7 @@ public class BoardResponse {
                 .boardId(board.getBoardId())
                 .title(board.getTitle())
                 .content(board.getContent())
-                .writer(board.getUser().getNickname())
+                .writer(getNickname(board))
                 .createdDate(board.getCreatedDate())
                 .bookTitle(board.getBookTitle())
                 .bookAuthor(board.getBookAuthor())
@@ -51,6 +51,11 @@ public class BoardResponse {
                 .isArchived(getIsArchived(board, user))
                 .curUser(Objects.equals(board.getUser().getUserId(), user.getUserId()))
                 .build();
+    }
+
+    private static String getNickname(Board board) {
+        if(!board.getUser().isEnabled()) return "(탈퇴한 회원)";
+        else return board.getUser().getNickname();
     }
 
     private static Boolean getIsNuts(Board board, User user) {

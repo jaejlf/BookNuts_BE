@@ -103,4 +103,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    //비밀번호 재설정
+    @Transactional
+    public void updatePassword(String oldPw, String newPw, User user) {
+        if (!passwordEncoder.matches(oldPw, user.getPassword())) throw new PasswordErrorException();
+        user.setPassword(passwordEncoder.encode(newPw));
+        userRepository.save(user);
+    }
+
 }
