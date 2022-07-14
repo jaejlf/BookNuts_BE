@@ -14,6 +14,7 @@ import team.nine.booknutsbackend.domain.reaction.Nuts;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +43,7 @@ public class User implements UserDetails {
     @Column(length = 100, unique = true)
     private String nickname;
 
-    @Column(length = 100, nullable = false, unique = true)
+    @Column(length = 100, unique = true)
     @Email
     private String email;
 
@@ -65,6 +66,9 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private boolean enabled = true;
+
+    @Column
+    private LocalDateTime requestedDeleteAt;
 
     @OneToMany(mappedBy = "owner")
     @JsonIgnore

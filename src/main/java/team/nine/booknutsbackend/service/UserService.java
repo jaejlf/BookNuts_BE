@@ -81,8 +81,6 @@ public class UserService {
         //refresh token 만료 기간 체크 -> 2일 이하로 남은 경우 재발급
         long validTime = jwtTokenProvider.getValidTime(refreshToken);
         if (validTime <= 172800000) {
-
-
             refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
             user.setRefreshToken(refreshToken);
             userRepository.save(user);
