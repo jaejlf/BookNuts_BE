@@ -46,36 +46,10 @@ public class CommentService {
                 .orElseThrow(CommentNotFoundException::new);
     }
 
-//    private BoardRepository boardRepository;
-//    private CommentRepository commentRepository;
-//
 //    @Transactional(readOnly = true)
 //    public List<CommentRequest> findCommentsByBoardId(Long boardId) {
 //        //존재하는 게시글인지 확인
 //        return convertNestedStructure(commentRepository.findCommentByCommentIdWithParent(boardId));
 //    }
 //
-//    @Transactional
-//    public CommentRequest createComment(CommentCreateRequest commentCreateRequest, User user) {
-//        Board board = boardRepository.findById(commentCreateRequest.getBoardId())
-//                .orElseThrow(BoardNotFoundException::new);
-//        Comment comment = commentRepository.save(
-//                Comment.createComment(commentCreateRequest.getContent(), board, user,
-//                        commentCreateRequest.getParentId() != null ?
-//                                commentRepository.findById(commentCreateRequest.getParentId()).orElseThrow(CommentNotFoundException::new) : null)
-//                        );
-//        return CommentRequest.convertCommentToRequest(comment);
-//    }
-//
-//    private List<CommentRequest> convertNestedStructure(List<Comment> comments) {
-//        List<CommentRequest> commentsResult = new ArrayList<>();
-//        Map<Long, CommentRequest> commentRequestMap = new HashMap<>();
-//        comments.stream().forEach(c -> {
-//            CommentRequest commentRequest = CommentRequest.convertCommentToRequest(c);
-//            commentRequestMap.put(commentRequest.getCommentId(), commentRequest);
-//            if(c.getParent() != null) commentRequestMap.get(c.getParent().getCommentId()).getChildren().add(commentRequest);
-//            else commentsResult.add(commentRequest);
-//        });
-//        return  commentsResult;
-//    }
 }
