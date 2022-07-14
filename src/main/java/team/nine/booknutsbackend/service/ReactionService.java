@@ -62,4 +62,11 @@ public class ReactionService {
         return "좋아요 누름";
     }
 
+    //회원 탈퇴 시, 모든 넛츠/좋아요 삭제
+    @Transactional
+    public void deleteAllReaction(User user) {
+        nutsRepository.deleteAllByUser(user);
+        heartRepository.deleteAllByUser(user);
+    }
+
 }

@@ -70,4 +70,10 @@ public class FollowService {
 
     }
 
+    //회원 탈퇴 시, 모든 팔로우 관계 삭제
+    @Transactional
+    public void deleteAllFollow(User user) {
+       followRepository.deleteAllByFollower(user);
+    }
+
 }

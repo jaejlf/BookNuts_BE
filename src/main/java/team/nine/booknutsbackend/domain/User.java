@@ -29,17 +29,17 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(length = 100, nullable = false, unique = true)
+    @Column(length = 100, unique = true)
     private String loginId;
 
     @Column(length = 300, nullable = false)
     @JsonIgnore
     private String password;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String username;
 
-    @Column(length = 100, nullable = false, unique = true)
+    @Column(length = 100, unique = true)
     private String nickname;
 
     @Column(length = 100, nullable = false, unique = true)
@@ -62,6 +62,9 @@ public class User implements UserDetails {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
+
+    @Column(nullable = false)
+    private boolean enabled = true;
 
     @OneToMany(mappedBy = "owner")
     @JsonIgnore
@@ -92,25 +95,25 @@ public class User implements UserDetails {
     @Override
     @JsonIgnore
     public boolean isAccountNonExpired() {
-        return true;
-    }
+        return enabled;
+    } //계정 만료 여부 (true : 만료 X)
 
     @Override
     @JsonIgnore
     public boolean isAccountNonLocked() {
-        return true;
-    }
+        return enabled;
+    } //계정 잠김 여부 (true : 잠김 X)
 
     @Override
     @JsonIgnore
     public boolean isCredentialsNonExpired() {
-        return true;
-    }
+        return enabled;
+    } //비밀번호 만료 여부 (ture : 만료 X)
 
     @Override
     @JsonIgnore
     public boolean isEnabled() {
-        return true;
-    }
+        return enabled;
+    } //계정 활성화 여부 (true : 활성화)
 
 }

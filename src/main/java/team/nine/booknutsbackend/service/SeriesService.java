@@ -129,4 +129,15 @@ public class SeriesService {
         return seriesRepository.save(series);
     }
 
+    //회원 탈퇴 시, 모든 시리즈 삭제
+    @Transactional
+    public void deleteAllSeries(User user) {
+        List<Series> seriesList = seriesRepository.findAllByOwner(user);
+        for (Series series : seriesList) {
+            List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
+            seriesBoardRepository.deleteAll(seriesBoards);
+        }
+        seriesRepository.deleteAll(seriesList);
+    }
+
 }

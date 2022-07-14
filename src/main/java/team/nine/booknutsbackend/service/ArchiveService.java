@@ -132,4 +132,15 @@ public class ArchiveService {
         return archiveRepository.save(archive);
     }
 
+    //회원 탈퇴 시, 모든 아카이브 삭제
+    @Transactional
+    public void deleteAllArchive(User user) {
+        List<Archive> archiveList = archiveRepository.findAllByOwner(user);
+        for (Archive archive : archiveList) {
+            List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
+            archiveBoardRepository.deleteAll(archiveBoards);
+        }
+        archiveRepository.deleteAll(archiveList);
+    }
+
 }

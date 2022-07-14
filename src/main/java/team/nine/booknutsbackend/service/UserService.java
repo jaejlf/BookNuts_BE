@@ -1,7 +1,6 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +14,6 @@ import team.nine.booknutsbackend.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
@@ -39,15 +36,7 @@ public class UserService {
     //로그인
     @Transactional
     public User login(String id, String password) {
-        String regx = "^[A-Za-z0-9+_.-]+@(.+)$";
-        Pattern pattern = Pattern.compile(regx);
-        Matcher matcher = pattern.matcher(id);
-
-        User user;
-        if (matcher.matches()) user = findUserByEmail(id);
-        else user = userRepository.findByLoginId(id)
-                .orElseThrow(() -> new UsernameNotFoundException("가입되지 않은 이메일입니다."));
-
+        User user = findUserByEmail(id);
         if (!passwordEncoder.matches(password, user.getPassword())) throw new PasswordErrorException();
 
         user.setRefreshToken(jwtTokenProvider.createRefreshToken(user.getEmail()));
@@ -61,10 +50,10 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    //메일로 유저 정보 조회 (UserDetailService - loadUserByUsername)
+    //이메일 또는 로그인 아이디로 유저 정보 조회 (UserDetailService - loadUserByUsername)
     @Transactional(readOnly = true)
-    public User findUserByEmail(String email) {
-        return customUserDetailService.loadUserByUsername(email);
+    public User findUserByEmail(String id) {
+        return customUserDetailService.loadUserByUsername(id);
     }
 
     //유저 닉네임 중복 체크
@@ -104,6 +93,7 @@ public class UserService {
     }
 
     //프로필 이미지 업데이트
+    @Transactional
     public User updateProfileImg(MultipartFile file, User user) {
         awsS3Service.deleteImg(user.getProfileImgUrl());  //기존 이미지 버킷에서 삭제
         user.setProfileImgUrl(awsS3Service.uploadImg(file, "profile-"));
