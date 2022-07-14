@@ -102,9 +102,10 @@ public class ArchiveService {
         if (archive.getOwner() != user) throw new NoAuthException();
 
         List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
-
         archiveBoardRepository.deleteAll(archiveBoards);
         archiveRepository.delete(archive);
+
+        awsS3Service.deleteImg(archive.getImgUrl());  //기존 이미지 버킷에서 삭제
     }
 
     //아카이브 내의 게시글 삭제
@@ -139,6 +140,7 @@ public class ArchiveService {
         for (Archive archive : archiveList) {
             List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
             archiveBoardRepository.deleteAll(archiveBoards);
+            awsS3Service.deleteImg(archive.getImgUrl());  //기존 이미지 버킷에서 삭제
         }
         archiveRepository.deleteAll(archiveList);
     }

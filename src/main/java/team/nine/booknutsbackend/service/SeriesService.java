@@ -61,6 +61,7 @@ public class SeriesService {
         seriesRepository.save(series);
 
         for (Long boardId : boardIdList) {
+            if (boardService.getPost(boardId).getUser() != series.getOwner()) continue;
             SeriesBoard seriesBoard = new SeriesBoard();
             seriesBoard.setSeries(series);
             seriesBoard.setBoard(boardService.getPost(boardId));
@@ -92,9 +93,10 @@ public class SeriesService {
         if (series.getOwner() != user) throw new NoAuthException();
 
         List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
-
         seriesBoardRepository.deleteAll(seriesBoards);
         seriesRepository.delete(series);
+
+        awsS3Service.deleteImg(series.getImgUrl());  //기존 이미지 버킷에서 삭제
     }
 
     //시리즈에 게시글 추가
@@ -136,6 +138,7 @@ public class SeriesService {
         for (Series series : seriesList) {
             List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
             seriesBoardRepository.deleteAll(seriesBoards);
+            awsS3Service.deleteImg(series.getImgUrl());  //기존 이미지 버킷에서 삭제
         }
         seriesRepository.deleteAll(seriesList);
     }
