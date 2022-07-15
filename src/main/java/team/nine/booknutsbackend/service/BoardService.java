@@ -85,14 +85,14 @@ public class BoardService {
         return boardRepository.findByBookGenre("독립서적");
     }
 
-    //내가 작성한 게시글 목록
+    //특정 유저의 게시글 목록 조회
     @Transactional(readOnly = true)
-    public List<BoardResponse> getMyBoard(User user) {
-        List<Board> myBoards = boardRepository.findByUser(user);
+    public List<BoardResponse> getBoardList(User owner) {
+        List<Board> boards = boardRepository.findByUser(owner);
         List<BoardResponse> boardDtoList = new ArrayList<>();
 
-        for (Board board : myBoards) {
-            boardDtoList.add(BoardResponse.boardResponse(board, user));
+        for (Board board : boards) {
+            boardDtoList.add(BoardResponse.boardResponse(board, owner));
         }
 
         Collections.reverse(boardDtoList); //최신순

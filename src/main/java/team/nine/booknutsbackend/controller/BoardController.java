@@ -41,11 +41,11 @@ public class BoardController {
         return new ResponseEntity<>(boardService.getBoard(user, type), HttpStatus.OK);
     }
 
-    //내가 작성한 게시글 목록
-    @GetMapping("/mypost")
-    public ResponseEntity<List<BoardResponse>> getMyBoard(Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(boardService.getMyBoard(user), HttpStatus.OK);
+    //특정 유저의 게시글 목록 조회
+    @GetMapping("/post/{userId}")
+    public ResponseEntity<List<BoardResponse>> getBoardList(@PathVariable Long userId) {
+        User owner = userService.findUserById(userId);
+        return new ResponseEntity<>(boardService.getBoardList(owner), HttpStatus.OK);
     }
 
     //특정 게시글 조회
