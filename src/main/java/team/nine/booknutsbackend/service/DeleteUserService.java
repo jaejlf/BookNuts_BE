@@ -58,11 +58,8 @@ public class DeleteUserService {
     public void deleteAccountUserInfoAfter30Days() {
 
         //오늘 날짜에서 한 달 전 00:00 ~ 23:59
-//        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now().minusDays(30), LocalTime.of(0, 0, 0));
-//        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now().minusDays(30), LocalTime.of(23, 59, 59));
-
-        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0));
-        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59));
+        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now().minusDays(30), LocalTime.of(0, 0, 0));
+        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now().minusDays(30), LocalTime.of(23, 59, 59));
 
         log.info(LocalDate.now() + " 회원 탈퇴 스케쥴러 실행 완료");
 
