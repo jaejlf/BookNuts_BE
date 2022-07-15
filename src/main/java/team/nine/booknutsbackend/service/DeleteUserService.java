@@ -54,15 +54,15 @@ public class DeleteUserService {
 
     //탈퇴 요청 후 30일(한 달) 뒤, 이메일/로그인 아이디 정보 삭제
     @Transactional
-    @Scheduled(cron = "0 0 10 * * *") //매일 10:00:00 (초, 분, 시, 일, 월, 주)
+    @Scheduled(cron = "0 0 22 * * *") //매일 22:00:00 (초, 분, 시, 일, 월, 주)
     public void deleteAccountUserInfoAfter30Days() {
 
         //오늘 날짜에서 한 달 전 00:00 ~ 23:59
 //        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now().minusDays(30), LocalTime.of(0, 0, 0));
 //        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now().minusDays(30), LocalTime.of(23, 59, 59));
 
-        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now().minusDays(30), LocalTime.of(0, 0, 0));
-        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now().minusDays(30), LocalTime.of(23, 59, 59));
+        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0));
+        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59));
 
         log.info(LocalDate.now() + " 회원 탈퇴 스케쥴러 실행 완료");
 
