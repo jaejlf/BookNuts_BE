@@ -13,6 +13,7 @@ import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.service.ArchiveService;
 import team.nine.booknutsbackend.service.UserService;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,7 @@ public class ArchiveController {
     //아카이브 생성
     @PostMapping("/create")
     public ResponseEntity<ArchiveResponse> createArchive(@RequestPart(value = "file") MultipartFile file,
-                                                         @RequestPart(value = "archive") ArchiveRequest archiveRequest,
+                                                         @RequestPart(value = "archive") @Valid ArchiveRequest archiveRequest,
                                                          Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         Archive newArchive = archiveService.createArchive(file, ArchiveRequest.archiveRequest(archiveRequest, user));

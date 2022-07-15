@@ -12,6 +12,7 @@ import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
 import team.nine.booknutsbackend.service.DebateService;
 import team.nine.booknutsbackend.service.UserService;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,7 +30,7 @@ public class DebateController {
     //토론장 개설
     @PostMapping("/create")
     public ResponseEntity<DebateRoomResponse> createRoom(@RequestPart(value = "file") MultipartFile file,
-                                                         @RequestPart(value = "room") DebateRoomRequest room, Principal principal) {
+                                                         @RequestPart(value = "room") @Valid DebateRoomRequest room, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         DebateRoom newRoom = debateService.createRoom(file, DebateRoomRequest.roomRequest(room, user));
         DebateRoom saveRoom = debateService.enterRoom(newRoom.getDebateRoomId(), user, room.isOpinion());

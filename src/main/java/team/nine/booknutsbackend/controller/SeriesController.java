@@ -13,6 +13,7 @@ import team.nine.booknutsbackend.dto.response.SeriesResponse;
 import team.nine.booknutsbackend.service.SeriesService;
 import team.nine.booknutsbackend.service.UserService;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,7 @@ public class SeriesController {
     //시리즈 발행
     @PostMapping("/create")
     public ResponseEntity<SeriesResponse> createSeries(@RequestPart(value = "file") MultipartFile file,
-                                                       @RequestPart(value = "series") SeriesRequest seriesRequest, Principal principal) {
+                                                       @RequestPart(value = "series") @Valid SeriesRequest seriesRequest, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         Series newSeries = seriesService.createSeries(file, SeriesRequest.seriesRequest(seriesRequest, user), seriesRequest.getBoardIdlist());
         return new ResponseEntity<>(SeriesResponse.seriesResponse(newSeries), HttpStatus.CREATED);
