@@ -14,6 +14,7 @@ import team.nine.booknutsbackend.service.CommentService;
 import team.nine.booknutsbackend.service.UserService;
 
 import java.security.Principal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -24,6 +25,7 @@ public class CommentController {
     private final UserService userService;
     private final BoardService boardService;
 
+    //댓글 작성(부모)
     @PostMapping("/{boardId}/write")
     public ResponseEntity<Object> writeComment(@PathVariable Long boardId, @RequestBody CommentRequest comment, Principal principal){
         User user = userService.findUserByEmail(principal.getName());
@@ -32,6 +34,7 @@ public class CommentController {
         return new ResponseEntity<>(CommentResponse.commentResponse(newComment), HttpStatus.CREATED);
     }
 
+    //대댓글 작성
     @PostMapping("/{boardId}/{commentId}")
     public ResponseEntity<Object> writeReComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId,
                                                  @RequestBody CommentRequest comment, Principal principal) {
@@ -40,6 +43,12 @@ public class CommentController {
         Comment parentComment = commentService.getComment(commentId);
         Comment newComment = commentService.writeReComment(CommentRequest.RecommentRequest(comment, user, board, parentComment));
         return new ResponseEntity<>(CommentResponse.commentResponse(newComment), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{boardId}")
+    public ResponseEntity<List<CommentResponse>> getComment(@PathVariable Long boardId, Principal principal) {
+        User user = userService.findUserByEmail(principal.getName());
+        return new ResponseEntity<>(commentService.getCommentList(boardId), HttpStatus.OK);
     }
 
 }

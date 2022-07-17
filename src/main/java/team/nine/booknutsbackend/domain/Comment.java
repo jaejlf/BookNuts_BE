@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.domain;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -33,9 +34,9 @@ public class Comment {
     @JoinColumn(name = "parentId")
     private Comment parent;
 
-//    @Builder.Default
-//    @OneToMany(mappedBy = "parent", orphanRemoval = true)
-//    private List<Comment> children = new ArrayList<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<Comment> children = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "boardId")

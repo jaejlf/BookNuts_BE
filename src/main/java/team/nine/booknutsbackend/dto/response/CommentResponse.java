@@ -14,6 +14,7 @@ public class CommentResponse {
     String createdDate;
     String writer;
     Long boardId;
+    Long parentId;
 
     public static CommentResponse commentResponse(Comment comment) {
         return CommentResponse.builder()
@@ -21,6 +22,7 @@ public class CommentResponse {
                 .content(comment.getContent())
                 .createdDate(comment.getCreatedDate())
                 .writer(comment.getUser().getNickname())
+                .parentId(comment.getParent().getCommentId())
                 .boardId(comment.getBoard().getBoardId())
                 .build();
     }

@@ -27,13 +27,7 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     @Transactional
-    public Comment writeComment(Comment comment) {
-        System.out.println(comment.getBoard().getBoardId());
-        System.out.println(comment.getContent());
-        System.out.println(comment.getCreatedDate());
-        System.out.println(comment.getUser().getLoginId());
-        return commentRepository.save(comment);
-    }
+    public Comment writeComment(Comment comment) { return commentRepository.save(comment); }
 
     @Transactional
     public Comment writeReComment(Comment comment) {
@@ -44,6 +38,41 @@ public class CommentService {
     public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentList(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(BoardNotFoundException::new);
+        List<Comment> comments = commentRepository.findByBoard(board);
+        List<CommentResponse> commentResponseList = new ArrayList<>();
+
+        for(Comment comment : comments) {
+            commentResponseList.add(CommentResponse.commentResponse(comment));
+        }
+
+        List<CommentResponse> commentListParent = new ArrayList<>();
+        List<CommentResponse> commentListChild = new ArrayList<>();
+        List<CommentResponse> newCommentList = new ArrayList<>();
+
+        for(CommentResponse commentResponse : commentResponseList) {
+            if(commentResponse.getParentId().equals(null)) {
+                commentListParent.add(commentResponse);
+            } else {
+                commentListChild.add(commentResponse);
+            }
+        }
+
+        for(CommentResponse commentParent : commentListParent) {
+            newCommentList.add(commentParent);
+            for (CommentResponse commentChild : commentListChild) {
+                if (commentParent.getCommentId().equals(commentChild.getParentId())) {
+                    newCommentList.add(commentChild);
+                }
+            }
+        }
+        return newCommentList;
+
     }
 
 //    @Transactional(readOnly = true)
