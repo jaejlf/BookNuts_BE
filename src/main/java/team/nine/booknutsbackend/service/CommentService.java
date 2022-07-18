@@ -5,9 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.Comment;
-import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.request.CommentCreateRequest;
-import team.nine.booknutsbackend.dto.request.CommentRequest;
 import team.nine.booknutsbackend.dto.response.CommentResponse;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
 import team.nine.booknutsbackend.exception.comment.CommentNotFoundException;
@@ -15,9 +12,7 @@ import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.CommentRepository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +23,6 @@ public class CommentService {
 
     @Transactional
     public Comment writeComment(Comment comment) {
-        System.out.println(comment.getBoard().getBoardId());
-        System.out.println(comment.getContent());
-        System.out.println(comment.getCreatedDate());
-        System.out.println(comment.getUser().getLoginId());
         return commentRepository.save(comment);
     }
 
@@ -46,10 +37,29 @@ public class CommentService {
                 .orElseThrow(CommentNotFoundException::new);
     }
 
-//    @Transactional(readOnly = true)
-//    public List<CommentRequest> findCommentsByBoardId(Long boardId) {
-//        //존재하는 게시글인지 확인
-//        return convertNestedStructure(commentRepository.findCommentByCommentIdWithParent(boardId));
-//    }
-//
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentList(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(BoardNotFoundException::new);
+        List<Comment> comments = commentRepository.findByBoard(board);
+
+        List<Comment> commentList = new ArrayList<>();
+        List<CommentResponse> commentResponseList = new ArrayList<>();
+
+        for (Comment comment : comments) {
+            if (comment.getParent() == null) {
+                commentList.add(comment);
+                List<Comment> childComment = commentRepository.findByParent(comment);
+                if (childComment != null) commentList.addAll(childComment);
+            }
+        }
+
+        for (Comment comment : commentList) {
+            commentResponseList.add(CommentResponse.commentResponse(comment));
+        }
+
+        return commentResponseList;
+
+    }
+
 }
