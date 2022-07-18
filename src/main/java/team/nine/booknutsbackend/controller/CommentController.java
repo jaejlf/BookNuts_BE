@@ -42,7 +42,7 @@ public class CommentController {
         Board board = boardService.getPost(boardId);
         Comment parentComment = commentService.getComment(commentId);
         Comment newComment = commentService.writeReComment(CommentRequest.RecommentRequest(comment, user, board, parentComment));
-        return new ResponseEntity<>(CommentResponse.reCommentResponse(newComment), HttpStatus.CREATED);
+        return new ResponseEntity<>(CommentResponse.commentResponse(newComment), HttpStatus.CREATED);
     }
 
     //댓글 조회

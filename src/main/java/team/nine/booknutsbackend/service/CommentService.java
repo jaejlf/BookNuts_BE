@@ -5,9 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.Comment;
-import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.request.CommentCreateRequest;
-import team.nine.booknutsbackend.dto.request.CommentRequest;
 import team.nine.booknutsbackend.dto.response.CommentResponse;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
 import team.nine.booknutsbackend.exception.comment.CommentNotFoundException;
@@ -15,9 +12,7 @@ import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.CommentRepository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -50,16 +45,13 @@ public class CommentService {
         for(Comment comment : comments) {
             commentResponseList.add(CommentResponse.commentResponse(comment));
         }
-        System.out.println("-----------------------------");
-        System.out.println(commentResponseList.size());
 
         List<CommentResponse> commentListParent = new ArrayList<>();
         List<CommentResponse> commentListChild = new ArrayList<>();
         List<CommentResponse> newCommentList = new ArrayList<>();
 
         for(CommentResponse commentResponse : commentResponseList) {
-            //parent가 null인데 getParentId를 하는 순간부터 오류가 생기는듯
-            if(commentResponse.getParentId().equals(null)) {
+            if(commentResponse.getParentId() == null) {
                 commentListParent.add(commentResponse);
             } else {
                 commentListChild.add(commentResponse);
