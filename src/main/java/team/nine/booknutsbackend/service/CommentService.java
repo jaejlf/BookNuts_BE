@@ -22,7 +22,9 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     @Transactional
-    public Comment writeComment(Comment comment) { return commentRepository.save(comment); }
+    public Comment writeComment(Comment comment) {
+        return commentRepository.save(comment);
+    }
 
     @Transactional
     public Comment writeReComment(Comment comment) {
@@ -40,33 +42,24 @@ public class CommentService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(BoardNotFoundException::new);
         List<Comment> comments = commentRepository.findByBoard(board);
+
+        List<Comment> commentList = new ArrayList<>();
         List<CommentResponse> commentResponseList = new ArrayList<>();
 
-        for(Comment comment : comments) {
+        for (Comment comment : comments) {
+            if (comment.getParent() == null) {
+                commentList.add(comment);
+                List<Comment> childComment = commentRepository.findByParent(comment);
+                if (childComment != null) commentList.addAll(childComment);
+            }
+        }
+
+        for (Comment comment : commentList) {
             commentResponseList.add(CommentResponse.commentResponse(comment));
         }
 
-        List<CommentResponse> commentListParent = new ArrayList<>();
-        List<CommentResponse> commentListChild = new ArrayList<>();
-        List<CommentResponse> newCommentList = new ArrayList<>();
-
-        for(CommentResponse commentResponse : commentResponseList) {
-            if(commentResponse.getParentId() == null) {
-                commentListParent.add(commentResponse);
-            } else {
-                commentListChild.add(commentResponse);
-            }
-        }
-
-        for(CommentResponse commentParent : commentListParent) {
-            newCommentList.add(commentParent);
-            for (CommentResponse commentChild : commentListChild) {
-                if (commentParent.getCommentId().equals(commentChild.getParentId())) {
-                    newCommentList.add(commentChild);
-                }
-            }
-        }
-        return newCommentList;
+        return commentResponseList;
 
     }
+
 }
