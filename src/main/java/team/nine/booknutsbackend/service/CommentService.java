@@ -50,12 +50,15 @@ public class CommentService {
         for(Comment comment : comments) {
             commentResponseList.add(CommentResponse.commentResponse(comment));
         }
+        System.out.println("-----------------------------");
+        System.out.println(commentResponseList.size());
 
         List<CommentResponse> commentListParent = new ArrayList<>();
         List<CommentResponse> commentListChild = new ArrayList<>();
         List<CommentResponse> newCommentList = new ArrayList<>();
 
         for(CommentResponse commentResponse : commentResponseList) {
+            //parent가 null인데 getParentId를 하는 순간부터 오류가 생기는듯
             if(commentResponse.getParentId().equals(null)) {
                 commentListParent.add(commentResponse);
             } else {

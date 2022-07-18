@@ -42,9 +42,10 @@ public class CommentController {
         Board board = boardService.getPost(boardId);
         Comment parentComment = commentService.getComment(commentId);
         Comment newComment = commentService.writeReComment(CommentRequest.RecommentRequest(comment, user, board, parentComment));
-        return new ResponseEntity<>(CommentResponse.commentResponse(newComment), HttpStatus.CREATED);
+        return new ResponseEntity<>(CommentResponse.reCommentResponse(newComment), HttpStatus.CREATED);
     }
 
+    //댓글 조회
     @GetMapping("/{boardId}")
     public ResponseEntity<List<CommentResponse>> getComment(@PathVariable Long boardId, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
