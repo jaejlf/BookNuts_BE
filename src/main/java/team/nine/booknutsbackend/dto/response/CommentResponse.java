@@ -29,15 +29,5 @@ public class CommentResponse {
         if(comment.getParent() == null) return null;
         else return comment.getParent().getCommentId();
     }
-//    public static CommentResponse reCommentResponse(Comment comment) {
-//        return CommentResponse.builder()
-//                .commentId(comment.getCommentId())
-//                .content(comment.getContent())
-//                .createdDate(comment.getCreatedDate())
-//                .writer(comment.getUser().getNickname())
-//                .parentId(comment.getParent().getCommentId())
-//                .boardId(comment.getBoard().getBoardId())
-//                .build();
-//    }
 
 }

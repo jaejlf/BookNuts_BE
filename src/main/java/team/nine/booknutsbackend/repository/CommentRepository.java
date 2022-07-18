@@ -1,8 +1,6 @@
 package team.nine.booknutsbackend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.Comment;
 

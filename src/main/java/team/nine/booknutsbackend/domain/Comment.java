@@ -1,7 +1,6 @@
 package team.nine.booknutsbackend.domain;
 
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

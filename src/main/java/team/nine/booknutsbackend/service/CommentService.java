@@ -69,11 +69,4 @@ public class CommentService {
         return newCommentList;
 
     }
-
-//    @Transactional(readOnly = true)
-//    public List<CommentRequest> findCommentsByBoardId(Long boardId) {
-//        //존재하는 게시글인지 확인
-//        return convertNestedStructure(commentRepository.findCommentByCommentIdWithParent(boardId));
-//    }
-//
 }

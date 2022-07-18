@@ -11,7 +11,6 @@ import javax.validation.constraints.NotBlank;
 public class CommentRequest {
 
     @NotBlank String content;
-    //    private List<CommentRequest> children = new ArrayList<>();
 
     public static Comment commentRequest(CommentRequest commentRequest, User user, Board board) {
         Comment comment = new Comment();

@@ -61,7 +61,4 @@ public class Board {
     @JsonIgnore
     private List<ArchiveBoard> archiveBoards = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "post")
-//    private List<Comment> comments = new ArrayList<>();
-
 }
