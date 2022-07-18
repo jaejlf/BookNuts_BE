@@ -1,8 +1,8 @@
 package team.nine.booknutsbackend.dto.request;
 
 import lombok.Getter;
-import team.nine.booknutsbackend.domain.series.Series;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.domain.series.Series;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -12,7 +12,7 @@ public class SeriesRequest {
 
     @NotBlank String title;
     @NotBlank String content;
-    @NotBlank List<Long> boardIdlist;
+    List<Long> boardIdlist;
 
     public static Series seriesRequest(SeriesRequest seriesRequest, User user) {
         Series series = new Series();
