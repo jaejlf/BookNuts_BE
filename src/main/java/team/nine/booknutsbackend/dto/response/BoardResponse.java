@@ -47,7 +47,7 @@ public class BoardResponse {
                 .bookImgUrl(board.getBookImgUrl())
                 .bookGenre(board.getBookGenre())
                 .nutsCnt(board.getNutsList().size())
-                .heartCnt(board.getHearts().size())
+                .heartCnt(board.getHeartList().size())
                 //.commentCnt(board.getComments().size())
                 .archiveCnt(board.getArchiveBoards().size())
                 .isNuts(getIsNuts(board, user))

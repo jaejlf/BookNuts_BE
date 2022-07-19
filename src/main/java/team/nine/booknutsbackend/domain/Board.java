@@ -6,6 +6,7 @@ import lombok.Setter;
 import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
+import team.nine.booknutsbackend.domain.series.SeriesBoard;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -49,16 +50,20 @@ public class Board {
     @JoinColumn(name = "writer")
     private User user;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
     private List<Nuts> nutsList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<Heart> hearts = new ArrayList<>();
+    private List<Heart> heartList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
     private List<ArchiveBoard> archiveBoards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
+    @JsonIgnore
+    private List<SeriesBoard> seriesBoards = new ArrayList<>();
 
 }
