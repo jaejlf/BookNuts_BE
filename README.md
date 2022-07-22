@@ -1,8 +1,8 @@
 # 독서 기반 SNS, BookNuts
-![itemposter](https://user-images.githubusercontent.com/78673570/169695709-b6c4cc7b-5afe-461c-99d3-803b27dbd395.jpg)
+![아이템포스터](https://user-images.githubusercontent.com/78673570/180412862-78ed2a34-ad60-42eb-a9bb-1b44896451dc.jpg)
 
 ## 🥜 주요 기능
-- JWT + Spring security 을 이용한 회원 관리
+- JWT + Spring security 를 이용한 회원 관리
 - 게시글 발행 및 리액션(넛츠, 좋아요)
 - 게시글 아카이빙, 시리즈 발행 (게시글 그룹핑)
 - 댓글/대댓글 작성
@@ -16,14 +16,20 @@
 - Spring Security
 - AWS EC2, AWS RDS(MySQL), AWS S3
 
+
 <br><br>
 ## 📑 API 문서
 [BookNuts, API Documentation](https://documenter.getpostman.com/view/18461572/UzJQpDsB)
 
 
 <br><br>
+## ERD Diagram
+![database](https://user-images.githubusercontent.com/78673570/180413460-e2b713c9-8aaa-4849-8b53-8d777a4d049f.png)
+
+
+<br><br>
 ## 🎆 서비스 아키텍처
-![서비스 아키텍처](https://user-images.githubusercontent.com/78673570/170637777-79d9582b-a1e4-47b9-883f-62e0204cd270.png)
+![서비스 아키텍처](https://user-images.githubusercontent.com/78673570/180412857-b702c1d2-42e3-4ac5-933e-048c762d2b86.png)
 
 
 <br><br>
