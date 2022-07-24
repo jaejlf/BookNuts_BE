@@ -1,5 +1,6 @@
 # 독서 기반 SNS, BookNuts
-![아이템포스터](https://user-images.githubusercontent.com/78673570/180412862-78ed2a34-ad60-42eb-a9bb-1b44896451dc.jpg)
+
+![아이템포스터_9해조](https://user-images.githubusercontent.com/78673570/180656664-afff889d-366d-4bb4-b677-ec8d18505f39.jpg)
 
 ## 🥜 주요 기능
 - JWT + Spring security 를 이용한 회원 관리
@@ -24,12 +25,12 @@
 
 <br><br>
 ## ERD Diagram
-![database](https://user-images.githubusercontent.com/78673570/180413460-e2b713c9-8aaa-4849-8b53-8d777a4d049f.png)
+![database](https://user-images.githubusercontent.com/78673570/180656690-d09820bb-f646-49aa-854a-aae3404eab1c.png)
 
 
 <br><br>
 ## 🎆 서비스 아키텍처
-![서비스 아키텍처](https://user-images.githubusercontent.com/78673570/180412857-b702c1d2-42e3-4ac5-933e-048c762d2b86.png)
+![서비스 아키텍처](https://user-images.githubusercontent.com/78673570/180656732-51170dcc-8a4d-4e14-a330-a2860172d804.png)
 
 
 <br><br>
