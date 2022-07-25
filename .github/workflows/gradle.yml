@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  BUCKET_NAME: booknuts-deploy
+  ZIP_FILE_NAME: booknuts-jar
+  APP_NAME: booknuts-app
+  DEPLOY_GROUP: booknuts-deploy-group
+  
 permissions:
   contents: read
 
@@ -33,9 +39,12 @@ jobs:
         
     - name: Copy Jar
       run: cp ./build/libs/*.jar ./deploy
+      
+    - name: Copy appspec.yml
+      run: cp appspec.yml ./deploy
 
     - name: Make zip file
-      run: zip -r ./booknuts-jar.zip ./deploy
+      run: zip -r ./$ZIP_FILE_NAME.zip ./deploy
       shell: bash
       
     - name: Configure AWS credentials
@@ -46,4 +55,7 @@ jobs:
         aws-region: ap-northeast-2
 
     - name: Upload to S3
-      run: aws s3 cp --region ap-northeast-2 ./booknuts-jar.zip s3://booknuts-deploy/
+      run: aws s3 cp --region ap-northeast-2 ./$ZIP_FILE_NAME.zip s3://$BUCKET_NAME/
+      
+    - name: CodeDeploy
+      run: aws deploy create-deployment --application-name $APP_NAME --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name $DEPLOY_GROUP --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$ZIP_FILE_NAME.zip
