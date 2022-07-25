@@ -44,30 +44,7 @@ dependencies {
 	//aws-s3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
-	//querydsl
-//	implementation 'com.querydsl:querydsl-jpa'
-//	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
-//	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-//	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 }
-
-//def querydslDir = "$buildDir/generated/querydsl"
-//querydsl {
-//	jpa = true
-//	querydslSourcesDir = querydslDir
-//}
-//sourceSets {
-//	main.java.srcDir querydslDir
-//}
-//compileQuerydsl{
-//	options.annotationProcessorPath = configurations.querydsl
-//}
-//configurations {
-//	compileOnly {
-//		extendsFrom annotationProcessor
-//	}
-//	querydsl.extendsFrom compileClasspath
-//}
 
 tasks.named('test') {
 	useJUnitPlatform()
