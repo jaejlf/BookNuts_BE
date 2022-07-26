@@ -68,10 +68,4 @@ public class AuthController {
         return new ResponseEntity<>(userService.tokenReIssue(refreshToken), HttpStatus.OK);
     }
 
-    //자동 배포 테스트 컨트롤러
-    @GetMapping("/hello")
-    public String hello() {
-        return "hello !";
-    }
-
 }
