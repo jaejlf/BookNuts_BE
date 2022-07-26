@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.Comment;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.dto.request.CommentRequest;
 import team.nine.booknutsbackend.dto.response.CommentResponse;
 import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
 import team.nine.booknutsbackend.exception.comment.CommentNotFoundException;
@@ -67,6 +68,18 @@ public class CommentService {
         return commentResponseList;
     }
 
+    //댓글 수정
+    @Transactional
+    public Comment updateComment(Long commentId, CommentRequest commentRequest, User user) {
+        Comment comment = getComment(commentId);
+        if (comment.getUser() != user) throw new NoAuthException();
+
+        comment.setContent(commentRequest.getContent());
+
+        return commentRepository.save(comment);
+
+    }
+
     //댓글 삭제
     @Transactional
     public void deleteComment(Long commentId, User user) {
@@ -76,12 +89,10 @@ public class CommentService {
         //자식 댓글인 경우 & 자식이 없는 부모 댓글인 경우
         if ((comment.getParent() != null) || (comment.getChildren().size() ==0)) {
             commentRepository.delete(comment);
-            System.out.println("자식 댓글 or 자식없는 부모 댓글 삭제 완료");
         }
         else { //자식이 있는 부모 댓글인 경우
             comment.setContent(null);
             commentRepository.save(comment);
-            System.out.println("자식 있는 부모 댓글글 삭제 완료");
         }
     }
 

@@ -57,6 +57,15 @@ public class CommentController {
         return new ResponseEntity<>(commentService.getCommentList(boardId), HttpStatus.OK);
     }
 
+    //댓글 수정
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<Object> updateComment(@PathVariable Long commentId, @RequestBody CommentRequest comment, Principal principal) {
+        User user = userService.findUserByEmail(principal.getName());
+        if (comment.getContent() == null ) throw new NotNewCommentCreateException();
+        Comment updateComment = commentService.updateComment(commentId, comment, user);
+        return new ResponseEntity<>(CommentResponse.commentResponse(updateComment), HttpStatus.OK);
+    }
+
     //댓글 삭제
     @DeleteMapping("{commentId}")
     public ResponseEntity<Object> deleteComment(@PathVariable Long commentId, Principal principal) {
