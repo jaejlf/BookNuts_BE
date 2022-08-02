@@ -30,8 +30,8 @@ public class CommentController {
 
     //댓글 작성(부모)
     @PostMapping("/{boardId}/write")
-    public ResponseEntity<Object> writeComment(@PathVariable Long boardId, @RequestBody CommentRequest comment, Principal principal){
-        if (comment.getContent() == null ) throw new NotNewCommentCreateException();
+    public ResponseEntity<Object> writeComment(@PathVariable Long boardId, @RequestBody CommentRequest comment, Principal principal) {
+        if (comment.getContent() == null) throw new NotNewCommentCreateException();
         User user = userService.findUserByEmail(principal.getName());
         Board board = boardService.getPost(boardId);
         Comment newComment = commentService.writeComment(CommentRequest.commentRequest(comment, user, board));
@@ -42,7 +42,7 @@ public class CommentController {
     @PostMapping("/{boardId}/{commentId}")
     public ResponseEntity<Object> writeReComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId,
                                                  @RequestBody CommentRequest comment, Principal principal) {
-        if (comment.getContent() == null ) throw new NotNewCommentCreateException();
+        if (comment.getContent() == null) throw new NotNewCommentCreateException();
         User user = userService.findUserByEmail(principal.getName());
         Board board = boardService.getPost(boardId);
         Comment parentComment = commentService.getComment(commentId);
@@ -61,7 +61,7 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<Object> updateComment(@PathVariable Long commentId, @RequestBody CommentRequest comment, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        if (comment.getContent() == null ) throw new NotNewCommentCreateException();
+        if (comment.getContent() == null) throw new NotNewCommentCreateException();
         Comment updateComment = commentService.updateComment(commentId, comment, user);
         return new ResponseEntity<>(CommentResponse.commentResponse(updateComment), HttpStatus.OK);
     }
@@ -69,7 +69,7 @@ public class CommentController {
     //댓글 삭제
     @DeleteMapping("{commentId}")
     public ResponseEntity<Object> deleteComment(@PathVariable Long commentId, Principal principal) {
-        User user= userService.findUserByEmail(principal.getName());
+        User user = userService.findUserByEmail(principal.getName());
         commentService.deleteComment(commentId, user);
 
         Map<String, String> map = new HashMap<>();

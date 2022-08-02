@@ -1,4 +1,5 @@
 package team.nine.booknutsbackend.dto.response;
+
 import lombok.Builder;
 import lombok.Getter;
 import team.nine.booknutsbackend.domain.Follow;
@@ -17,7 +18,7 @@ public class UserProfileResponse {
     int followerCount;
     int followingCount;
 
-    public static UserProfileResponse userProfileResponse(User curUser, User targetUser){
+    public static UserProfileResponse userProfileResponse(User curUser, User targetUser) {
         return UserProfileResponse.builder()
                 .userId(targetUser.getUserId())
                 .nickname(targetUser.getNickname())
@@ -28,7 +29,7 @@ public class UserProfileResponse {
                 .build();
     }
 
-    private static Boolean getIsFollow(User curUser, User targetUser){
+    private static Boolean getIsFollow(User curUser, User targetUser) {
         List<Follow> followList = curUser.getFollowers();
         for (Follow follow : followList) {
             if (follow.getFollower() == targetUser) return true;

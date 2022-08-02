@@ -8,11 +8,11 @@ import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.debate.DebateUser;
 import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
-import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.exception.debate.CannotEnterException;
+import team.nine.booknutsbackend.exception.debate.DebateUserNotFoundException;
 import team.nine.booknutsbackend.exception.debate.RoomNotFoundException;
 import team.nine.booknutsbackend.exception.debate.StatusChangeException;
-import team.nine.booknutsbackend.exception.debate.DebateUserNotFoundException;
+import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.DebateRoomRepository;
 import team.nine.booknutsbackend.repository.DebateUserRepository;
 

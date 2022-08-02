@@ -17,7 +17,7 @@ public class LoginResponse {
     String refreshToken;
     String profileImgUrl;
 
-    public static LoginResponse loginResponse(User user, String accessToken){
+    public static LoginResponse loginResponse(User user, String accessToken) {
         return LoginResponse.builder()
                 .userId(user.getUserId())
                 .loginId(user.getLoginId())
