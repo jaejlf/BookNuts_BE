@@ -7,6 +7,7 @@ import team.nine.booknutsbackend.domain.Comment;
 @Getter
 @Builder
 public class CommentResponse {
+
     Long commentId;
     String content;
     String createdDate;
@@ -26,7 +27,7 @@ public class CommentResponse {
     }
 
     private static Long getParent(Comment comment) {
-        if(comment.getParent() == null) return null;
+        if (comment.getParent() == null) return null;
         else return comment.getParent().getCommentId();
     }
 

@@ -29,7 +29,7 @@ public class FollowService {
 
         if (followRepository.findByFollowingAndFollower(following, follower).isPresent())
             throw new AlreadyFollowingException();
-        if(following == follower) throw new CannotFollowException();
+        if (following == follower) throw new CannotFollowException();
 
         follow.setFollowing(userService.findUserById(following.getUserId()));
         follow.setFollower(userService.findUserById(follower.getUserId()));
@@ -75,7 +75,7 @@ public class FollowService {
     //회원 탈퇴 시, 모든 팔로우 관계 삭제
     @Transactional
     public void deleteAllFollow(User user) {
-       followRepository.deleteAllByFollower(user);
+        followRepository.deleteAllByFollower(user);
     }
 
 }

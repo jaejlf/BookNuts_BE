@@ -87,10 +87,9 @@ public class CommentService {
         if (comment.getUser() != user) throw new NoAuthException();
 
         //자식 댓글인 경우 & 자식이 없는 부모 댓글인 경우
-        if ((comment.getParent() != null) || (comment.getChildren().size() ==0)) {
+        if ((comment.getParent() != null) || (comment.getChildren().size() == 0)) {
             commentRepository.delete(comment);
-        }
-        else { //자식이 있는 부모 댓글인 경우
+        } else { //자식이 있는 부모 댓글인 경우
             comment.setContent(null);
             commentRepository.save(comment);
         }

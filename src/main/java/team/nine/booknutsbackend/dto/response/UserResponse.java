@@ -15,7 +15,7 @@ public class UserResponse {
     String email;
     String profileImgUrl;
 
-    public static UserResponse userResponse(User user){
+    public static UserResponse userResponse(User user) {
         return UserResponse.builder()
                 .userId(user.getUserId())
                 .loginId(user.getLoginId())

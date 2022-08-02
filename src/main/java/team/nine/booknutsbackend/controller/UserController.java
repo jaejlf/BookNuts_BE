@@ -56,7 +56,7 @@ public class UserController {
         map.put("result", "비밀번호 변경 완료");
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
-    
+
     //회원 탈퇴
     @DeleteMapping("/delete")
     public ResponseEntity<Object> deleteAccount(Principal principal) {
