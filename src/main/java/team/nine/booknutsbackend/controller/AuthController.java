@@ -11,8 +11,10 @@ import team.nine.booknutsbackend.dto.request.UserRequest;
 import team.nine.booknutsbackend.dto.response.LoginResponse;
 import team.nine.booknutsbackend.dto.response.UserResponse;
 import team.nine.booknutsbackend.exception.user.ExpiredRefreshTokenException;
+import team.nine.booknutsbackend.service.EmailAuthService;
 import team.nine.booknutsbackend.service.UserService;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
@@ -23,6 +25,7 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
+    private final EmailAuthService emailAuthService;
     private final JwtTokenProvider jwtTokenProvider;
 
     //회원가입
@@ -38,6 +41,18 @@ public class AuthController {
     public ResponseEntity<Boolean> checkNicknameDuplicate(@PathVariable String nickname) {
         return ResponseEntity.ok(userService.checkNicknameDuplication(nickname));
     }
+
+    //401 인증 실패, 404 사용자 없음
+    @GetMapping("/authEmail/{email}")
+    public ResponseEntity<Object> emailConfirm(@PathVariable String email) throws MessagingException {
+        System.out.println(email);
+        String confirm = emailAuthService.sendSimpleMessage(email);
+
+        System.out.println(confirm);
+        return ResponseEntity.ok(confirm);
+        //return ResponseEntity.status(200).body(BaseResponseBody.of(200, confirm));
+    }
+
 
     //유저 로그인 아이디 중복 체크
     @GetMapping("/checkLoginId/{loginId}")
