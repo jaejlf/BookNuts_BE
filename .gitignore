@@ -7,6 +7,7 @@ build/
 
 application-db.properties
 application-s3.properties
+application-email.properties
 
 ### STS ###
 .apt_generated
