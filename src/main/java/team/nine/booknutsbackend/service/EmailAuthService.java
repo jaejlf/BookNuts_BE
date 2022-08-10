@@ -20,6 +20,7 @@ public class EmailAuthService {
     //static으로 선언했으지만 db에 컬럼 추가하는 방식으로 변경 예정
     public static final String authcode = createKey();
 
+    //메세지 내용 생성
     private MimeMessage createMessage(String to) throws MessagingException {
         MimeMessage  message = javaMailSender.createMimeMessage();
 
@@ -68,18 +69,26 @@ public class EmailAuthService {
                     break;
             }
         }
-
         return key.toString();
     }
 
+    //인증코드 이메일 전송 
+    //여기서 이멜 주소랑 코드 레디스에 저장해야 될듯
     public String sendSimpleMessage(String to) throws MessagingException {
         MimeMessage message = createMessage(to);
         try{//예외처리
-            javaMailSender.send(message);
+            javaMailSender.send(message);   
         }catch(MailException es){
             es.printStackTrace();
             throw new IllegalArgumentException();
         }
         return authcode;
+    }
+
+    //이멜 인증 코드 레디스 디비랑 비교
+    public Boolean confirmEmailCode(String email, String code) {
+        //레디스 디비랑 비교
+
+        return true;
     }
 }

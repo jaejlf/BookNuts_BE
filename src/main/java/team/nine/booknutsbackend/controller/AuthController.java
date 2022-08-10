@@ -44,12 +44,15 @@ public class AuthController {
 
     //401 인증 실패, 404 사용자 없음
     //이메일 인증 (post로 변경?)
-    @GetMapping("/confirmEmail/{email}")
-    public ResponseEntity<Object> sendEmail(@PathVariable String email) throws MessagingException {
-        String confirm = emailAuthService.sendSimpleMessage(email);
-
+    @PostMapping("/sendEmail")
+    public ResponseEntity<Object> sendEmail(@RequestBody Map<String, String> userEmail) throws MessagingException {
         //이메일 확인 코드 번호를 200과 함께 프론트에 보내고 프론트에서 실시간으로 char를 비교하여 맞춰보는 형식으로?
-        return ResponseEntity.ok(confirm);
+        return ResponseEntity.ok(emailAuthService.sendSimpleMessage(userEmail.get("email")));
+    }
+
+    @PostMapping("/confirmEmailCode")
+    public ResponseEntity<Object> confirmMailCode(@RequestBody Map<String, String> mailcode) {
+        return ResponseEntity.ok(emailAuthService.confirmEmailCode(mailcode.get("email"), mailcode.get("code")));
     }
 
     //유저 로그인 아이디 중복 체크
