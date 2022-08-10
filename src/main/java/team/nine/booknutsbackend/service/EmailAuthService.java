@@ -22,12 +22,10 @@ public class EmailAuthService {
     public static final String authcode = createKey();
 
     private MimeMessage createMessage(String to) throws MessagingException {
-        System.out.println("보내는 대상 : "+ to);
-        System.out.println("인증 번호 : "+ authcode);
         MimeMessage  message = javaMailSender.createMimeMessage();
 
         message.addRecipients(Message.RecipientType.TO, to);//보내는 대상
-        message.setSubject("Babble회원가입 이메일 인증");//제목
+        message.setSubject("Booknuts 회원가입 이메일 인증");//제목
 
         String msgg="";
         msgg+= "<div style='margin:100px;'>";
@@ -44,8 +42,7 @@ public class EmailAuthService {
         msgg+= authcode+"</strong><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("properties email 필요!"));//보내는 사람
-
+        message.setFrom(new InternetAddress("whtjsgml789@naver.com"));//보내는 사람
         return message;
     }
 

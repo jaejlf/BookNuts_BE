@@ -45,15 +45,12 @@ public class AuthController {
     //401 인증 실패, 404 사용자 없음
     @GetMapping("/authEmail/{email}")
     public ResponseEntity<Object> emailConfirm(@PathVariable String email) throws MessagingException {
-        System.out.println(email);
         String confirm = emailAuthService.sendSimpleMessage(email);
 
-        System.out.println(confirm);
+        //이메일 확인 코드 번호를 200과 함께 프론트에 보내고 프론트에서 실시간으로 char를 비교하여 맞춰보는 형식으로?
         return ResponseEntity.ok(confirm);
-        //return ResponseEntity.status(200).body(BaseResponseBody.of(200, confirm));
     }
-
-
+    
     //유저 로그인 아이디 중복 체크
     @GetMapping("/checkLoginId/{loginId}")
     public ResponseEntity<Boolean> checkUserIdDuplicate(@PathVariable String loginId) {
