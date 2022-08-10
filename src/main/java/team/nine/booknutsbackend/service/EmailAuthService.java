@@ -1,5 +1,6 @@
 package team.nine.booknutsbackend.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,16 +10,20 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.time.Duration;
 import java.util.Random;
 
+@RequiredArgsConstructor
 @Service
 public class EmailAuthService {
 
     @Autowired
     JavaMailSender javaMailSender;
 
+    private final RedisService redisService;
+
     //static으로 선언했으지만 db에 컬럼 추가하는 방식으로 변경 예정
-    public static final String authcode = createKey();
+    public String authcode = createKey();
 
     //메세지 내용 생성
     private MimeMessage createMessage(String to) throws MessagingException {
@@ -72,12 +77,12 @@ public class EmailAuthService {
         return key.toString();
     }
 
-    //인증코드 이메일 전송 
-    //여기서 이멜 주소랑 코드 레디스에 저장해야 될듯
+    //인증코드 이메일 전송
     public String sendSimpleMessage(String to) throws MessagingException {
         MimeMessage message = createMessage(to);
         try{//예외처리
-            javaMailSender.send(message);   
+            javaMailSender.send(message);
+            redisService.setValues(to, authcode, Duration.ofMillis(600000));
         }catch(MailException es){
             es.printStackTrace();
             throw new IllegalArgumentException();
@@ -85,10 +90,10 @@ public class EmailAuthService {
         return authcode;
     }
 
-    //이멜 인증 코드 레디스 디비랑 비교
+    //redis 코드와 비교
     public Boolean confirmEmailCode(String email, String code) {
-        //레디스 디비랑 비교
-
-        return true;
+        String redisCode = redisService.getValues(email);
+        if (redisCode.equals(code) ) return true;
+        else return false;
     }
 }
