@@ -9,7 +9,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 @Service
@@ -42,10 +41,11 @@ public class EmailAuthService {
         msgg+= authcode+"</strong><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("whtjsgml789@naver.com"));//보내는 사람
+        message.setFrom(new InternetAddress("!!!!!!!!!!application-email.properties의 email address와 일치시키기!!!!!!!"));//보내는 사람
         return message;
     }
 
+    //인증 코드 발급
     public static String createKey() {
         StringBuffer key = new StringBuffer();
         Random rnd = new Random();
@@ -72,7 +72,6 @@ public class EmailAuthService {
         return key.toString();
     }
 
-    //인증 코드 일치 여부 확인
     public String sendSimpleMessage(String to) throws MessagingException {
         MimeMessage message = createMessage(to);
         try{//예외처리
