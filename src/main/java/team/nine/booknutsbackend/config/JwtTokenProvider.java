@@ -13,7 +13,6 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -31,27 +30,21 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    //access token 생성
-    public String createAccessToken(String userPk, List<String> roles) {
-        Claims claims = Jwts.claims().setSubject(userPk);
-        claims.put("roles", roles.get(0));
-        Date now = new Date();
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
+    public String createAccessToken(String email) {
+        return createToken(email, accessTokenValidTime);
     }
 
-    //refresh token 생성
-    public String createRefreshToken(String userPk) {
-        Claims claims = Jwts.claims().setSubject(userPk);
+    public String createRefreshToken(String email) {
+        return createToken(email, refreshTokenValidTime);
+    }
+
+    public String createToken(String email, Long tokenValidTime) {
+        Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
+                .setExpiration(new Date(now.getTime() + tokenValidTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
