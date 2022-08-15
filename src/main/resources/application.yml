@@ -1,7 +1,7 @@
 spring:
   profiles:
     include: db, s3, email
-    active: local
+    active: ${profile}
 
 logging:
   level:

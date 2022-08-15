@@ -3,8 +3,8 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-    <property name="LOG_FILE" value="logback"/>
-    <property name="LOG_PATH" value="./logs/debug"/>
+    <property name="LOG_FILE_NAME" value="logback"/>
+    <property name="LOG_DEBUG_PATH" value="./logs/debug"/>
     <property name="LOG_HIBERNATE_PATH" value="./logs/hibernate"/>
     <property name="LOG_API_PATH" value="./logs/apis"/>
     <property name="LOG_ERROR_PATH" value="./logs/error"/>
@@ -27,7 +27,7 @@
                 <pattern>${FILE_LOG_PATTERN}</pattern>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>${LOG_ERROR_PATH}/%d{yyyy-MM-dd}/${LOG_FILE}-%d{yyyy.MM.dd}-%i.log</fileNamePattern>
+                <fileNamePattern>${LOG_ERROR_PATH}/%d{yyyy-MM-dd}/${LOG_FILE_NAME}-%d{yyyy.MM.dd}-%i.log</fileNamePattern>
                 <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                     <maxFileSize>10MB</maxFileSize>
                 </timeBasedFileNamingAndTriggeringPolicy>
@@ -41,7 +41,7 @@
                 <pattern>${FILE_LOG_PATTERN}</pattern>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/${LOG_FILE}-%d{yyyy.MM.dd}-%i.log</fileNamePattern>
+                <fileNamePattern>${LOG_DEBUG_PATH}/%d{yyyy-MM-dd}/${LOG_FILE_NAME}-%d{yyyy.MM.dd}-%i.log</fileNamePattern>
                 <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                     <maxFileSize>10MB</maxFileSize>
                 </timeBasedFileNamingAndTriggeringPolicy>
@@ -55,7 +55,7 @@
                 <pattern>${FILE_LOG_PATTERN}</pattern>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>${LOG_HIBERNATE_PATH}/%d{yyyy-MM-dd}/${LOG_FILE}.%d{yyyy-MM-dd}-%i.log
+                <fileNamePattern>${LOG_HIBERNATE_PATH}/%d{yyyy-MM-dd}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}-%i.log
                 </fileNamePattern>
                 <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                     <maxFileSize>10MB</maxFileSize>
@@ -70,7 +70,7 @@
                 <pattern>${FILE_LOG_PATTERN}</pattern>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>${LOG_API_PATH}/%d{yyyy-MM-dd}/${LOG_FILE}.%d{yyyy-MM-dd}-%i.log
+                <fileNamePattern>${LOG_API_PATH}/%d{yyyy-MM-dd}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}-%i.log
                 </fileNamePattern>
                 <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                     <maxFileSize>10MB</maxFileSize>
