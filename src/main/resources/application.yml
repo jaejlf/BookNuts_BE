@@ -1,0 +1,11 @@
+spring:
+  profiles:
+    include: db, s3, email
+    active: ${profile}
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: ERROR

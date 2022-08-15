@@ -1,5 +1,6 @@
 package team.nine.booknutsbackend.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,192 +37,131 @@ import java.util.Map;
  * 503 Service Unavailable	  현재 이용할 수 없는 서비스
  **/
 
+@Slf4j
 @RestControllerAdvice
 public class CustomExceptionHandler {
 
-    //default 예외 처리
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleAllExceptions(Exception e) {
+    private Map<String, String> getExceptionDescription(Exception e) {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("error", e.getClass().getSimpleName());
         map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("[" + e.getClass().getSimpleName() + "] " + e.getMessage());
+        return map;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleAllExceptions(Exception e) {
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ArchiveDuplicateException.class)
     public ResponseEntity<Object> handleArchiveDuplicateException(ArchiveDuplicateException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ArchiveNotFoundException.class)
     public ResponseEntity<Object> handleArchiveNotFoundException(ArchiveNotFoundException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BoardNotFoundException.class)
     public ResponseEntity<Object> handleBoardNotFoundException(BoardNotFoundException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(OutOfIndexException.class)
     public ResponseEntity<Object> handleOutOfIndexException(OutOfIndexException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CannotEnterException.class)
     public ResponseEntity<Object> handleCannotEnterException(CannotEnterException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DebateUserNotFoundException.class)
     public ResponseEntity<Object> handleDebateUserNotFoundException(DebateUserNotFoundException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<Object> handleRoomNotFoundException(RoomNotFoundException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(StatusChangeException.class)
     public ResponseEntity<Object> handleStatusChangeException(StatusChangeException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AlreadyFollowingException.class)
     public ResponseEntity<Object> handleAlreadyFollowingException(AlreadyFollowingException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(CannotFollowException.class)
     public ResponseEntity<Object> handleCannotFollowException(CannotFollowException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFollowingException.class)
     public ResponseEntity<Object> handleNotFollowingException(NotFollowingException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SeriesDuplicateException.class)
     public ResponseEntity<Object> handleSeriesDuplicateException(SeriesDuplicateException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(SeriesNotFoundException.class)
     public ResponseEntity<Object> handleSeriesNotFoundException(SeriesNotFoundException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ExpiredRefreshTokenException.class)
     public ResponseEntity<Object> handleExpiredRefreshTokenException(ExpiredRefreshTokenException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ExpiredTokenException.class)
     public ResponseEntity<Object> handleExpiredTokenException(ExpiredTokenException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<Object> handleInvalidTokenException(InvalidTokenException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(NoAuthException.class)
     public ResponseEntity<Object> handleNoAuthException(NoAuthException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(PasswordErrorException.class)
     public ResponseEntity<Object> handlePasswordErrorException(PasswordErrorException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UploadFailedException.class)
     public ResponseEntity<Object> handleUploadFailedException(UploadFailedException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(NotNewCommentCreateException.class)
     public ResponseEntity<Object> handleStatusChangeException(NotNewCommentCreateException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(CommentNotFoundException.class)
     public ResponseEntity<Object> handleStatusChangeException(CommentNotFoundException e) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("error", e.getClass().getSimpleName());
-        map.put("msg", e.getMessage());
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(getExceptionDescription(e), HttpStatus.NOT_FOUND);
     }
 
 }
