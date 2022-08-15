@@ -11,8 +11,10 @@ import team.nine.booknutsbackend.dto.request.UserRequest;
 import team.nine.booknutsbackend.dto.response.LoginResponse;
 import team.nine.booknutsbackend.dto.response.UserResponse;
 import team.nine.booknutsbackend.exception.user.ExpiredRefreshTokenException;
+import team.nine.booknutsbackend.service.EmailAuthService;
 import team.nine.booknutsbackend.service.UserService;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
@@ -23,7 +25,7 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
-    //private final EmailAuthService emailAuthService;
+    private final EmailAuthService emailAuthService;
     private final JwtTokenProvider jwtTokenProvider;
 
     //회원가입
@@ -40,18 +42,16 @@ public class AuthController {
         return ResponseEntity.ok(userService.checkNicknameDuplication(nickname));
     }
 
-//    //401 인증 실패, 404 사용자 없음
-//    //이메일 인증 (post로 변경?)
-//    @PostMapping("/sendEmail")
-//    public ResponseEntity<Object> sendEmail(@RequestBody Map<String, String> userEmail) throws MessagingException {
-//        //이메일 확인 코드 번호를 200과 함께 프론트에 보내고 프론트에서 실시간으로 char를 비교하여 맞춰보는 형식으로?
-//        return ResponseEntity.ok(emailAuthService.sendSimpleMessage(userEmail.get("email")));
-//    }
-//
-//    @PostMapping("/confirmEmailCode")
-//    public ResponseEntity<Object> confirmMailCode(@RequestBody Map<String, String> mailcode) {
-//        return ResponseEntity.ok(emailAuthService.confirmEmailCode(mailcode.get("email"), mailcode.get("code")));
-//    }
+    //401 인증 실패, 404 사용자 없음
+    @PostMapping("/sendEmail")
+    public ResponseEntity<Object> sendEmail(@RequestBody Map<String, String> userEmail) throws MessagingException {
+        return ResponseEntity.ok(emailAuthService.sendSimpleMessage(userEmail.get("email")));
+    }
+
+    @PostMapping("/confirmEmailCode")
+    public ResponseEntity<Object> confirmMailCode(@RequestBody Map<String, String> mailcode) {
+        return ResponseEntity.ok(emailAuthService.confirmEmailCode(mailcode.get("email"), mailcode.get("code")));
+    }
 
     //유저 로그인 아이디 중복 체크
     @GetMapping("/checkLoginId/{loginId}")
@@ -63,7 +63,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Map<String, String> user) {
         User loginUser = userService.login(user.get("id"), user.get("password"));
-        String accessToken = jwtTokenProvider.createAccessToken(loginUser.getUsername(), loginUser.getRoles());
+        String accessToken = jwtTokenProvider.createAccessToken(loginUser.getUsername());
         return new ResponseEntity<>(LoginResponse.loginResponse(loginUser, accessToken), HttpStatus.OK);
     }
 

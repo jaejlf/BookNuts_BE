@@ -76,7 +76,7 @@ public class UserService {
     public Object tokenReIssue(String refreshToken) {
         User user = userRepository.findByRefreshToken(refreshToken) //db에 해당 refresh token이 존재하지 않는 경우
                 .orElseThrow(InvalidTokenException::new);
-        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername(), user.getRoles());
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
 
         //refresh token 만료 기간 체크 -> 2일 이하로 남은 경우 재발급
         long validTime = jwtTokenProvider.getValidTime(refreshToken);

@@ -1,9 +1,10 @@
-package team.nine.booknutsbackend.interceptor;
+package team.nine.booknutsbackend.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import team.nine.booknutsbackend.interceptor.JWTAuthInterceptor;
 
 @Configuration
 @RequiredArgsConstructor

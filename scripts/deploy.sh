@@ -32,5 +32,5 @@ chmod +x $JAR_NAME
 echo "> JAR Name: $JAR_NAME"
 
 nohup java -jar \
-       -Dspring.config.location=classpath:/application.properties,/home/ec2-user/app/application-db.properties,/home/ec2-user/app/application-s3.properties \
+       -Dspring.config.location=classpath:/application.properties,/home/ec2-user/app/application-db.properties,/home/ec2-user/app/application-s3.properties,/home/ec2-user/app/application-email.properties \
        $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
