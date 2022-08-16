@@ -4,13 +4,13 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
     <property name="LOG_FILE_NAME" value="logback"/>
-    <property name="LOG_DEBUG_PATH" value="/home/ec2-user/app/step2/logs/debug"/>
-    <property name="LOG_HIBERNATE_PATH" value="/home/ec2-user/app/step2/logs/hibernate"/>
-    <property name="LOG_API_PATH" value="/home/ec2-user/app/step2/logs/apis"/>
-    <property name="LOG_ERROR_PATH" value="/home/ec2-user/app/step2/logs/error"/>
+    <property name="LOG_DEBUG_PATH" value="/home/ec2-user/app/logs/debug"/>
+    <property name="LOG_HIBERNATE_PATH" value="/home/ec2-user/app/logs/hibernate"/>
+    <property name="LOG_API_PATH" value="/home/ec2-user/app/logs/apis"/>
+    <property name="LOG_ERROR_PATH" value="/home/ec2-user/app/logs/error"/>
 
     <springProfile name="local">
-        <root level="DEBUG">
+        <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
