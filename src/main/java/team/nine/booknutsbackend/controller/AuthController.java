@@ -30,7 +30,7 @@ public class AuthController {
 
     //회원가입
     @PostMapping("/join")
-    public ResponseEntity<UserResponse> join(@RequestPart(value = "file") MultipartFile file,
+    public ResponseEntity<UserResponse> join(@RequestPart(value = "file", required = false) MultipartFile file,
                                              @RequestPart("user") @Valid UserRequest user) {
         User newUser = userService.join(file, UserRequest.userRequest(user));
         return new ResponseEntity<>(UserResponse.userResponse(newUser), HttpStatus.CREATED);

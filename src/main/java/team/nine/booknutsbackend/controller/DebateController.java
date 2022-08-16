@@ -29,7 +29,7 @@ public class DebateController {
 
     //토론장 개설
     @PostMapping("/create")
-    public ResponseEntity<DebateRoomResponse> createRoom(@RequestPart(value = "file") MultipartFile file,
+    public ResponseEntity<DebateRoomResponse> createRoom(@RequestPart(value = "file", required = false) MultipartFile file,
                                                          @RequestPart(value = "room") @Valid DebateRoomRequest room, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         DebateRoom newRoom = debateService.createRoom(file, DebateRoomRequest.roomRequest(room, user));

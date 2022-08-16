@@ -36,7 +36,7 @@ public class ArchiveController {
 
     //아카이브 생성
     @PostMapping("/create")
-    public ResponseEntity<ArchiveResponse> createArchive(@RequestPart(value = "file") MultipartFile file,
+    public ResponseEntity<ArchiveResponse> createArchive(@RequestPart(value = "file", required = false) MultipartFile file,
                                                          @RequestPart(value = "archive") @Valid ArchiveRequest archiveRequest,
                                                          Principal principal) {
         User user = userService.findUserByEmail(principal.getName());

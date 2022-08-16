@@ -40,7 +40,7 @@ public class UserController {
 
     //프로필 이미지 수정
     @PatchMapping("/update/img")
-    public ResponseEntity<UserResponse> updateProfileImg(@RequestPart(value = "file") MultipartFile file, Principal principal) {
+    public ResponseEntity<UserResponse> updateProfileImg(@RequestPart(value = "file", required = false) MultipartFile file, Principal principal) {
         User originUser = userService.findUserByEmail(principal.getName());
         User updateUser = userService.updateProfileImg(file, originUser);
         return new ResponseEntity<>(UserResponse.userResponse(updateUser), HttpStatus.OK);

@@ -36,7 +36,7 @@ public class SeriesController {
 
     //시리즈 발행
     @PostMapping("/create")
-    public ResponseEntity<SeriesResponse> createSeries(@RequestPart(value = "file") MultipartFile file,
+    public ResponseEntity<SeriesResponse> createSeries(@RequestPart(value = "file", required = false) MultipartFile file,
                                                        @RequestPart(value = "series") @Valid SeriesRequest seriesRequest, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
         Series newSeries = seriesService.createSeries(file, SeriesRequest.seriesRequest(seriesRequest, user), seriesRequest.getBoardIdlist());
