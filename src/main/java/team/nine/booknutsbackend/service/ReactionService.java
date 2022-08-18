@@ -7,12 +7,14 @@ import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
-import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
 import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.HeartRepository;
 import team.nine.booknutsbackend.repository.NutsRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.BOARD_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
@@ -25,7 +27,7 @@ public class ReactionService {
     @Transactional
     public String clickNuts(Long boardId, User user) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
 
         List<Nuts> nutsList = user.getNutsList();
         Nuts targetNuts = nutsRepository.findByBoardAndUser(board, user);
@@ -45,7 +47,7 @@ public class ReactionService {
     @Transactional
     public String clickHeart(Long boardId, User user) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
 
         List<Heart> hearts = user.getHearts();
         Heart targetHeart = heartRepository.findByBoardAndUser(board, user);

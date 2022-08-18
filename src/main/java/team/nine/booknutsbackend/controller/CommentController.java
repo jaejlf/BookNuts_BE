@@ -9,7 +9,6 @@ import team.nine.booknutsbackend.domain.Comment;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.CommentRequest;
 import team.nine.booknutsbackend.dto.response.CommentResponse;
-import team.nine.booknutsbackend.exception.comment.NotNewCommentCreateException;
 import team.nine.booknutsbackend.service.BoardService;
 import team.nine.booknutsbackend.service.CommentService;
 import team.nine.booknutsbackend.service.UserService;
@@ -18,6 +17,8 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.COMMENT_INPUT_ERROR;
 
 @RequiredArgsConstructor
 @RestController
@@ -31,7 +32,7 @@ public class CommentController {
     //댓글 작성(부모)
     @PostMapping("/{boardId}/write")
     public ResponseEntity<Object> writeComment(@PathVariable Long boardId, @RequestBody CommentRequest comment, Principal principal) {
-        if (comment.getContent() == null) throw new NotNewCommentCreateException();
+        if (comment.getContent() == null) throw new IllegalArgumentException(COMMENT_INPUT_ERROR.getMsg());
         User user = userService.findUserByEmail(principal.getName());
         Board board = boardService.getPost(boardId);
         Comment newComment = commentService.writeComment(CommentRequest.commentRequest(comment, user, board));
@@ -42,7 +43,7 @@ public class CommentController {
     @PostMapping("/{boardId}/{commentId}")
     public ResponseEntity<Object> writeReComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId,
                                                  @RequestBody CommentRequest comment, Principal principal) {
-        if (comment.getContent() == null) throw new NotNewCommentCreateException();
+        if (comment.getContent() == null) throw new IllegalArgumentException(COMMENT_INPUT_ERROR.getMsg());
         User user = userService.findUserByEmail(principal.getName());
         Board board = boardService.getPost(boardId);
         Comment parentComment = commentService.getComment(commentId);
@@ -61,7 +62,7 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<Object> updateComment(@PathVariable Long commentId, @RequestBody CommentRequest comment, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        if (comment.getContent() == null) throw new NotNewCommentCreateException();
+        if (comment.getContent() == null) throw new IllegalArgumentException(COMMENT_INPUT_ERROR.getMsg());
         Comment updateComment = commentService.updateComment(commentId, comment, user);
         return new ResponseEntity<>(CommentResponse.commentResponse(updateComment), HttpStatus.OK);
     }

@@ -11,17 +11,18 @@ import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.dto.request.ArchiveRequest;
 import team.nine.booknutsbackend.dto.response.ArchiveResponse;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
-import team.nine.booknutsbackend.exception.archive.ArchiveDuplicateException;
-import team.nine.booknutsbackend.exception.archive.ArchiveNotFoundException;
-import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.ArchiveBoardRepository;
 import team.nine.booknutsbackend.repository.ArchiveRepository;
 import team.nine.booknutsbackend.repository.BoardRepository;
 
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 @RequiredArgsConstructor
 @Service
@@ -36,7 +37,7 @@ public class ArchiveService {
     @Transactional(readOnly = true)
     public Archive getArchive(Long archiveId) {
         return archiveRepository.findById(archiveId)
-                .orElseThrow(ArchiveNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ARCHIVE_NOT_FOUND.getMsg()));
     }
 
     //특정 유저의 아카이브 목록 조회
@@ -64,7 +65,7 @@ public class ArchiveService {
     @Transactional(readOnly = true)
     public List<BoardResponse> getArchiveBoards(Long archiveId, User user) {
         Archive archive = archiveRepository.findById(archiveId)
-                .orElseThrow(ArchiveNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ARCHIVE_NOT_FOUND.getMsg()));
         List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
         List<BoardResponse> boardList = new ArrayList<>();
 
@@ -80,13 +81,13 @@ public class ArchiveService {
     @Transactional
     public void addPostToArchive(Long archiveId, Long boardId, User user) {
         Archive archive = getArchive(archiveId);
-        if (archive.getOwner() != user) throw new NoAuthException();
+        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
 
         if (archiveBoardRepository.findByBoardAndOwner(board, user).isPresent())
-            throw new ArchiveDuplicateException();
+            throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
 
         ArchiveBoard archiveBoard = new ArchiveBoard();
         archiveBoard.setArchive(archive);
@@ -99,7 +100,7 @@ public class ArchiveService {
     @Transactional
     public void deleteArchive(Long archiveId, User user) {
         Archive archive = getArchive(archiveId);
-        if (archive.getOwner() != user) throw new NoAuthException();
+        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
         archiveBoardRepository.deleteAll(archiveBoards);
@@ -112,10 +113,10 @@ public class ArchiveService {
     @Transactional
     public void deleteArchivePost(Long archiveId, Long boardId, User user) {
         Archive archive = getArchive(archiveId);
-        if (archive.getOwner() != user) throw new NoAuthException();
+        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
 
         ArchiveBoard archiveBoard = archiveBoardRepository.findByArchiveAndBoard(archive, board);
         archiveBoardRepository.delete(archiveBoard);
@@ -125,7 +126,7 @@ public class ArchiveService {
     @Transactional
     public Archive updateArchive(Long archiveId, ArchiveRequest archiveRequest, User user) {
         Archive archive = getArchive(archiveId);
-        if (archive.getOwner() != user) throw new NoAuthException();
+        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         if (archiveRequest.getTitle() != null) archive.setTitle(archiveRequest.getTitle());
         if (archiveRequest.getContent() != null) archive.setContent(archiveRequest.getContent());

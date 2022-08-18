@@ -8,15 +8,16 @@ import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.BoardRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
-import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
-import team.nine.booknutsbackend.exception.board.OutOfIndexException;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.FollowRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 @RequiredArgsConstructor
 @Service
@@ -29,7 +30,7 @@ public class BoardService {
     @Transactional(readOnly = true)
     public Board getPost(Long boardId) {
         return boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
     }
 
     //게시글 작성
@@ -42,7 +43,7 @@ public class BoardService {
     //나의 구독 = 0, 오늘 추천 = 1, 독립 출판 = 2
     @Transactional(readOnly = true)
     public List<BoardResponse> getBoard(User user, int type) {
-        if (type < 0 || type > 2) throw new OutOfIndexException();
+        if (type < 0 || type > 2) throw new IndexOutOfBoundsException(TYPE_NUM_ERROR.getMsg());
 
         List<Board> boards;
         if (type == 0) boards = get0Boards(user);
@@ -103,7 +104,7 @@ public class BoardService {
     @Transactional
     public Board updatePost(Long boardId, BoardRequest boardRequest, User user) {
         Board board = getPost(boardId);
-        if (board.getUser() != user) throw new NoAuthException();
+        if (board.getUser() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         if (boardRequest.getTitle() != null) board.setTitle(boardRequest.getTitle());
         if (boardRequest.getContent() != null) board.setContent(boardRequest.getContent());
@@ -115,7 +116,7 @@ public class BoardService {
     @Transactional
     public void deletePost(Long boardId, User user) {
         Board board = getPost(boardId);
-        if (board.getUser() != user) throw new NoAuthException();
+        if (board.getUser() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
         boardRepository.delete(board);
     }
 

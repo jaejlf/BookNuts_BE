@@ -11,17 +11,18 @@ import team.nine.booknutsbackend.domain.series.SeriesBoard;
 import team.nine.booknutsbackend.dto.request.SeriesRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.dto.response.SeriesResponse;
-import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
-import team.nine.booknutsbackend.exception.series.SeriesDuplicateException;
-import team.nine.booknutsbackend.exception.series.SeriesNotFoundException;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.SeriesBoardRepository;
 import team.nine.booknutsbackend.repository.SeriesRepository;
 
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 @RequiredArgsConstructor
 @Service
@@ -37,7 +38,7 @@ public class SeriesService {
     @Transactional(readOnly = true)
     public Series getSeries(Long seriesId) {
         return seriesRepository.findById(seriesId)
-                .orElseThrow(SeriesNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(SERIES_NOT_FOUND.getMsg()));
     }
 
     //특정 유저의 시리즈 목록 조회
@@ -90,7 +91,7 @@ public class SeriesService {
     @Transactional
     public void deleteSeries(Long seriesId, User user) {
         Series series = getSeries(seriesId);
-        if (series.getOwner() != user) throw new NoAuthException();
+        if (series.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
         seriesBoardRepository.deleteAll(seriesBoards);
@@ -103,14 +104,14 @@ public class SeriesService {
     @Transactional
     public void addPostToSeries(Long seriesId, Long boardId, User user) {
         Series series = getSeries(seriesId);
-        if (series.getOwner() != user) throw new NoAuthException();
+        if (series.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
 
         //시리즈 중복체크
         if (seriesBoardRepository.findByBoardAndSeries(board, series).isPresent())
-            throw new SeriesDuplicateException();
+            throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
 
         SeriesBoard seriesBoard = new SeriesBoard();
         seriesBoard.setSeries(series);
@@ -123,7 +124,7 @@ public class SeriesService {
     @Transactional
     public Series updateSeries(Long seriesId, SeriesRequest seriesRequest, User user) {
         Series series = getSeries(seriesId);
-        if (series.getOwner() != user) throw new NoAuthException();
+        if (series.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         if (seriesRequest.getTitle() != null) series.setTitle(seriesRequest.getTitle());
         if (seriesRequest.getContent() != null) series.setContent(seriesRequest.getContent());

@@ -8,14 +8,15 @@ import team.nine.booknutsbackend.domain.Comment;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.CommentRequest;
 import team.nine.booknutsbackend.dto.response.CommentResponse;
-import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
-import team.nine.booknutsbackend.exception.comment.CommentNotFoundException;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.CommentRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,14 +41,14 @@ public class CommentService {
     @Transactional(readOnly = true)
     public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(CommentNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND.getMsg()));
     }
 
     //게시글 별 댓글 리스트 조회
     @Transactional(readOnly = true)
     public List<CommentResponse> getCommentList(Long boardId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
         List<Comment> comments = commentRepository.findByBoard(board);
 
         List<Comment> commentList = new ArrayList<>();
@@ -72,7 +73,7 @@ public class CommentService {
     @Transactional
     public Comment updateComment(Long commentId, CommentRequest commentRequest, User user) {
         Comment comment = getComment(commentId);
-        if (comment.getUser() != user) throw new NoAuthException();
+        if (comment.getUser() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         comment.setContent(commentRequest.getContent());
 
@@ -84,7 +85,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long commentId, User user) {
         Comment comment = getComment(commentId);
-        if (comment.getUser() != user) throw new NoAuthException();
+        if (comment.getUser() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
 
         //자식 댓글인 경우 & 자식이 없는 부모 댓글인 경우
         if ((comment.getParent() != null) || (comment.getChildren().size() == 0)) {

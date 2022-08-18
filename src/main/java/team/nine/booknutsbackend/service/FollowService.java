@@ -6,13 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.FollowResponse;
-import team.nine.booknutsbackend.exception.follow.AlreadyFollowingException;
-import team.nine.booknutsbackend.exception.follow.CannotFollowException;
-import team.nine.booknutsbackend.exception.follow.NotFollowingException;
 import team.nine.booknutsbackend.repository.FollowRepository;
 
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 
 @RequiredArgsConstructor
@@ -28,8 +29,8 @@ public class FollowService {
         Follow follow = new Follow();
 
         if (followRepository.findByFollowingAndFollower(following, follower).isPresent())
-            throw new AlreadyFollowingException();
-        if (following == follower) throw new CannotFollowException();
+            throw new EntityExistsException(ALREADY_FOLLOWING.getMsg());
+        if (following == follower) throw new IllegalArgumentException(FOLLOW_ERROR.getMsg());
 
         follow.setFollowing(userService.findUserById(following.getUserId()));
         follow.setFollower(userService.findUserById(follower.getUserId()));
@@ -41,7 +42,7 @@ public class FollowService {
     @Transactional
     public void unfollow(User unfollowing, User follower) {
         Follow follow = followRepository.findByFollowingAndFollower(unfollowing, follower)
-                .orElseThrow(NotFollowingException::new);
+                .orElseThrow(() -> new EntityNotFoundException(FOLLOW_NOT_FOUND.getMsg()));
         followRepository.delete(follow);
     }
 

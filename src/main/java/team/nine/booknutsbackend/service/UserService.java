@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,12 +9,13 @@ import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.config.JwtTokenProvider;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.exception.user.InvalidTokenException;
-import team.nine.booknutsbackend.exception.user.PasswordErrorException;
-import team.nine.booknutsbackend.exception.user.UserNotFoundException;
 import team.nine.booknutsbackend.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.PASSWORD_ERROR;
+import static team.nine.booknutsbackend.exception.ErrorMessage.USER_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
@@ -37,7 +39,7 @@ public class UserService {
     @Transactional
     public User login(String id, String password) {
         User user = findUserByEmail(id);
-        if (!passwordEncoder.matches(password, user.getPassword())) throw new PasswordErrorException();
+        if (!passwordEncoder.matches(password, user.getPassword())) throw new IllegalArgumentException(PASSWORD_ERROR.getMsg());
 
         user.setRefreshToken(jwtTokenProvider.createRefreshToken(user.getEmail()));
         return userRepository.save(user);
@@ -47,8 +49,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
-        if (!user.isEnabled()) throw new UserNotFoundException();
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
+        if (!user.isEnabled()) throw new UsernameNotFoundException(USER_NOT_FOUND.getMsg());
 
         return user;
     }
@@ -104,7 +106,7 @@ public class UserService {
     //비밀번호 재설정
     @Transactional
     public void updatePassword(String oldPw, String newPw, User user) {
-        if (!passwordEncoder.matches(oldPw, user.getPassword())) throw new PasswordErrorException();
+        if (!passwordEncoder.matches(oldPw, user.getPassword())) throw new IllegalArgumentException(PASSWORD_ERROR.getMsg());
         user.setPassword(passwordEncoder.encode(newPw));
         userRepository.save(user);
     }
