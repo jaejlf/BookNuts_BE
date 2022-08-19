@@ -82,11 +82,6 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUser(String id) {
-        return customUserDetailService.loadUserByUsername(id);
-    }
-
-    @Transactional(readOnly = true)
     public User getUserById(Long userId) {
         return getUser(userId);
     }
@@ -106,6 +101,10 @@ public class UserService {
         checkPasswordMatching(oldPw, user);
         user.updatePassword(passwordEncoder.encode(newPw));
         userRepository.save(user);
+    }
+
+    private User getUser(String id) {
+        return customUserDetailService.loadUserByUsername(id);
     }
 
     private void checkPasswordMatching(String inputPw, User user) {

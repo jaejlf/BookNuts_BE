@@ -2,6 +2,7 @@ package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,7 +15,6 @@ import team.nine.booknutsbackend.dto.response.UserProfileResponse;
 import team.nine.booknutsbackend.service.SearchService;
 import team.nine.booknutsbackend.service.UserService;
 
-import java.security.Principal;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -28,8 +28,8 @@ public class SearchController {
     private final UserService userService;
 
     @GetMapping("/board")
-    public ResponseEntity<Object> searchBoard(@RequestParam String keyword, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> searchBoard(@RequestParam String keyword,
+                                              @AuthenticationPrincipal User user) {
         List<BoardResponse> boardSearchResultList = searchService.searchBoard(keyword, user);
         return ResponseEntity
                 .status(OK)
@@ -45,8 +45,8 @@ public class SearchController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<Object> searchUser(@RequestParam String keyword, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> searchUser(@RequestParam String keyword,
+                                             @AuthenticationPrincipal User user) {
         List<UserProfileResponse> userSearchResultList = searchService.searchUser(keyword, user);
         return ResponseEntity
                 .status(OK)

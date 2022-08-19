@@ -2,6 +2,7 @@ package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
@@ -12,7 +13,6 @@ import team.nine.booknutsbackend.service.DebateService;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +31,8 @@ public class DebateController {
 
     @PostMapping("/create")
     public ResponseEntity<Object> createRoom(@RequestPart(value = "file", required = false) MultipartFile file,
-                                             @RequestPart(value = "room") @Valid DebateRoomRequest debateRoomRequest, Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                             @RequestPart(value = "room") @Valid DebateRoomRequest debateRoomRequest,
+                                             @AuthenticationPrincipal User user) {
         DebateRoomResponse newRoom = debateService.enterRoom(
                 debateService.createRoom(file, debateRoomRequest, user).getRoomId(),
                 debateRoomRequest.isOpinion(),
@@ -60,8 +60,9 @@ public class DebateController {
     }
 
     @PatchMapping("/enter/{roomId}")
-    public ResponseEntity<Object> enterRoom(@PathVariable Long roomId, @RequestParam Boolean opinion, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> enterRoom(@PathVariable Long roomId,
+                                            @RequestParam Boolean opinion,
+                                            @AuthenticationPrincipal User user) {
         DebateRoomResponse debateRoom = debateService.enterRoom(roomId, opinion, user);
         return ResponseEntity
                 .status(OK)
@@ -69,8 +70,8 @@ public class DebateController {
     }
 
     @PatchMapping("/exit/{roomId}")
-    public ResponseEntity<Object> exitRoom(@PathVariable Long roomId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> exitRoom(@PathVariable Long roomId,
+                                           @AuthenticationPrincipal User user) {
         debateService.exitRoom(roomId, user);
         return ResponseEntity
                 .status(OK)
@@ -78,8 +79,9 @@ public class DebateController {
     }
 
     @PatchMapping("/update/{roomId}")
-    public ResponseEntity<Object> changeStatus(@PathVariable Long roomId, @RequestParam int status, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> changeStatus(@PathVariable Long roomId,
+                                               @RequestParam int status,
+                                               @AuthenticationPrincipal User user) {
         DebateRoomResponse updatedRoom = debateService.changeStatus(roomId, status, user);
         return ResponseEntity
                 .status(OK)

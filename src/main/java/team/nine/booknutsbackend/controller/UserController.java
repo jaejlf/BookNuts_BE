@@ -2,6 +2,7 @@ package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
@@ -11,7 +12,6 @@ import team.nine.booknutsbackend.dto.response.UserResponse;
 import team.nine.booknutsbackend.service.DeleteUserService;
 import team.nine.booknutsbackend.service.UserService;
 
-import java.security.Principal;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -25,16 +25,16 @@ public class UserController {
     private final DeleteUserService deleteUserService;
 
     @GetMapping("/info")
-    public ResponseEntity<Object> getUserInfoByToken(Principal principal) {
-        UserResponse user = userService.getUserInfo(principal.getName());
+    public ResponseEntity<Object> getUserInfoByToken(@AuthenticationPrincipal User user) {
+        UserResponse userResponse = UserResponse.of(user);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok("현재 로그인된 유저 정보 조회", user));
+                .body(ResultResponse.ok("현재 로그인된 유저 정보 조회", userResponse));
     }
 
     @GetMapping("/profile/{userId}")
-    public ResponseEntity<Object> getUserProfile(@PathVariable Long userId, Principal principal) {
-        User me = userService.getUser(principal.getName());
+    public ResponseEntity<Object> getUserProfile(@PathVariable Long userId,
+                                                 @AuthenticationPrincipal User me) {
         User target = userService.getUserById(userId);
         return ResponseEntity
                 .status(OK)
@@ -42,8 +42,8 @@ public class UserController {
     }
 
     @PatchMapping("/update/img")
-    public ResponseEntity<Object> updateProfileImg(@RequestPart(value = "file", required = false) MultipartFile file, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> updateProfileImg(@RequestPart(value = "file", required = false) MultipartFile file,
+                                                   @AuthenticationPrincipal User user) {
         UserResponse updatedUser = userService.updateProfileImg(file, user);
         return ResponseEntity
                 .status(OK)
@@ -51,8 +51,8 @@ public class UserController {
     }
 
     @PatchMapping("/update/password")
-    public ResponseEntity<Object> updatePassword(@RequestBody Map<String, String> password, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> updatePassword(@RequestBody Map<String, String> password,
+                                                 @AuthenticationPrincipal User user) {
         userService.updatePassword(password, user);
         return ResponseEntity
                 .status(OK)
@@ -60,8 +60,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Object> deleteAccount(Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> deleteAccount(@AuthenticationPrincipal User user) {
         deleteUserService.deleteAccount(user);
         return ResponseEntity
                 .status(OK)

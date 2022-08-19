@@ -2,6 +2,7 @@ package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
@@ -14,7 +15,6 @@ import team.nine.booknutsbackend.service.SeriesService;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +40,8 @@ public class SeriesController {
 
     @PostMapping("/create")
     public ResponseEntity<Object> createSeries(@RequestPart(value = "file", required = false) MultipartFile file,
-                                               @RequestPart(value = "series") @Valid SeriesRequest seriesRequest, Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                               @RequestPart(value = "series") @Valid SeriesRequest seriesRequest,
+                                               @AuthenticationPrincipal User user) {
         SeriesResponse newSeries = seriesService.createSeries(file, seriesRequest, user);
         return ResponseEntity
                 .status(CREATED)
@@ -49,8 +49,8 @@ public class SeriesController {
     }
 
     @GetMapping("/{seriesId}")
-    public ResponseEntity<Object> getBoardsInSeries(@PathVariable Long seriesId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> getBoardsInSeries(@PathVariable Long seriesId,
+                                                    @AuthenticationPrincipal User user) {
         List<BoardResponse> seriesBoardList = seriesService.getBoardsInSeries(seriesId, user);
         return ResponseEntity
                 .status(OK)
@@ -58,8 +58,8 @@ public class SeriesController {
     }
 
     @DeleteMapping("/{seriesId}")
-    public ResponseEntity<Object> deleteSeries(@PathVariable Long seriesId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> deleteSeries(@PathVariable Long seriesId,
+                                               @AuthenticationPrincipal User user) {
         seriesService.deleteSeries(seriesId, user);
         return ResponseEntity
                 .status(OK)
@@ -68,8 +68,8 @@ public class SeriesController {
 
     @PatchMapping("/add/{seriesId}/{boardId}")
     public ResponseEntity<Object> addBoardToSeries(@PathVariable Long seriesId,
-                                                   @PathVariable Long boardId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                                   @PathVariable Long boardId,
+                                                   @AuthenticationPrincipal User user) {
         seriesService.addBoardToSeries(seriesId, boardId, user);
         return ResponseEntity
                 .status(OK)
@@ -78,8 +78,8 @@ public class SeriesController {
 
     @PatchMapping("/{seriesId}")
     public ResponseEntity<Object> updateArchive(@PathVariable Long seriesId,
-                                                @RequestBody Map<String, String> modRequest, Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                                @RequestBody Map<String, String> modRequest,
+                                                @AuthenticationPrincipal User user) {
         Series updatedSeries = seriesService.updateSeries(seriesId, modRequest, user);
         return ResponseEntity
                 .status(OK)

@@ -2,6 +2,7 @@ package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.domain.User;
@@ -13,7 +14,6 @@ import team.nine.booknutsbackend.service.ArchiveService;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +40,7 @@ public class ArchiveController {
     @PostMapping("/create")
     public ResponseEntity<Object> createArchive(@RequestPart(value = "file", required = false) MultipartFile file,
                                                 @RequestPart(value = "archive") @Valid ArchiveRequest archiveRequest,
-                                                Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                                @AuthenticationPrincipal User user) {
         ArchiveResponse newArchive = archiveService.createArchive(file, archiveRequest, user);
         return ResponseEntity
                 .status(CREATED)
@@ -49,8 +48,8 @@ public class ArchiveController {
     }
 
     @GetMapping("/{archiveId}")
-    public ResponseEntity<Object> getBoardsInArchive(@PathVariable Long archiveId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> getBoardsInArchive(@PathVariable Long archiveId,
+                                                     @AuthenticationPrincipal User user) {
         List<BoardResponse> boardsInArchiveList = archiveService.getBoardsInArchive(archiveId, user);
         return ResponseEntity
                 .status(OK)
@@ -59,8 +58,8 @@ public class ArchiveController {
 
     @PatchMapping("/add/{archiveId}/{boardId}")
     public ResponseEntity<Object> addBoardToArchive(@PathVariable Long archiveId,
-                                                    @PathVariable Long boardId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                                    @PathVariable Long boardId,
+                                                    @AuthenticationPrincipal User user) {
         archiveService.addBoardToArchive(archiveId, boardId, user);
         return ResponseEntity
                 .status(OK)
@@ -68,8 +67,8 @@ public class ArchiveController {
     }
 
     @DeleteMapping("/{archiveId}")
-    public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveId,
+                                                @AuthenticationPrincipal User user) {
         archiveService.deleteArchive(archiveId, user);
         return ResponseEntity
                 .status(OK)
@@ -78,8 +77,8 @@ public class ArchiveController {
 
     @DeleteMapping("/{archiveId}/{boardId}")
     public ResponseEntity<Object> deleteBoardInArchive(@PathVariable Long archiveId,
-                                                       @PathVariable Long boardId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                                       @PathVariable Long boardId,
+                                                       @AuthenticationPrincipal User user) {
         archiveService.deleteBoardInArchive(archiveId, boardId, user);
         return ResponseEntity
                 .status(OK)
@@ -88,8 +87,8 @@ public class ArchiveController {
 
     @PatchMapping("/{archiveId}")
     public ResponseEntity<Object> updateArchive(@PathVariable Long archiveId,
-                                                @RequestBody Map<String, String> modRequest, Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                                @RequestBody Map<String, String> modRequest,
+                                                @AuthenticationPrincipal User user) {
         ArchiveResponse updatedArchive = archiveService.updateArchive(archiveId, modRequest, user);
         return ResponseEntity
                 .status(OK)

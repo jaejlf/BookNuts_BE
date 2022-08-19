@@ -2,6 +2,7 @@ package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.BoardRequest;
@@ -11,7 +12,6 @@ import team.nine.booknutsbackend.service.BoardService;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +27,8 @@ public class BoardController {
     private final UserService userService;
 
     @PostMapping("/write")
-    public ResponseEntity<Object> writeBoard(@RequestBody @Valid BoardRequest boardRequest, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> writeBoard(@RequestBody @Valid BoardRequest boardRequest,
+                                             @AuthenticationPrincipal User user) {
         BoardResponse newBoard = boardService.writeBoard(boardRequest, user);
         return ResponseEntity
                 .status(CREATED)
@@ -38,8 +38,8 @@ public class BoardController {
     //탭별 게시글 목록 조회
     //나의 구독 = 0, 오늘 추천 = 1, 독립 출판 = 2
     @GetMapping("/list/type/{type}")
-    public ResponseEntity<Object> getBoardListByType(@PathVariable int type, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> getBoardListByType(@PathVariable int type,
+                                                     @AuthenticationPrincipal User user) {
         List<BoardResponse> boardList = boardService.getBoardListByType(user, type);
         return ResponseEntity
                 .status(OK)
@@ -56,8 +56,8 @@ public class BoardController {
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<Object> getBoardOne(@PathVariable Long boardId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> getBoardOne(@PathVariable Long boardId,
+                                              @AuthenticationPrincipal User user) {
         BoardResponse board = boardService.getBoardOne(boardId, user);
         return ResponseEntity
                 .status(OK)
@@ -66,8 +66,8 @@ public class BoardController {
 
     @PatchMapping("/{boardId}")
     public ResponseEntity<Object> updateBoard(@PathVariable Long boardId,
-                                              @RequestBody Map<String, String> modRequest, Principal principal) {
-        User user = userService.getUser(principal.getName());
+                                              @RequestBody Map<String, String> modRequest,
+                                              @AuthenticationPrincipal User user) {
         BoardResponse updatedBoard = boardService.updateBoard(boardId, modRequest, user);
         return ResponseEntity
                 .status(OK)
@@ -75,8 +75,8 @@ public class BoardController {
     }
 
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Object> deleteBoard(@PathVariable Long boardId, Principal principal) {
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<Object> deleteBoard(@PathVariable Long boardId,
+                                              @AuthenticationPrincipal User user) {
         boardService.deleteBoard(boardId, user);
         return ResponseEntity
                 .status(OK)

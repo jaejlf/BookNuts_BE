@@ -2,6 +2,7 @@ package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.FollowResponse;
@@ -9,7 +10,6 @@ import team.nine.booknutsbackend.dto.response.ResultResponse;
 import team.nine.booknutsbackend.service.FollowService;
 import team.nine.booknutsbackend.service.UserService;
 
-import java.security.Principal;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -23,8 +23,8 @@ public class FollowController {
     private final UserService userService;
 
     @PutMapping("/{followingId}")
-    public ResponseEntity<Object> follow(@PathVariable Long followingId, Principal principal) {
-        User me = userService.getUser(principal.getName());
+    public ResponseEntity<Object> follow(@PathVariable Long followingId,
+                                         @AuthenticationPrincipal User me) {
         User target = userService.getUserById(followingId);
         followService.follow(me, target);
         return ResponseEntity
@@ -33,8 +33,8 @@ public class FollowController {
     }
 
     @DeleteMapping("/{unfollowingId}")
-    public ResponseEntity<Object> unfollow(@PathVariable Long unfollowingId, Principal principal) {
-        User me = userService.getUser(principal.getName());
+    public ResponseEntity<Object> unfollow(@PathVariable Long unfollowingId,
+                                           @AuthenticationPrincipal User me) {
         User target = userService.getUserById(unfollowingId);
         followService.unfollow(me, target);
         return ResponseEntity
