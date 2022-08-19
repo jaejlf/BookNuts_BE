@@ -8,6 +8,7 @@ import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.BoardRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
+import team.nine.booknutsbackend.enumerate.BoardType;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.FollowRepository;
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static team.nine.booknutsbackend.enumerate.BoardType.*;
 import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 @RequiredArgsConstructor
@@ -33,15 +35,9 @@ public class BoardService {
         return BoardResponse.of(boardRepository.save(board), user);
     }
 
-    //나의 구독 = 0, 오늘 추천 = 1, 독립 출판 = 2
     @Transactional(readOnly = true)
     public List<BoardResponse> getBoardListByType(User user, int type) {
-        List<Board> boardList;
-        if (type == 0) boardList = get0Boards(user);
-        else if (type == 1) boardList = get1Boards();
-        else if (type == 2) boardList = get2Boards();
-        else throw new IndexOutOfBoundsException(TYPE_NUM_ERROR.getMsg());
-
+       List<Board> boardList = getBoardList(user, getBoardType(type));
         List<BoardResponse> boardResponseList = new ArrayList<>();
         for (Board board : boardList) {
             boardResponseList.add(BoardResponse.of(board, user));
@@ -120,6 +116,15 @@ public class BoardService {
 
     private List<Board> getBoardListByWriter(User user) {
         return boardRepository.findByWriter(user);
+    }
+
+    private List<Board> getBoardList(User user, BoardType boardType) {
+        List<Board> boardList;
+        if (boardType == MY) boardList = get0Boards(user);
+        else if (boardType == TODAY) boardList = get1Boards();
+        else if (boardType == ONEPUB) boardList = get2Boards();
+        else throw new IndexOutOfBoundsException(BOARD_TYPE_NUM_ERROR.getMsg());
+        return boardList;
     }
 
 }
