@@ -111,7 +111,7 @@ public class DebateService {
             throw new CannotEnterException(LOCKED_ROOM.getMsg());
         }
         if ((opinion && (room.getMaxUser() / 2 <= room.getCurYesUser())) || (!opinion && (room.getMaxUser() / 2 <= room.getCurNoUser()))) {
-            throw new CannotEnterException(USER_EXCEED.getMsg());
+            throw new CannotEnterException(DEBATE_USER_EXCEED.getMsg());
         }
     }
 
@@ -130,7 +130,7 @@ public class DebateService {
 
     private void checkAuth(DebateRoom room, User user) {
         if (!Objects.equals(room.getOwner().getUserId(), user.getUserId())) {
-            throw new NoAuthException(DEBATE_NO_AUTH.getMsg());
+            throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
         }
     }
 
