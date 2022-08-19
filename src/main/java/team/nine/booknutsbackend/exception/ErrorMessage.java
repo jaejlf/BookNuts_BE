@@ -19,7 +19,7 @@ public enum ErrorMessage {
     //Board
     BOARD_ALREADY_EXIST("이미 존재하는 게시글입니다."),
     BOARD_NOT_FOUND("존재하지 않는 게시글입니다."),
-    TYPE_NUM_ERROR("type은 0 ~ 2 사이의 값이어야합니다."),
+    BOARD_TYPE_NUM_ERROR("type은 0 ~ 2 사이의 값이어야합니다."),
 
     //Archive
     ARCHIVE_NOT_FOUND("존재하지 않는 아카이브입니다."),
@@ -37,6 +37,7 @@ public enum ErrorMessage {
     USER_EXCEED("인원 초과로 참여할 수 없습니다."),
     LOCKED_ROOM("토론이 진행 중이거나 종료되어 참여할 수 없습니다."),
     STATUS_NUM_ERROR("상태값은 토론 진행 중(=1) 또는 토론 종료(=2) 여야 합니다."),
+    DEBATE_TYPE_NUM_ERROR("타입 값은 텍스트 채팅(=0) 또는 음성 채팅(=1) 이어야 합니다."),
 
     //Follow
     ALREADY_FOLLOWING("이미 팔로우 중인 계정입니다."),

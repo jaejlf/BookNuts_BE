@@ -4,11 +4,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.DebateRoomRequest;
+import team.nine.booknutsbackend.enumerate.DebateStatus;
+import team.nine.booknutsbackend.enumerate.DebateType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
+import static team.nine.booknutsbackend.enumerate.DebateStatus.READY;
+import static team.nine.booknutsbackend.enumerate.DebateType.getDebateType;
 
 @Entity
 @Getter
@@ -37,8 +41,8 @@ public class DebateRoom {
     @Column(length = 300, nullable = false)
     private String coverImgUrl;
 
-    @Column(length = 100, nullable = false)
-    private int type; //0 : 채팅, 1 : 음성
+    @Enumerated(EnumType.STRING)
+    private DebateType type;
 
     @Column(length = 100, nullable = false)
     private int maxUser; //총 토론 참여자 수 (2,4,6,8)
@@ -49,8 +53,8 @@ public class DebateRoom {
     @Column(length = 100, nullable = false)
     private int curNoUser; //현재 참여한 반대 유저 수
 
-    @Column(length = 100, nullable = false)
-    private int status = 0; //0 : 토론 대기 중, 1 : 토론 진행 중, 2 : 토론 종료
+    @Enumerated(EnumType.STRING)
+    private DebateStatus status = READY;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "owner")
@@ -65,13 +69,13 @@ public class DebateRoom {
         this.bookImgUrl = debateRoomRequest.getBookImgUrl();
         this.bookGenre = debateRoomRequest.getBookGenre();
         this.topic = debateRoomRequest.getTopic();
-        this.type = debateRoomRequest.getType();
+        this.type = getDebateType(debateRoomRequest.getType());
         this.maxUser = debateRoomRequest.getMaxUser();
         this.owner = user;
         this.coverImgUrl = coverImgUrl;
     }
 
-    public void changeStatus(int status) {
+    public void changeStatus(DebateStatus status) {
         this.status = status;
     }
 

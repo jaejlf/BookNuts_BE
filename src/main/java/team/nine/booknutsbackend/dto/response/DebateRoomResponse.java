@@ -3,6 +3,8 @@ package team.nine.booknutsbackend.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 import team.nine.booknutsbackend.domain.debate.DebateRoom;
+import team.nine.booknutsbackend.enumerate.DebateStatus;
+import team.nine.booknutsbackend.enumerate.DebateType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,11 +21,11 @@ public class DebateRoomResponse {
     String topic;
     String coverImgUrl;
     String timeFromNow;
-    int type;
+    DebateType type;
     int maxUser;
     int curYesUser;
     int curNoUser;
-    int status;
+    DebateStatus status;
     String owner;
 
     public static DebateRoomResponse of(DebateRoom room) {

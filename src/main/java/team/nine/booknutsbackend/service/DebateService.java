@@ -9,6 +9,8 @@ import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.domain.debate.DebateUser;
 import team.nine.booknutsbackend.dto.request.DebateRoomRequest;
 import team.nine.booknutsbackend.dto.response.DebateRoomResponse;
+import team.nine.booknutsbackend.enumerate.DebateStatus;
+import team.nine.booknutsbackend.enumerate.DebateType;
 import team.nine.booknutsbackend.exception.debate.CannotEnterException;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.DebateRoomRepository;
@@ -17,6 +19,9 @@ import team.nine.booknutsbackend.repository.DebateUserRepository;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
+import static team.nine.booknutsbackend.enumerate.DebateStatus.*;
+import static team.nine.booknutsbackend.enumerate.DebateType.ALL;
+import static team.nine.booknutsbackend.enumerate.DebateType.getDebateType;
 import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 @RequiredArgsConstructor
@@ -77,17 +82,19 @@ public class DebateService {
     @Transactional
     public DebateRoomResponse changeStatus(Long roomId, int status, User user) {
         DebateRoom room = getRoom(roomId);
-        checkChangeEnable(status, user, room);
-        room.changeStatus(status);
+        checkAuth(room, user);
+        checkChangeEnable(status, room);
+        room.changeStatus(getStatusByCode(status));
         return DebateRoomResponse.of(debateRoomRepository.save(room));
     }
 
     @Transactional
     public Map<String, List<DebateRoomResponse>> getRoomListByType(int type) {
+        DebateType debateType = getDebateType(type);
         Map<String, List<DebateRoomResponse>> map = new LinkedHashMap<>();
-        map.put("맞춤 토론", getCustomDebateRoomList(type));
-        map.put("현재 진행 중인 토론", getIngDebateRoomList(type));
-        map.put("현재 대기 중인 토론", getReadyDebateRoomList(type));
+        map.put("맞춤 토론", getCustomDebateRoomList(debateType));
+        map.put("현재 진행 중인 토론", getDebateRoomResponses(debateType, ING));
+        map.put("현재 대기 중인 토론", getDebateRoomResponses(debateType, READY));
         return map;
     }
 
@@ -100,7 +107,7 @@ public class DebateService {
         if (debateUserRepository.findByDebateRoomAndUser(room, user).isPresent()) {
             throw new CannotEnterException(DEBATE_USER_ALREADY_EXIST.getMsg());
         }
-        if (room.getStatus() != 0) {
+        if (room.getStatus() != READY) {
             throw new CannotEnterException(LOCKED_ROOM.getMsg());
         }
         if ((opinion && (room.getMaxUser() / 2 <= room.getCurYesUser())) || (!opinion && (room.getMaxUser() / 2 <= room.getCurNoUser()))) {
@@ -121,18 +128,21 @@ public class DebateService {
                 .orElseThrow(() -> new EntityNotFoundException(DEBATE_USER_NOT_FOUND.getMsg()));
     }
 
-    private void checkChangeEnable(int status, User user, DebateRoom room) {
+    private void checkAuth(DebateRoom room, User user) {
         if (!Objects.equals(room.getOwner().getUserId(), user.getUserId())) {
             throw new NoAuthException(DEBATE_NO_AUTH.getMsg());
         }
-        if (status <= 0 || status > 2) {
+    }
+
+    private void checkChangeEnable(int status, DebateRoom room) {
+        int curStatus = room.getStatus().getStatusCode();
+        if ((status <= curStatus) || (status <= 0 || status > 2)) {
             throw new IllegalArgumentException(STATUS_NUM_ERROR.getMsg());
         }
     }
 
-    //맞춤 토론방 목록
-    private List<DebateRoomResponse> getCustomDebateRoomList(int type) {
-        List<DebateRoom> debateRoomList = getDebateRoomList(type, 0);
+    private List<DebateRoomResponse> getCustomDebateRoomList(DebateType type) {
+        List<DebateRoom> debateRoomList = getDebateRoomList(type, READY);
         List<DebateRoomResponse> debateRoomResponseList = new ArrayList<>();
         int count = 0;
         for (DebateRoom debateRoom : debateRoomList) {
@@ -143,9 +153,8 @@ public class DebateService {
         return debateRoomResponseList;
     }
 
-    //현재 진행 중인 토론방 목록
-    private List<DebateRoomResponse> getIngDebateRoomList(int type) {
-        List<DebateRoom> debateRoomList = getDebateRoomList(type, 1);
+    private List<DebateRoomResponse> getDebateRoomResponses(DebateType type, DebateStatus debateStatus) {
+        List<DebateRoom> debateRoomList = getDebateRoomList(type, debateStatus);
         List<DebateRoomResponse> debateRoomResponseList = new ArrayList<>();
         for (DebateRoom debateRoom : debateRoomList) {
             debateRoomResponseList.add(DebateRoomResponse.of(debateRoom));
@@ -154,20 +163,8 @@ public class DebateService {
         return debateRoomResponseList;
     }
 
-    //현재 대기 중인 토론방 목록
-    private List<DebateRoomResponse> getReadyDebateRoomList(int type) {
-        List<DebateRoom> debateRoomList = getDebateRoomList(type, 0);
-        List<DebateRoomResponse> debateRoomResponseList = new ArrayList<>();
-
-        for (DebateRoom debateRoom : debateRoomList) {
-            debateRoomResponseList.add(DebateRoomResponse.of(debateRoom));
-        }
-        Collections.reverse(debateRoomResponseList); //최신순
-        return debateRoomResponseList;
-    }
-
-    private List<DebateRoom> getDebateRoomList(int type, int status) {
-        if (type == 2) return debateRoomRepository.findByStatus(1);
+    private List<DebateRoom> getDebateRoomList(DebateType type, DebateStatus status) {
+        if (type == ALL) return debateRoomRepository.findByStatus(status);
         else return debateRoomRepository.findByTypeAndStatus(type, status);
     }
 

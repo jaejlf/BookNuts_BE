@@ -18,6 +18,8 @@ import java.util.Map;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static team.nine.booknutsbackend.enumerate.DebateStatus.getMsgByCode;
+import static team.nine.booknutsbackend.enumerate.DebateType.getDebateType;
 
 @RequiredArgsConstructor
 @RestController
@@ -81,17 +83,15 @@ public class DebateController {
         DebateRoomResponse updatedRoom = debateService.changeStatus(roomId, status, user);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.update(roomId + "번 토론방 status = " + status + "로 상태 변경", updatedRoom));
+                .body(ResultResponse.update(roomId + "번 토론방 '" + getMsgByCode(status) + "'(으)로 상태 변경", updatedRoom));
     }
 
-    //토론 타입별 토론방 목록 조회
-    //텍스트 = 0, 음성 = 1, 전체 = 2
     @GetMapping("/list/{type}")
     public ResponseEntity<Object> getRoomListByType(@PathVariable int type) {
         Map<String, List<DebateRoomResponse>> roomList = debateService.getRoomListByType(type);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.update("type = " + type + " 토론방 목록 조회", roomList));
+                .body(ResultResponse.update(getDebateType(type) + " 토론방 목록 조회", roomList));
     }
 
 }
