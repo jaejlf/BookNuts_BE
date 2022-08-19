@@ -8,7 +8,7 @@ import team.nine.booknutsbackend.dto.response.ErrorResponse;
 public class CustomException extends RuntimeException {
 
     private final HttpStatus status;
-    private final ErrorResponse<Object> errorResponse;
+    private final ErrorResponse errorResponse;
 
     protected CustomException(HttpStatus httpStatus, String errName, String message) {
         this.status = httpStatus;

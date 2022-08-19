@@ -12,7 +12,6 @@ import team.nine.booknutsbackend.dto.request.SeriesRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.dto.response.SeriesResponse;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
-import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.SeriesBoardRepository;
 import team.nine.booknutsbackend.repository.SeriesRepository;
 
@@ -21,6 +20,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
@@ -30,118 +30,107 @@ public class SeriesService {
 
     private final SeriesRepository seriesRepository;
     private final SeriesBoardRepository seriesBoardRepository;
-    private final BoardRepository boardRepository;
     private final BoardService boardService;
     private final AwsS3Service awsS3Service;
 
-    //시리즈 조회
     @Transactional(readOnly = true)
-    public Series getSeries(Long seriesId) {
-        return seriesRepository.findById(seriesId)
-                .orElseThrow(() -> new EntityNotFoundException(SERIES_NOT_FOUND.getMsg()));
-    }
-
-    //특정 유저의 시리즈 목록 조회
-    @Transactional(readOnly = true)
-    public List<SeriesResponse> getSeriesList(User owner) {
-        List<Series> seriesList = seriesRepository.findAllByOwner(owner);
+    public List<SeriesResponse> getSeriesList(User user) {
+        List<Series> seriesList = seriesRepository.findAllByOwner(user);
         List<SeriesResponse> seriesResponseList = new ArrayList<>();
-
         for (Series series : seriesList) {
-            seriesResponseList.add(SeriesResponse.seriesResponse(series));
+            seriesResponseList.add(SeriesResponse.of(series));
         }
-
         Collections.reverse(seriesResponseList); //최신순
         return seriesResponseList;
     }
 
-    //시리즈 발행
     @Transactional
-    public Series createSeries(MultipartFile file, Series series, List<Long> boardIdList) {
-        series.setImgUrl(awsS3Service.uploadImg(file, "series-"));
+    public SeriesResponse createSeries(MultipartFile file, SeriesRequest seriesRequest, User user) {
+        Series series = new Series(
+                seriesRequest,
+                user,
+                awsS3Service.uploadImg(file, "series-")
+        );
         seriesRepository.save(series);
 
-        for (Long boardId : boardIdList) {
-            if (boardService.getPost(boardId).getUser() != series.getOwner()) continue;
-            SeriesBoard seriesBoard = new SeriesBoard();
-            seriesBoard.setSeries(series);
-            seriesBoard.setBoard(boardService.getPost(boardId));
+        for (Long boardId : seriesRequest.getBoardIdlist()) {
+            Board board = boardService.getBoard(boardId);
+            if (board.getWriter() != series.getOwner()) continue;
+            SeriesBoard seriesBoard = new SeriesBoard(series, board);
             seriesBoardRepository.save(seriesBoard);
         }
-
-        return series;
+        return SeriesResponse.of(series);
     }
 
-    //특정 시리즈 내의 게시글 조회
     @Transactional(readOnly = true)
-    public List<BoardResponse> getSeriesBoards(Long seriesId, User user) {
+    public List<BoardResponse> getBoardsInSeries(Long seriesId, User user) {
         Series series = getSeries(seriesId);
-        List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
+        List<SeriesBoard> seriesBoardList = seriesBoardRepository.findBySeries(series);
         List<BoardResponse> boardList = new ArrayList<>();
-
-        for (SeriesBoard seriesBoard : seriesBoards) {
-            boardList.add(BoardResponse.boardResponse(seriesBoard.getBoard(), user));
+        for (SeriesBoard seriesBoard : seriesBoardList) {
+            boardList.add(BoardResponse.of(seriesBoard.getBoard(), user));
         }
-
         Collections.reverse(boardList); //최신순
         return boardList;
     }
 
-    //시리즈 삭제
     @Transactional
     public void deleteSeries(Long seriesId, User user) {
         Series series = getSeries(seriesId);
-        if (series.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+        checkAuth(series, user);
 
-        List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
-        seriesBoardRepository.deleteAll(seriesBoards);
+        List<SeriesBoard> seriesBoardList = seriesBoardRepository.findBySeries(series);
+        seriesBoardRepository.deleteAll(seriesBoardList);
         seriesRepository.delete(series);
 
         awsS3Service.deleteImg(series.getImgUrl());  //기존 이미지 버킷에서 삭제
     }
 
-    //시리즈에 게시글 추가
     @Transactional
-    public void addPostToSeries(Long seriesId, Long boardId, User user) {
+    public void addBoardToSeries(Long seriesId, Long boardId, User user) {
         Series series = getSeries(seriesId);
-        if (series.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+        checkAuth(series, user);
+        Board board = boardService.getBoard(boardId);
+        checkAddBoardEnable(series, board);
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
-
-        //시리즈 중복체크
-        if (seriesBoardRepository.findByBoardAndSeries(board, series).isPresent())
-            throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
-
-        SeriesBoard seriesBoard = new SeriesBoard();
-        seriesBoard.setSeries(series);
-        seriesBoard.setBoard(board);
-        series.setOwner(series.getOwner());
+        SeriesBoard seriesBoard = new SeriesBoard(series, board);
         seriesBoardRepository.save(seriesBoard);
     }
 
-    //시리즈 수정
     @Transactional
-    public Series updateSeries(Long seriesId, SeriesRequest seriesRequest, User user) {
+    public Series updateSeries(Long seriesId, Map<String, String> modRequest, User user) {
         Series series = getSeries(seriesId);
-        if (series.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+        checkAuth(series, user);
 
-        if (seriesRequest.getTitle() != null) series.setTitle(seriesRequest.getTitle());
-        if (seriesRequest.getContent() != null) series.setContent(seriesRequest.getContent());
+        if (modRequest.get("title") != null) series.updateTitle(modRequest.get("title"));
+        if (modRequest.get("content") != null) series.updateContent(modRequest.get("content"));
 
         return seriesRepository.save(series);
     }
 
-    //회원 탈퇴 시, 모든 시리즈 삭제
     @Transactional
     public void deleteAllSeries(User user) {
         List<Series> seriesList = seriesRepository.findAllByOwner(user);
         for (Series series : seriesList) {
-            List<SeriesBoard> seriesBoards = seriesBoardRepository.findBySeries(series);
-            seriesBoardRepository.deleteAll(seriesBoards);
+            List<SeriesBoard> seriesBoardList = seriesBoardRepository.findBySeries(series);
+            seriesBoardRepository.deleteAll(seriesBoardList);
             awsS3Service.deleteImg(series.getImgUrl());  //기존 이미지 버킷에서 삭제
         }
         seriesRepository.deleteAll(seriesList);
+    }
+
+    private Series getSeries(Long seriesId) {
+        return seriesRepository.findById(seriesId)
+                .orElseThrow(() -> new EntityNotFoundException(SERIES_NOT_FOUND.getMsg()));
+    }
+
+    private void checkAuth(Series series, User user) {
+        if (series.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+    }
+
+    private void checkAddBoardEnable(Series series, Board board) {
+        if (seriesBoardRepository.findByBoardAndSeries(board, series).isPresent())
+            throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
     }
 
 }

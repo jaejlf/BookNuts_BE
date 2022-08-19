@@ -14,7 +14,7 @@ public class FollowResponse {
     String nickname;
     String email;
 
-    public static FollowResponse followUserResponse(User user) {
+    public static FollowResponse of(User user) {
         return FollowResponse.builder()
                 .userId(user.getUserId())
                 .loginId(user.getLoginId())

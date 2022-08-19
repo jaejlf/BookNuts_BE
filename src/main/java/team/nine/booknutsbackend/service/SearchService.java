@@ -35,14 +35,12 @@ public class SearchService {
                 .or(likeBookTitle(keyword))
                 .or(likeBookAuthor(keyword));
 
-        List<Board> boards = boardRepository.findAll(spec);
-        List<BoardResponse> boardDtoList = new ArrayList<>();
-
-        for (Board board : boards) {
-            boardDtoList.add(BoardResponse.boardResponse(board, user));
+        List<Board> boardList = boardRepository.findAll(spec);
+        List<BoardResponse> boardResponseList = new ArrayList<>();
+        for (Board board : boardList) {
+            boardResponseList.add(BoardResponse.of(board, user));
         }
-
-        return boardDtoList;
+        return boardResponseList;
     }
 
     @Transactional
@@ -51,27 +49,23 @@ public class SearchService {
                 .where(likeTopic(keyword))
                 .or(likeBookTitle(keyword))
                 .or(likeBookAuthor(keyword));
+        List<DebateRoom> debateRoomList = debateRoomRepository.findAll(spec);
+        List<DebateRoomResponse> debateRoomResponseList = new ArrayList<>();
 
-        List<DebateRoom> rooms = debateRoomRepository.findAll(spec);
-        List<DebateRoomResponse> roomDtoList = new ArrayList<>();
-
-        for (DebateRoom room : rooms) {
-            roomDtoList.add(DebateRoomResponse.roomResponse(room));
+        for (DebateRoom room : debateRoomList) {
+            debateRoomResponseList.add(DebateRoomResponse.of(room));
         }
-
-        return roomDtoList;
+        return debateRoomResponseList;
     }
 
     @Transactional
-    public List<UserProfileResponse> searchUser(String keyword, User curUser) {
-        List<User> users = userRepository.findAllByNicknameContaining(keyword);
-        List<UserProfileResponse> userProfileDto = new ArrayList<>();
-
-        for (User targetUser : users) {
-            userProfileDto.add(UserProfileResponse.userProfileResponse(curUser, targetUser));
+    public List<UserProfileResponse> searchUser(String keyword, User me) {
+        List<User> userList = userRepository.findAllByNicknameContaining(keyword);
+        List<UserProfileResponse> userProfileResponseList = new ArrayList<>();
+        for (User target : userList) {
+            userProfileResponseList.add(UserProfileResponse.of(me, target));
         }
-
-        return userProfileDto;
+        return userProfileResponseList;
     }
 
 }

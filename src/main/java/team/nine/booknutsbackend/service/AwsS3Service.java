@@ -46,11 +46,10 @@ public class AwsS3Service {
     //이미지 삭제
     public void deleteImg(String originImgUrl) {
         if (originImgUrl.equals("")) return;
-
         try {
             amazonS3.deleteObject(bucketName, originImgUrl.split("/")[3]);
         } catch (AmazonServiceException e) {
-            e.printStackTrace();
+            throw new AmazonServiceException("이미지 삭제에 실패했습니다.");
         }
     }
 

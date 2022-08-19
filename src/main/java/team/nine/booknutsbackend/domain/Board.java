@@ -2,11 +2,12 @@ package team.nine.booknutsbackend.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
 import team.nine.booknutsbackend.domain.series.SeriesBoard;
+import team.nine.booknutsbackend.dto.request.BoardRequest;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
 public class Board {
 
     @Id
@@ -32,7 +33,7 @@ public class Board {
     private String content;
 
     @Column(nullable = false)
-    private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    private final String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
     @Column(length = 100, nullable = false)
     private String bookTitle;
@@ -48,7 +49,7 @@ public class Board {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "writer")
-    private User user;
+    private User writer;
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
@@ -65,5 +66,23 @@ public class Board {
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
     private List<SeriesBoard> seriesBoards = new ArrayList<>();
+
+    public Board(BoardRequest boardRequest, User user) {
+        this.title = boardRequest.getTitle();
+        this.content = boardRequest.getContent();
+        this.bookTitle = boardRequest.getBookTitle();
+        this.bookAuthor = boardRequest.getBookAuthor();
+        this.bookImgUrl = boardRequest.getBookImgUrl();
+        this.bookGenre = boardRequest.getBookGenre();
+        this.writer = user;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 
 }

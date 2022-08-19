@@ -23,60 +23,59 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserService userService;
 
-    //팔로우
     @Transactional
-    public void follow(User following, User follower) {
-        Follow follow = new Follow();
-
-        if (followRepository.findByFollowingAndFollower(following, follower).isPresent())
-            throw new EntityExistsException(ALREADY_FOLLOWING.getMsg());
-        if (following == follower) throw new IllegalArgumentException(FOLLOW_ERROR.getMsg());
-
-        follow.setFollowing(userService.findUserById(following.getUserId()));
-        follow.setFollower(userService.findUserById(follower.getUserId()));
-
+    public void follow(User me, User target) {
+        checkFollowEnable(me, target);
+        Follow follow = new Follow(
+                userService.getUserById(me.getUserId()),
+                userService.getUserById(target.getUserId())
+        );
         followRepository.save(follow);
     }
 
-    //언팔로우
     @Transactional
-    public void unfollow(User unfollowing, User follower) {
-        Follow follow = followRepository.findByFollowingAndFollower(unfollowing, follower)
-                .orElseThrow(() -> new EntityNotFoundException(FOLLOW_NOT_FOUND.getMsg()));
+    public void unfollow(User me, User target) {
+        Follow follow = getFollow(me, target);
         followRepository.delete(follow);
     }
 
-    //나의 팔로잉 리스트
     @Transactional(readOnly = true)
-    public List<FollowResponse> getMyFollowingList(User user) {
+    public List<FollowResponse> getFollowingList(User user) {
         List<Follow> followList = followRepository.findByFollower(user);
-        List<FollowResponse> followingList = new ArrayList<>();
-
+        List<FollowResponse> followResponseList = new ArrayList<>();
         for (Follow follow : followList) {
-            followingList.add(FollowResponse.followUserResponse(follow.getFollowing()));
+            followResponseList.add(FollowResponse.of(follow.getFollowing()));
         }
-
-        return followingList;
+        return followResponseList;
     }
 
-    //나의 팔로워 리스트
     @Transactional(readOnly = true)
     public List<FollowResponse> getMyFollowerList(User user) {
         List<Follow> followList = followRepository.findByFollowing(user);
-        List<FollowResponse> followerList = new ArrayList<>();
-
+        List<FollowResponse> followResponseList = new ArrayList<>();
         for (Follow follow : followList) {
-            followerList.add(FollowResponse.followUserResponse(follow.getFollower()));
+            followResponseList.add(FollowResponse.of(follow.getFollower()));
         }
-
-        return followerList;
-
+        return followResponseList;
     }
 
-    //회원 탈퇴 시, 모든 팔로우 관계 삭제
     @Transactional
     public void deleteAllFollow(User user) {
         followRepository.deleteAllByFollower(user);
+    }
+
+    private void checkFollowEnable(User me, User target) {
+        if (followRepository.findByFollowingAndFollower(me, target).isPresent()) {
+            throw new EntityExistsException(ALREADY_FOLLOWING.getMsg());
+        }
+        if (me == target) {
+            throw new IllegalArgumentException(FOLLOW_ERROR.getMsg());
+        }
+    }
+
+    private Follow getFollow(User me, User target) {
+        return followRepository.findByFollowingAndFollower(me, target)
+                .orElseThrow(() -> new EntityNotFoundException(FOLLOW_NOT_FOUND.getMsg()));
     }
 
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 import javax.validation.constraints.NotBlank;
 
 @Getter
-public class ArchiveRequest {
-    @NotBlank String title;
-    @NotBlank String content;
+public class LoginRequest {
+    @NotBlank String id;
+    @NotBlank String password;
 }

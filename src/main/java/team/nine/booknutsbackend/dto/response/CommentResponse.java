@@ -15,12 +15,12 @@ public class CommentResponse {
     Long boardId;
     Long parentId;
 
-    public static CommentResponse commentResponse(Comment comment) {
+    public static CommentResponse of(Comment comment) {
         return CommentResponse.builder()
                 .commentId(comment.getCommentId())
                 .content(comment.getContent())
                 .createdDate(comment.getCreatedDate())
-                .writer(comment.getUser().getNickname())
+                .writer(comment.getWriter().getNickname())
                 .parentId(getParent(comment))
                 .boardId(comment.getBoard().getBoardId())
                 .build();

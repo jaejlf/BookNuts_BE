@@ -18,21 +18,21 @@ public class UserProfileResponse {
     int followerCount;
     int followingCount;
 
-    public static UserProfileResponse userProfileResponse(User curUser, User targetUser) {
+    public static UserProfileResponse of(User me, User target) {
         return UserProfileResponse.builder()
-                .userId(targetUser.getUserId())
-                .nickname(targetUser.getNickname())
-                .isMyProfile(curUser == targetUser)
-                .isFollow(getIsFollow(curUser, targetUser))
-                .followerCount(targetUser.getFollowings().size())
-                .followingCount(targetUser.getFollowers().size())
+                .userId(target.getUserId())
+                .nickname(target.getNickname())
+                .isMyProfile(me == target)
+                .isFollow(getIsFollow(me, target))
+                .followerCount(target.getFollowings().size())
+                .followingCount(target.getFollowers().size())
                 .build();
     }
 
-    private static Boolean getIsFollow(User curUser, User targetUser) {
-        List<Follow> followList = curUser.getFollowers();
+    private static Boolean getIsFollow(User me, User target) {
+        List<Follow> followList = me.getFollowers();
         for (Follow follow : followList) {
-            if (follow.getFollower() == targetUser) return true;
+            if (follow.getFollower() == target) return true;
         }
         return false;
     }

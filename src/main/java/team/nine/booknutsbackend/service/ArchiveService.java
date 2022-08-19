@@ -14,13 +14,13 @@ import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.ArchiveBoardRepository;
 import team.nine.booknutsbackend.repository.ArchiveRepository;
-import team.nine.booknutsbackend.repository.BoardRepository;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
@@ -30,120 +30,113 @@ public class ArchiveService {
 
     private final ArchiveRepository archiveRepository;
     private final ArchiveBoardRepository archiveBoardRepository;
-    private final BoardRepository boardRepository;
+    private final BoardService boardService;
     private final AwsS3Service awsS3Service;
 
-    //아카이브 조회
     @Transactional(readOnly = true)
-    public Archive getArchive(Long archiveId) {
-        return archiveRepository.findById(archiveId)
-                .orElseThrow(() -> new EntityNotFoundException(ARCHIVE_NOT_FOUND.getMsg()));
-    }
-
-    //특정 유저의 아카이브 목록 조회
-    @Transactional(readOnly = true)
-    public List<ArchiveResponse> getArchiveList(User owner) {
-        List<Archive> archives = archiveRepository.findAllByOwner(owner);
+    public List<ArchiveResponse> getArchiveList(User user) {
+        List<Archive> archiveList = archiveRepository.findAllByOwner(user);
         List<ArchiveResponse> archiveResponseList = new ArrayList<>();
-
-        for (Archive archive : archives) {
-            archiveResponseList.add(ArchiveResponse.archiveResponse(archive));
+        for (Archive archive : archiveList) {
+            archiveResponseList.add(ArchiveResponse.of(archive));
         }
-
         Collections.reverse(archiveResponseList); //최신순
         return archiveResponseList;
     }
 
-    //아카이브 생성
     @Transactional
-    public Archive createArchive(MultipartFile file, Archive archive) {
-        archive.setImgUrl(awsS3Service.uploadImg(file, "archive-"));
-        return archiveRepository.save(archive);
+    public ArchiveResponse createArchive(MultipartFile file, ArchiveRequest archiveRequest, User user) {
+        Archive archive = new Archive(
+                archiveRequest,
+                user,
+                awsS3Service.uploadImg(file, "archive-")
+        );
+        return ArchiveResponse.of(archiveRepository.save(archive));
     }
 
-    //특정 아카이브 내의 게시글 조회
     @Transactional(readOnly = true)
-    public List<BoardResponse> getArchiveBoards(Long archiveId, User user) {
-        Archive archive = archiveRepository.findById(archiveId)
-                .orElseThrow(() -> new EntityNotFoundException(ARCHIVE_NOT_FOUND.getMsg()));
-        List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
-        List<BoardResponse> boardList = new ArrayList<>();
-
-        for (ArchiveBoard archiveBoard : archiveBoards) {
-            boardList.add(BoardResponse.boardResponse(archiveBoard.getBoard(), user));
+    public List<BoardResponse> getBoardsInArchive(Long archiveId, User user) {
+        Archive archive = getArchive(archiveId);
+        List<ArchiveBoard> archiveBoardList = getBoardsInArchive(archive);
+        List<BoardResponse> boardResponseList = new ArrayList<>();
+        for (ArchiveBoard archiveBoard : archiveBoardList) {
+            boardResponseList.add(BoardResponse.of(archiveBoard.getBoard(), user));
         }
-
-        Collections.reverse(boardList); //최신순
-        return boardList;
+        Collections.reverse(boardResponseList); //최신순
+        return boardResponseList;
     }
 
-    //아카이브에 게시글 추가
     @Transactional
-    public void addPostToArchive(Long archiveId, Long boardId, User user) {
+    public void addBoardToArchive(Long archiveId, Long boardId, User user) {
         Archive archive = getArchive(archiveId);
-        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+        Board board = boardService.getBoard(boardId);
+        checkAuth(archive, user);
+        checkAddBoardEnable(user, board);
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
-
-        if (archiveBoardRepository.findByBoardAndOwner(board, user).isPresent())
-            throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
-
-        ArchiveBoard archiveBoard = new ArchiveBoard();
-        archiveBoard.setArchive(archive);
-        archiveBoard.setBoard(board);
-        archiveBoard.setOwner(archive.getOwner());
+        ArchiveBoard archiveBoard = new ArchiveBoard(archive, board, archive.getOwner());
         archiveBoardRepository.save(archiveBoard);
     }
 
-    //아카이브 삭제
     @Transactional
     public void deleteArchive(Long archiveId, User user) {
         Archive archive = getArchive(archiveId);
-        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+        checkAuth(archive, user);
 
-        List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
-        archiveBoardRepository.deleteAll(archiveBoards);
+        List<ArchiveBoard> archiveBoardList = getBoardsInArchive(archive);
+        archiveBoardRepository.deleteAll(archiveBoardList);
         archiveRepository.delete(archive);
-
         awsS3Service.deleteImg(archive.getImgUrl());  //기존 이미지 버킷에서 삭제
     }
 
-    //아카이브 내의 게시글 삭제
     @Transactional
-    public void deleteArchivePost(Long archiveId, Long boardId, User user) {
+    public void deleteBoardInArchive(Long archiveId, Long boardId, User user) {
         Archive archive = getArchive(archiveId);
-        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
-
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
+        Board board = boardService.getBoard(boardId);
+        checkAuth(archive, user);
 
         ArchiveBoard archiveBoard = archiveBoardRepository.findByArchiveAndBoard(archive, board);
         archiveBoardRepository.delete(archiveBoard);
     }
 
-    //아카이브 수정
     @Transactional
-    public Archive updateArchive(Long archiveId, ArchiveRequest archiveRequest, User user) {
+    public ArchiveResponse updateArchive(Long archiveId, Map<String, String> modRequest, User user) {
         Archive archive = getArchive(archiveId);
-        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+        checkAuth(archive, user);
 
-        if (archiveRequest.getTitle() != null) archive.setTitle(archiveRequest.getTitle());
-        if (archiveRequest.getContent() != null) archive.setContent(archiveRequest.getContent());
+        if (modRequest.get("title") != null) archive.updateTitle(modRequest.get("title"));
+        if (modRequest.get("content") != null) archive.updateContent(modRequest.get("content"));
 
-        return archiveRepository.save(archive);
+        return ArchiveResponse.of(archiveRepository.save(archive));
     }
 
-    //회원 탈퇴 시, 모든 아카이브 삭제
     @Transactional
     public void deleteAllArchive(User user) {
         List<Archive> archiveList = archiveRepository.findAllByOwner(user);
         for (Archive archive : archiveList) {
-            List<ArchiveBoard> archiveBoards = archiveBoardRepository.findByArchive(archive);
+            List<ArchiveBoard> archiveBoards = getBoardsInArchive(archive);
             archiveBoardRepository.deleteAll(archiveBoards);
             awsS3Service.deleteImg(archive.getImgUrl());  //기존 이미지 버킷에서 삭제
         }
         archiveRepository.deleteAll(archiveList);
+    }
+
+    private Archive getArchive(Long archiveId) {
+        return archiveRepository.findById(archiveId)
+                .orElseThrow(() -> new EntityNotFoundException(ARCHIVE_NOT_FOUND.getMsg()));
+    }
+
+    private void checkAuth(Archive archive, User user) {
+        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+    }
+
+    private List<ArchiveBoard> getBoardsInArchive(Archive archive) {
+        return archiveBoardRepository.findByArchive(archive);
+    }
+
+    private void checkAddBoardEnable(User user, Board board) {
+        if (archiveBoardRepository.findByBoardAndOwner(board, user).isPresent()) {
+            throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
+        }
     }
 
 }

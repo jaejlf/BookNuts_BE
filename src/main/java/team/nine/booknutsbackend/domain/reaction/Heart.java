@@ -1,7 +1,7 @@
 package team.nine.booknutsbackend.domain.reaction;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 
@@ -11,7 +11,7 @@ import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
 public class Heart {
 
     @Id
@@ -25,5 +25,10 @@ public class Heart {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board")
     private Board board;
+
+    public Heart(Board board, User user) {
+        this.board = board;
+        this.user = user;
+    }
 
 }

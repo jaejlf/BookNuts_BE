@@ -7,6 +7,6 @@ import team.nine.booknutsbackend.domain.Comment;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>{
-    List<Comment> findByBoard(Board board);
-    List<Comment> findByParent(Comment comment);
+    List<Comment> findByBoardAndParent(Board board, Comment parent);
+    List<Comment> findByParent(Comment parent);
 }

@@ -6,7 +6,7 @@ import team.nine.booknutsbackend.domain.User;
 
 @Getter
 @Builder
-public class LoginResponse {
+public class AuthUserResponse {
 
     Long userId;
     String loginId;
@@ -17,8 +17,8 @@ public class LoginResponse {
     String refreshToken;
     String profileImgUrl;
 
-    public static LoginResponse loginResponse(User user, String accessToken) {
-        return LoginResponse.builder()
+    public static AuthUserResponse of(User user, String accessToken) {
+        return AuthUserResponse.builder()
                 .userId(user.getUserId())
                 .loginId(user.getLoginId())
                 .username(user.getUsername())
@@ -29,5 +29,4 @@ public class LoginResponse {
                 .profileImgUrl(user.getProfileImgUrl())
                 .build();
     }
-
 }

@@ -26,7 +26,7 @@ public class DebateRoomResponse {
     int status;
     String owner;
 
-    public static DebateRoomResponse roomResponse(DebateRoom room) {
+    public static DebateRoomResponse of(DebateRoom room) {
         return DebateRoomResponse.builder()
                 .roomId(room.getDebateRoomId())
                 .bookTitle(room.getBookTitle())
@@ -56,4 +56,5 @@ public class DebateRoomResponse {
 
         return "방금 전";
     }
+
 }

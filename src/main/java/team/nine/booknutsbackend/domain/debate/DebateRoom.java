@@ -1,8 +1,9 @@
 package team.nine.booknutsbackend.domain.debate;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.dto.request.DebateRoomRequest;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
 public class DebateRoom {
 
     @Id
@@ -56,6 +57,27 @@ public class DebateRoom {
     private User owner;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private final LocalDateTime createdAt = LocalDateTime.now();
+
+    public DebateRoom(DebateRoomRequest debateRoomRequest, User user, String coverImgUrl) {
+        this.bookTitle = debateRoomRequest.getBookTitle();
+        this.bookAuthor = debateRoomRequest.getBookAuthor();
+        this.bookImgUrl = debateRoomRequest.getBookImgUrl();
+        this.bookGenre = debateRoomRequest.getBookGenre();
+        this.topic = debateRoomRequest.getTopic();
+        this.type = debateRoomRequest.getType();
+        this.maxUser = debateRoomRequest.getMaxUser();
+        this.owner = user;
+        this.coverImgUrl = coverImgUrl;
+    }
+
+    public void changeStatus(int status) {
+        this.status = status;
+    }
+
+    public void updateCurUser(int curYesUser, int curNoUser) {
+        this.curYesUser = curYesUser;
+        this.curNoUser = curNoUser;
+    }
 
 }

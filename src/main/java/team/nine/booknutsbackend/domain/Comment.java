@@ -2,7 +2,6 @@ package team.nine.booknutsbackend.domain;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,7 +13,6 @@ import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
 public class Comment {
 
     @Id
@@ -25,11 +23,11 @@ public class Comment {
     private String content;
 
     @Column(nullable = false)
-    private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    private final String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "writer")
-    private User user;
+    private User writer;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "parentId")
@@ -42,5 +40,19 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "boardId")
     private Board board;
+
+    public Comment() {
+    }
+
+    public Comment(String content, User user, Board board, Comment parent) {
+        this.content = content;
+        this.writer = user;
+        this.board = board;
+        this.parent = parent;
+    }
+
+    public void clearContent() {
+        this.content = null;
+    }
 
 }

@@ -2,8 +2,9 @@ package team.nine.booknutsbackend.domain.series;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.dto.request.SeriesRequest;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
 public class Series {
 
     @Id
@@ -36,5 +37,20 @@ public class Series {
     @OneToMany(mappedBy = "series")
     @JsonIgnore
     private List<SeriesBoard> seriesBoardList = new ArrayList<>();
+
+    public Series(SeriesRequest seriesRequest, User user, String imgUrl) {
+        this.title = seriesRequest.getTitle();
+        this.content = seriesRequest.getContent();
+        this.owner = user;
+        this.imgUrl = imgUrl;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 
 }

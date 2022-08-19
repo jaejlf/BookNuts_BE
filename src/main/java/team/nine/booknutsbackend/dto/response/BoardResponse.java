@@ -32,12 +32,12 @@ public class BoardResponse {
     Boolean isArchived;
     Boolean curUser;
 
-    public static BoardResponse boardResponse(Board board, User user) {
+    public static BoardResponse of(Board board, User writer) {
         return BoardResponse.builder()
                 .boardId(board.getBoardId())
                 .title(board.getTitle())
                 .content(board.getContent())
-                .writer(board.getUser().getNickname())
+                .writer(board.getWriter().getNickname())
                 .createdDate(board.getCreatedDate())
                 .bookTitle(board.getBookTitle())
                 .bookAuthor(board.getBookAuthor())
@@ -46,31 +46,31 @@ public class BoardResponse {
                 .nutsCnt(board.getNutsList().size())
                 .heartCnt(board.getHeartList().size())
                 .archiveCnt(board.getArchiveBoards().size())
-                .isNuts(getIsNuts(board, user))
-                .isHeart(getIsHeart(board, user))
-                .isArchived(getIsArchived(board, user))
-                .curUser(Objects.equals(board.getUser().getUserId(), user.getUserId()))
+                .isNuts(getIsNuts(board, writer))
+                .isHeart(getIsHeart(board, writer))
+                .isArchived(getIsArchived(board, writer))
+                .curUser(Objects.equals(board.getWriter().getUserId(), writer.getUserId()))
                 .build();
     }
 
-    private static Boolean getIsNuts(Board board, User user) {
-        List<Nuts> nutsList = user.getNutsList();
+    private static Boolean getIsNuts(Board board, User writer) {
+        List<Nuts> nutsList = writer.getNutsList();
         for (Nuts nuts : nutsList) {
             if (nuts.getBoard().equals(board)) return true;
         }
         return false;
     }
 
-    private static Boolean getIsHeart(Board board, User user) {
-        List<Heart> hearts = user.getHearts();
+    private static Boolean getIsHeart(Board board, User writer) {
+        List<Heart> hearts = writer.getHearts();
         for (Heart heart : hearts) {
             if (heart.getBoard().equals(board)) return true;
         }
         return false;
     }
 
-    private static Boolean getIsArchived(Board board, User user) {
-        List<ArchiveBoard> archiveBoards = user.getArchiveBoards();
+    private static Boolean getIsArchived(Board board, User writer) {
+        List<ArchiveBoard> archiveBoards = writer.getArchiveBoards();
         for (ArchiveBoard archiveBoard : archiveBoards) {
             if (archiveBoard.getBoard().equals(board)) return true;
         }

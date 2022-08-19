@@ -2,8 +2,9 @@ package team.nine.booknutsbackend.domain.archive;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.dto.request.ArchiveRequest;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
 public class Archive {
 
     @Id
@@ -39,5 +40,20 @@ public class Archive {
     @OneToMany(mappedBy = "archive")
     @JsonIgnore
     private List<ArchiveBoard> archiveBoardList = new ArrayList<>();
+
+    public Archive(ArchiveRequest archiveRequest, User user, String imgUrl) {
+        this.title = archiveRequest.getTitle();
+        this.content = archiveRequest.getContent();
+        this.owner = user;
+        this.imgUrl = imgUrl;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 
 }

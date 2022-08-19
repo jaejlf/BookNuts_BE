@@ -31,7 +31,6 @@ public class CustomUserDetailService implements UserDetailsService {
         if (matcher.matches()) user = userRepository.findByEmail(id).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
         else user = userRepository.findByLoginId(id).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
         if (!user.isEnabled()) throw new UsernameNotFoundException(USER_NOT_FOUND.getMsg());
-
         return user;
     }
 

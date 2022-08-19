@@ -15,7 +15,7 @@ public class ArchiveResponse {
     int archiveCnt;
     String createdAt;
 
-    public static ArchiveResponse archiveResponse(Archive archive) {
+    public static ArchiveResponse of(Archive archive) {
         return ArchiveResponse.builder()
                 .archiveId(archive.getArchiveId())
                 .title(archive.getTitle())

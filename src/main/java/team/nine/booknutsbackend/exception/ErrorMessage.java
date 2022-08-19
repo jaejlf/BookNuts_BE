@@ -29,7 +29,6 @@ public enum ErrorMessage {
 
     //Comment
     COMMENT_NOT_FOUND("존재하지 않는 댓글입니다."),
-    COMMENT_INPUT_ERROR("댓글 내용을 입력해야합니다."),
 
     //Debate
     ROOM_NOT_FOUND("존재하지 않는 토론방입니다."),
@@ -46,7 +45,6 @@ public enum ErrorMessage {
 
     //s3
     UPLOAD_FAILED("파일 업로드에 실패했습니다.");
-
 
     private final String msg;
 

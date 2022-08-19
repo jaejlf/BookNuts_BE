@@ -1,7 +1,7 @@
 package team.nine.booknutsbackend.domain.debate;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
 
 import javax.persistence.*;
@@ -10,7 +10,7 @@ import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
 public class DebateUser {
 
     @Id
@@ -27,5 +27,11 @@ public class DebateUser {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "debateRoom")
     private DebateRoom debateRoom;
+
+    public DebateUser(User user, DebateRoom debateRoom, boolean opinion) {
+        this.user = user;
+        this.debateRoom = debateRoom;
+        this.opinion = opinion;
+    }
 
 }

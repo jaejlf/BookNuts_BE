@@ -7,14 +7,10 @@ import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
-import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.HeartRepository;
 import team.nine.booknutsbackend.repository.NutsRepository;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
-
-import static team.nine.booknutsbackend.exception.ErrorMessage.BOARD_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
@@ -22,13 +18,11 @@ public class ReactionService {
 
     private final HeartRepository heartRepository;
     private final NutsRepository nutsRepository;
-    private final BoardRepository boardRepository;
+    private final BoardService boardService;
 
     @Transactional
     public String clickNuts(Long boardId, User user) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
-
+        Board board = boardService.getBoard(boardId);
         List<Nuts> nutsList = user.getNutsList();
         Nuts targetNuts = nutsRepository.findByBoardAndUser(board, user);
 
@@ -37,34 +31,27 @@ public class ReactionService {
             return "넛츠 취소";
         }
 
-        Nuts nuts = new Nuts();
-        nuts.setBoard(board);
-        nuts.setUser(user);
+        Nuts nuts = new Nuts(board, user);
         nutsRepository.save(nuts);
         return "넛츠 누름";
     }
 
     @Transactional
     public String clickHeart(Long boardId, User user) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
-
-        List<Heart> hearts = user.getHearts();
+        Board board = boardService.getBoard(boardId);
+        List<Heart> heartList = user.getHearts();
         Heart targetHeart = heartRepository.findByBoardAndUser(board, user);
 
-        if (hearts.contains(targetHeart)) {
+        if (heartList.contains(targetHeart)) {
             heartRepository.delete(targetHeart);
             return "좋아요 취소";
         }
 
-        Heart heart = new Heart();
-        heart.setBoard(board);
-        heart.setUser(user);
+        Heart heart = new Heart(board, user);
         heartRepository.save(heart);
         return "좋아요 누름";
     }
 
-    //회원 탈퇴 시, 모든 넛츠/좋아요 삭제
     @Transactional
     public void deleteAllReaction(User user) {
         nutsRepository.deleteAllByUser(user);

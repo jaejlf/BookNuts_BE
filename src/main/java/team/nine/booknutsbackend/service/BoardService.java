@@ -16,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
@@ -26,98 +27,99 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final FollowRepository followRepository;
 
-    //특정 게시글 조회
+    @Transactional
+    public BoardResponse writeBoard(BoardRequest boardRequest, User user) {
+        Board board = new Board(boardRequest, user);
+        return BoardResponse.of(boardRepository.save(board), user);
+    }
+
+    //나의 구독 = 0, 오늘 추천 = 1, 독립 출판 = 2
     @Transactional(readOnly = true)
-    public Board getPost(Long boardId) {
+    public List<BoardResponse> getBoardListByType(User user, int type) {
+        List<Board> boardList;
+        if (type == 0) boardList = get0Boards(user);
+        else if (type == 1) boardList = get1Boards();
+        else if (type == 2) boardList = get2Boards();
+        else throw new IndexOutOfBoundsException(TYPE_NUM_ERROR.getMsg());
+
+        List<BoardResponse> boardResponseList = new ArrayList<>();
+        for (Board board : boardList) {
+            boardResponseList.add(BoardResponse.of(board, user));
+        }
+        Collections.reverse(boardResponseList); //최신순
+        return boardResponseList;
+    }
+
+    @Transactional(readOnly = true)
+    public List<BoardResponse> getBoardListByUser(User user) {
+        List<Board> boardList = getBoardListByWriter(user);
+        List<BoardResponse> boardResponseList = new ArrayList<>();
+        for (Board board : boardList) {
+            boardResponseList.add(BoardResponse.of(board, user));
+        }
+        Collections.reverse(boardResponseList); //최신순
+        return boardResponseList;
+    }
+
+    @Transactional(readOnly = true)
+    public BoardResponse getBoardOne(Long boardId, User user) {
+        Board board = getBoard(boardId);
+        return BoardResponse.of(board, user);
+    }
+
+    @Transactional(readOnly = true)
+    public Board getBoard(Long boardId) {
         return boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
     }
 
-    //게시글 작성
     @Transactional
-    public Board writePost(Board newBoard) {
-        return boardRepository.save(newBoard);
+    public BoardResponse updateBoard(Long boardId, Map<String, String> modRequest, User user) {
+        Board board = getBoard(boardId);
+        checkAuth(user, board);
+
+        if (modRequest.get("title") != null) board.updateTitle(modRequest.get("title"));
+        if (modRequest.get("content") != null) board.updateContent(modRequest.get("content"));
+
+        return BoardResponse.of(boardRepository.save(board), user);
     }
 
-    //게시글 목록 조회
-    //나의 구독 = 0, 오늘 추천 = 1, 독립 출판 = 2
-    @Transactional(readOnly = true)
-    public List<BoardResponse> getBoard(User user, int type) {
-        if (type < 0 || type > 2) throw new IndexOutOfBoundsException(TYPE_NUM_ERROR.getMsg());
+    @Transactional
+    public void deleteBoard(Long boardId, User user) {
+        Board board = getBoard(boardId);
+        checkAuth(user, board);
+        boardRepository.delete(board);
+    }
 
-        List<Board> boards;
-        if (type == 0) boards = get0Boards(user);
-        else if (type == 1) boards = get1Boards();
-        else boards = get2Boards();
-
-        List<BoardResponse> boardDtoList = new ArrayList<>();
-        for (Board board : boards) {
-            boardDtoList.add(BoardResponse.boardResponse(board, user));
-        }
-
-        Collections.reverse(boardDtoList); //최신순
-        return boardDtoList;
+    private void checkAuth(User user, Board board) {
+        if (board.getWriter() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
     }
 
     //나의 구독 = 0
-    @Transactional(readOnly = true)
-    public List<Board> get0Boards(User user) {
+    private List<Board> get0Boards(User user) {
         List<Follow> followList = followRepository.findByFollower(user);
-        List<Board> boards = new ArrayList<>();
+        List<Board> boardList = new ArrayList<>();
         for (Follow follow : followList) {
-            List<Board> tmp = boardRepository.findByUser(follow.getFollowing());
-            if (!tmp.isEmpty()) boards.addAll(tmp);
+            List<Board> tmp = getBoardListByWriter(follow.getFollowing());
+            if (!tmp.isEmpty()) boardList.addAll(tmp);
         }
-
-        boards.sort((a, b) -> (int) (a.getBoardId() - b.getBoardId())); //boardId 순 정렬
-        return boards;
+        boardList.sort((a, b) -> (int) (a.getBoardId() - b.getBoardId())); //boardId 순 정렬
+        return boardList;
     }
 
     //오늘 추천 = 1
     //임시로, 모든 게시글 리턴하도록 구현
-    @Transactional(readOnly = true)
-    public List<Board> get1Boards() {
+    private List<Board> get1Boards() {
         return boardRepository.findAll();
     }
 
     //독립 출판 = 2
-    @Transactional(readOnly = true)
-    public List<Board> get2Boards() {
+    private List<Board> get2Boards() {
         return boardRepository.findByBookGenre("독립서적");
     }
 
-    //특정 유저의 게시글 목록 조회
-    @Transactional(readOnly = true)
-    public List<BoardResponse> getBoardList(User owner) {
-        List<Board> boards = boardRepository.findByUser(owner);
-        List<BoardResponse> boardDtoList = new ArrayList<>();
-
-        for (Board board : boards) {
-            boardDtoList.add(BoardResponse.boardResponse(board, owner));
-        }
-
-        Collections.reverse(boardDtoList); //최신순
-        return boardDtoList;
-    }
-
-    //게시글 수정
-    @Transactional
-    public Board updatePost(Long boardId, BoardRequest boardRequest, User user) {
-        Board board = getPost(boardId);
-        if (board.getUser() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
-
-        if (boardRequest.getTitle() != null) board.setTitle(boardRequest.getTitle());
-        if (boardRequest.getContent() != null) board.setContent(boardRequest.getContent());
-
-        return boardRepository.save(board);
-    }
-
-    //게시글 삭제
-    @Transactional
-    public void deletePost(Long boardId, User user) {
-        Board board = getPost(boardId);
-        if (board.getUser() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
-        boardRepository.delete(board);
+    private List<Board> getBoardListByWriter(User user) {
+        return boardRepository.findByWriter(user);
     }
 
 }
