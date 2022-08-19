@@ -35,6 +35,8 @@ public class CommentService {
     @Transactional
     public CommentResponse writeChildComment(Map<String, String> commentRequest, Long boardId, Long commentId, User user) {
         Board board = boardService.getBoard(boardId);
+        checkReCommentEnable(commentId, board);
+
         Comment parent = getComment(commentId);
         Comment comment = new Comment(commentRequest.get("content"), user, board, parent);
         return CommentResponse.of(commentRepository.save(comment));
@@ -80,6 +82,11 @@ public class CommentService {
 
     private Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND.getMsg()));
+    }
+
+    private void checkReCommentEnable(Long commentId, Board board) {
+        commentRepository.findByBoardAndCommentId(board, commentId)
                 .orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND.getMsg()));
     }
 

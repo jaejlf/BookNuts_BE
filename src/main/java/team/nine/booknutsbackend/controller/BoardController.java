@@ -8,6 +8,7 @@ import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.BoardRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 import team.nine.booknutsbackend.dto.response.ResultResponse;
+import team.nine.booknutsbackend.enumerate.BoardType;
 import team.nine.booknutsbackend.service.BoardService;
 import team.nine.booknutsbackend.service.UserService;
 
@@ -35,15 +36,13 @@ public class BoardController {
                 .body(ResultResponse.create("게시글 작성", newBoard));
     }
 
-    //탭별 게시글 목록 조회
-    //나의 구독 = 0, 오늘 추천 = 1, 독립 출판 = 2
     @GetMapping("/list/type/{type}")
     public ResponseEntity<Object> getBoardListByType(@PathVariable int type,
                                                      @AuthenticationPrincipal User user) {
         List<BoardResponse> boardList = boardService.getBoardListByType(user, type);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok("type = " + type + " 게시글 목록 조회", boardList));
+                .body(ResultResponse.ok(BoardType.getBoardType(type) + " 게시글 목록 조회", boardList));
     }
 
     @GetMapping("/list/user/{userId}")

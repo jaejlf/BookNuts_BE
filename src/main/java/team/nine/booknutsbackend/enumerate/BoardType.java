@@ -3,6 +3,8 @@ package team.nine.booknutsbackend.enumerate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import static team.nine.booknutsbackend.exception.ErrorMessage.BOARD_TYPE_NUM_ERROR;
+
 @Getter
 @AllArgsConstructor
 public enum BoardType {
@@ -14,7 +16,8 @@ public enum BoardType {
     public static BoardType getBoardType(int type) {
         if (type == 0) return MY;
         else if (type == 1) return TODAY;
-        else return ONEPUB;
+        else if (type == 2) return ONEPUB;
+        else throw new IndexOutOfBoundsException(BOARD_TYPE_NUM_ERROR.getMsg());
     }
 
 }

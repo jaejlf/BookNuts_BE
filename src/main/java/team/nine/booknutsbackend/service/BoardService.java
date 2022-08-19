@@ -96,7 +96,7 @@ public class BoardService {
         List<Follow> followList = followRepository.findByFollower(user);
         List<Board> boardList = new ArrayList<>();
         for (Follow follow : followList) {
-            List<Board> tmp = getBoardListByWriter(follow.getFollowing());
+            List<Board> tmp = getBoardListByWriter(follow.getFollower());
             if (!tmp.isEmpty()) boardList.addAll(tmp);
         }
         boardList.sort((a, b) -> (int) (a.getBoardId() - b.getBoardId())); //boardId 순 정렬
@@ -122,8 +122,7 @@ public class BoardService {
         List<Board> boardList;
         if (boardType == MY) boardList = get0Boards(user);
         else if (boardType == TODAY) boardList = get1Boards();
-        else if (boardType == ONEPUB) boardList = get2Boards();
-        else throw new IndexOutOfBoundsException(BOARD_TYPE_NUM_ERROR.getMsg());
+        else boardList = get2Boards();
         return boardList;
     }
 
