@@ -10,8 +10,6 @@ import team.nine.booknutsbackend.domain.reaction.Nuts;
 import team.nine.booknutsbackend.repository.HeartRepository;
 import team.nine.booknutsbackend.repository.NutsRepository;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
 public class ReactionService {
@@ -23,33 +21,27 @@ public class ReactionService {
     @Transactional
     public String clickNuts(Long boardId, User user) {
         Board board = boardService.getBoard(boardId);
-        List<Nuts> nutsList = user.getNutsList();
-        Nuts targetNuts = nutsRepository.findByBoardAndUser(board, user);
-
-        if (nutsList.contains(targetNuts)) {
-            nutsRepository.delete(targetNuts);
+        if (nutsRepository.existsByBoardAndUser(board, user)) {
+            nutsRepository.delete(nutsRepository.findByBoardAndUser(board, user));
             return "넛츠 취소";
+        } else {
+            Nuts nuts = new Nuts(board, user);
+            nutsRepository.save(nuts);
+            return "넛츠 누름";
         }
-
-        Nuts nuts = new Nuts(board, user);
-        nutsRepository.save(nuts);
-        return "넛츠 누름";
     }
 
     @Transactional
     public String clickHeart(Long boardId, User user) {
         Board board = boardService.getBoard(boardId);
-        List<Heart> heartList = user.getHeartList();
-        Heart targetHeart = heartRepository.findByBoardAndUser(board, user);
-
-        if (heartList.contains(targetHeart)) {
-            heartRepository.delete(targetHeart);
+        if (heartRepository.existsByBoardAndUser(board, user)) {
+            heartRepository.delete(heartRepository.findByBoardAndUser(board, user));
             return "좋아요 취소";
+        } else {
+            Heart heart = new Heart(board, user);
+            heartRepository.save(heart);
+            return "좋아요 누름";
         }
-
-        Heart heart = new Heart(board, user);
-        heartRepository.save(heart);
-        return "좋아요 누름";
     }
 
     @Transactional

@@ -8,4 +8,5 @@ import team.nine.booknutsbackend.domain.reaction.Nuts;
 public interface NutsRepository extends JpaRepository<Nuts, Long> {
     Nuts findByBoardAndUser(Board board, User user);
     void deleteAllByUser(User user);
+    boolean existsByBoardAndUser(Board board, User user);
 }
