@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.dto.request.LoginRequest;
+import team.nine.booknutsbackend.dto.request.ReissueRequest;
 import team.nine.booknutsbackend.dto.request.SignUpRequest;
 import team.nine.booknutsbackend.dto.response.AuthUserResponse;
 import team.nine.booknutsbackend.dto.response.ResultResponse;
@@ -14,7 +15,6 @@ import team.nine.booknutsbackend.service.EmailAuthService;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
@@ -68,16 +68,16 @@ public class AuthController {
      * refresh token도 만료되었을 경우(= 403 Forbidden) 재로그인 요청
      */
     @GetMapping("/refresh")
-    public ResponseEntity<Object> tokenReIssue(HttpServletRequest request) {
-        TokenResponse tokens = userService.tokenReIssue(request);
+    public ResponseEntity<Object> tokenReIssue(@RequestBody ReissueRequest reissueRequest) {
+        TokenResponse tokenResponse = userService.tokenReIssue(reissueRequest);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok("토큰 재발급", tokens));
+                .body(ResultResponse.ok("토큰 재발급", tokenResponse));
     }
 
     @PostMapping("/email")
     public ResponseEntity<Object> sendEmail(@RequestBody Map<String, String> email) throws MessagingException {
-        String authCode = emailAuthService.sendAuthCode(email.get("email"));
+        String authCode = emailAuthService.sendAuthCode("email-" + email.get("email"));
         return ResponseEntity
                 .status(OK)
                 .body(ResultResponse.ok("이메일 인증 코드 발급", authCode));

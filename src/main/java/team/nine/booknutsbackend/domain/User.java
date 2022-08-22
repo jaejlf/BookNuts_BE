@@ -49,9 +49,6 @@ public class User implements UserDetails {
     private String email;
 
     @Column(length = 300)
-    private String refreshToken = "";
-
-    @Column(length = 300)
     private String profileImgUrl;
 
     @Enumerated(EnumType.STRING)
@@ -70,11 +67,11 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "owner")
     @JsonIgnore
-    private List<ArchiveBoard> archiveBoards = new ArrayList<>();
+    private List<ArchiveBoard> archiveBoardList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private List<Heart> hearts = new ArrayList<>();
+    private List<Heart> heartList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
@@ -82,11 +79,11 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "follower")
     @JsonIgnore
-    private List<Follow> followers = new ArrayList<>();
+    private List<Follow> followerList = new ArrayList<>();
 
     @OneToMany(mappedBy = "following")
     @JsonIgnore
-    private List<Follow> followings = new ArrayList<>();
+    private List<Follow> followingList = new ArrayList<>();
 
     @Override
     @JsonIgnore
@@ -127,10 +124,6 @@ public class User implements UserDetails {
         this.profileImgUrl = profileImgUrl;
     }
 
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
     public void updateProfileImgUrl(String profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
@@ -142,7 +135,6 @@ public class User implements UserDetails {
     public void disableUser() {
         this.username = null;
         this.nickname = null;
-        this.refreshToken = "";
         this.profileImgUrl = "";
         this.enabled = false;
         this.requestedDeleteAt = LocalDateTime.now();

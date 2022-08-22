@@ -62,7 +62,7 @@ public class BoardResponse {
     }
 
     private static Boolean getIsHeart(Board board, User writer) {
-        List<Heart> hearts = writer.getHearts();
+        List<Heart> hearts = writer.getHeartList();
         for (Heart heart : hearts) {
             if (heart.getBoard().equals(board)) return true;
         }
@@ -70,7 +70,7 @@ public class BoardResponse {
     }
 
     private static Boolean getIsArchived(Board board, User writer) {
-        List<ArchiveBoard> archiveBoards = writer.getArchiveBoards();
+        List<ArchiveBoard> archiveBoards = writer.getArchiveBoardList();
         for (ArchiveBoard archiveBoard : archiveBoards) {
             if (archiveBoard.getBoard().equals(board)) return true;
         }

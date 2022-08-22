@@ -24,13 +24,13 @@ public class UserProfileResponse {
                 .nickname(target.getNickname())
                 .isMyProfile(me == target)
                 .isFollow(getIsFollow(me, target))
-                .followerCount(target.getFollowings().size())
-                .followingCount(target.getFollowers().size())
+                .followerCount(target.getFollowingList().size())
+                .followingCount(target.getFollowerList().size())
                 .build();
     }
 
     private static Boolean getIsFollow(User me, User target) {
-        List<Follow> followList = me.getFollowers();
+        List<Follow> followList = me.getFollowerList();
         for (Follow follow : followList) {
             if (follow.getFollower() == target) return true;
         }

@@ -8,9 +8,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import team.nine.booknutsbackend.exception.user.InvalidTokenException;
+import team.nine.booknutsbackend.service.RedisService;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 
@@ -24,6 +26,7 @@ public class JwtTokenProvider {
     private long refreshTokenValidTime = 30 * 24 * 60 * 60 * 1000L; //30일 (한 달)
 
     private final UserDetailsService userDetailsService;
+    private final RedisService redisService;
 
     @PostConstruct
     protected void init() {
@@ -35,7 +38,9 @@ public class JwtTokenProvider {
     }
 
     public String createRefreshToken(String email) {
-        return createToken(email, refreshTokenValidTime);
+        String refreshToken = createToken(email, refreshTokenValidTime);
+        redisService.setValues("token-" + email, refreshToken, Duration.ofMillis(refreshTokenValidTime));
+        return refreshToken;
     }
 
     public String createToken(String email, Long tokenValidTime) {

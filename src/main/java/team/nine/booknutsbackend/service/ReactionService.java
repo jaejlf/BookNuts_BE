@@ -39,7 +39,7 @@ public class ReactionService {
     @Transactional
     public String clickHeart(Long boardId, User user) {
         Board board = boardService.getBoard(boardId);
-        List<Heart> heartList = user.getHearts();
+        List<Heart> heartList = user.getHeartList();
         Heart targetHeart = heartRepository.findByBoardAndUser(board, user);
 
         if (heartList.contains(targetHeart)) {

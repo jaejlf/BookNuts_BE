@@ -17,7 +17,7 @@ public class AuthUserResponse {
     String refreshToken;
     String profileImgUrl;
 
-    public static AuthUserResponse of(User user, String accessToken) {
+    public static AuthUserResponse of(User user, String accessToken, String refreshToken) {
         return AuthUserResponse.builder()
                 .userId(user.getUserId())
                 .loginId(user.getLoginId())
@@ -25,7 +25,7 @@ public class AuthUserResponse {
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .accessToken(accessToken)
-                .refreshToken(user.getRefreshToken())
+                .refreshToken(refreshToken)
                 .profileImgUrl(user.getProfileImgUrl())
                 .build();
     }
