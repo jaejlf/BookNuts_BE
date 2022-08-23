@@ -10,8 +10,6 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReissueRequest {
-
     @NotBlank String email;
     @NotBlank String refreshToken;
-
 }

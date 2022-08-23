@@ -2,6 +2,7 @@ package team.nine.booknutsbackend.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
-import team.nine.booknutsbackend.dto.request.SignUpRequest;
 import team.nine.booknutsbackend.enumerate.Role;
 
 import javax.persistence.*;
@@ -24,6 +24,7 @@ import static team.nine.booknutsbackend.enumerate.Role.ROLE_USER;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(value = {"authorities"})
 public class User implements UserDetails {
 
@@ -115,12 +116,12 @@ public class User implements UserDetails {
         return enabled;
     } //계정 활성화 여부 (true : 활성화)
 
-    public User(SignUpRequest signUpRequest, String password, String profileImgUrl) {
-        this.loginId = signUpRequest.getLoginId();
+    public User(String loginId, String password, String username, String nickname, String email, String profileImgUrl) {
+        this.loginId = loginId;
         this.password = password;
-        this.username = signUpRequest.getUsername();
-        this.nickname = signUpRequest.getNickname();
-        this.email = signUpRequest.getEmail();
+        this.username = username;
+        this.nickname = nickname;
+        this.email = email;
         this.profileImgUrl = profileImgUrl;
     }
 

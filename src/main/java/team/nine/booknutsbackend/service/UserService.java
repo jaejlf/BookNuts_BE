@@ -38,8 +38,11 @@ public class UserService {
     @Transactional
     public UserResponse join(MultipartFile file, SignUpRequest signUpRequest) {
         User user = new User(
-                signUpRequest,
+                signUpRequest.getLoginId(),
                 passwordEncoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getUsername(),
+                signUpRequest.getNickname(),
+                signUpRequest.getEmail(),
                 awsS3Service.uploadImg(file, signUpRequest.getNickname() + "-")
         );
         return UserResponse.of(userRepository.save(user));
