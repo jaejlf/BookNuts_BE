@@ -31,7 +31,14 @@ public class BoardService {
 
     @Transactional
     public BoardResponse writeBoard(BoardRequest boardRequest, User user) {
-        Board board = new Board(boardRequest, user);
+        Board board = new Board(
+                boardRequest.getTitle(),
+                boardRequest.getContent(),
+                boardRequest.getBookTitle(),
+                boardRequest.getBookAuthor(),
+                boardRequest.getBookImgUrl(),
+                boardRequest.getBookGenre(),
+                user);
         return BoardResponse.of(boardRepository.save(board), user);
     }
 

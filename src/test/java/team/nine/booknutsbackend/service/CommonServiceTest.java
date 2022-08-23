@@ -5,6 +5,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import team.nine.booknutsbackend.config.JwtTokenProvider;
+import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.FollowRepository;
@@ -19,10 +20,13 @@ public class CommonServiceTest {
     @Mock JwtTokenProvider jwtTokenProvider;
     @Mock AwsS3Service awsS3Service;
     @Mock RedisService redisService;
+    @Mock BoardRepository boardRepository;
+    @Mock FollowRepository followRepository;
 
-    User user = booknutsUser();
+    User user = user();
+    Board board = board();
 
-    private User booknutsUser() {
+    private User user() {
         return new User(
                 "nutstnuts",
                 "$$ENCODED_PASSWORD$$",
@@ -30,6 +34,18 @@ public class CommonServiceTest {
                 "콩자반",
                 "nuts@naver.com",
                 ""
+        );
+    }
+
+    private Board board() {
+        return new Board(
+                "'땅콩은 콩일까'를 읽고",
+                "땅콩이 콩인지 아닌지 궁금해졌다.",
+                "땅콩은 콩일까?",
+                "콩작가",
+                "www.imgurl...",
+                "독립서적",
+                user
         );
     }
 

@@ -7,7 +7,6 @@ import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
 import team.nine.booknutsbackend.domain.series.SeriesBoard;
-import team.nine.booknutsbackend.dto.request.BoardRequest;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -67,13 +66,13 @@ public class Board {
     @JsonIgnore
     private List<SeriesBoard> seriesBoards = new ArrayList<>();
 
-    public Board(BoardRequest boardRequest, User user) {
-        this.title = boardRequest.getTitle();
-        this.content = boardRequest.getContent();
-        this.bookTitle = boardRequest.getBookTitle();
-        this.bookAuthor = boardRequest.getBookAuthor();
-        this.bookImgUrl = boardRequest.getBookImgUrl();
-        this.bookGenre = boardRequest.getBookGenre();
+    public Board(String title, String content, String bookTitle, String bookAuthor, String bookImgUrl, String bookGenre, User user) {
+        this.title = title;
+        this.content = content;
+        this.bookTitle = bookTitle;
+        this.bookAuthor = bookAuthor;
+        this.bookImgUrl = bookImgUrl;
+        this.bookGenre = bookGenre;
         this.writer = user;
     }
 
