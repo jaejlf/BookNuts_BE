@@ -23,7 +23,7 @@
 <br><br>
 
 ## 👩‍💻 개발 내용
-- 회원 - JWT + Spring Security를 통한 로그인
+- 회원 - JWT + Spring Security를 통한 로그인, 이메일 인증
 - Access Token + Refresh Token 구현
 - 커뮤니티 기능 (게시글, 댓글, 공감 등)
 - 토론 관련 기능 개발 (토론장 개설, 참여, 상태 변경)
@@ -31,6 +31,7 @@
 - 아카이브 - 게시글 아카이빙/추가/삭제
 - 팔로우 & 팔로잉
 - 이미지 업로드 (프로필, 아카이브, 시리즈, 토론 커버 이미지)
+- Logback을 통한 로그 기록
 
 <br><br>
 
@@ -40,7 +41,7 @@
 <br><br>
 
 ## 🧩 서비스 아키텍처
-![image](https://user-images.githubusercontent.com/78673570/181485191-465f53b6-a250-4c52-b04c-57c17c5f01a5.png)
+![image](https://user-images.githubusercontent.com/78673570/187071785-5b83103b-c2fe-4761-8876-e39ebf0e7a83.png)
 
 ### CI/CD Pipeline
 1. 개발 완료 후 main 브랜치에 Push (or Pull Request 전송)
@@ -55,6 +56,13 @@
 
 ## 💾 ERD Diagram
 ![image](https://user-images.githubusercontent.com/78673570/181485477-3b45ecf7-e193-456f-ba14-a8d3e9c8c6ac.png)
+
+<br><br>
+
+## 🏷 Release Version
+
+- [release/v1](https://github.com/jaejlf/BookNuts_Backend/releases/tag/v1) - 베타 버전 배포를 위한 주요 기능 구현
+- release/v2 - 리팩토링 및 테스트 코드 작성
 
 <br><br>
 
