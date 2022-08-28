@@ -30,11 +30,11 @@ public class UserController {
         return new ResponseEntity<>(UserResponse.userResponse(user), HttpStatus.OK);
     }
 
-    //사용자 프로필 조회
-    @GetMapping("/profile/{userId}")
-    public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable Long userId, Principal principal) {
+    //닉네임으로 사용자 프로필 조회
+    @GetMapping("/profile/{nickname}")
+    public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable String nickname, Principal principal) {
         User curUser = userService.findUserByEmail(principal.getName());
-        User targetUser = userService.findUserById(userId);
+        User targetUser = userService.findUserByNickname(nickname);
         return new ResponseEntity<>(UserProfileResponse.userProfileResponse(curUser, targetUser), HttpStatus.OK);
     }
 

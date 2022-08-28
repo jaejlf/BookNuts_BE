@@ -42,9 +42,9 @@ public class BoardController {
     }
 
     //특정 유저의 게시글 목록 조회
-    @GetMapping("/post/{userId}")
-    public ResponseEntity<List<BoardResponse>> getBoardList(@PathVariable Long userId) {
-        User owner = userService.findUserById(userId);
+    @GetMapping("/post/{nickname}")
+    public ResponseEntity<List<BoardResponse>> getBoardList(@PathVariable String nickname) {
+        User owner = userService.findUserByNickname(nickname);
         return new ResponseEntity<>(boardService.getBoardList(owner), HttpStatus.OK);
     }
 

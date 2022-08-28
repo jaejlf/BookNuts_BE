@@ -31,8 +31,8 @@ public class FollowService {
             throw new AlreadyFollowingException();
         if (following == follower) throw new CannotFollowException();
 
-        follow.setFollowing(userService.findUserById(following.getUserId()));
-        follow.setFollower(userService.findUserById(follower.getUserId()));
+        follow.setFollowing(userService.findUserByNickname(following.getNickname()));
+        follow.setFollower(userService.findUserByNickname(follower.getNickname()));
 
         followRepository.save(follow);
     }

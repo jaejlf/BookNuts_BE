@@ -28,9 +28,9 @@ public class ArchiveController {
     private final UserService userService;
 
     //특정 유저의 아카이브 목록 조회
-    @GetMapping("/list/{userId}")
-    public ResponseEntity<List<ArchiveResponse>> getArchiveList(@PathVariable Long userId) {
-        User owner = userService.findUserById(userId);
+    @GetMapping("/list/{nickname}")
+    public ResponseEntity<List<ArchiveResponse>> getArchiveList(@PathVariable String nickname) {
+        User owner = userService.findUserByNickname(nickname);
         return new ResponseEntity<>(archiveService.getArchiveList(owner), HttpStatus.OK);
     }
 

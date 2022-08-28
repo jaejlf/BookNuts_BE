@@ -28,9 +28,9 @@ public class SeriesController {
     private final UserService userService;
 
     //특정 유저의 시리즈 목록 조회
-    @GetMapping("/list/{userId}")
-    public ResponseEntity<List<SeriesResponse>> getSeriesList(@PathVariable Long userId) {
-        User owner = userService.findUserById(userId);
+    @GetMapping("/list/{nickname}")
+    public ResponseEntity<List<SeriesResponse>> getSeriesList(@PathVariable String nickname) {
+        User owner = userService.findUserByNickname(nickname);
         return new ResponseEntity<>(seriesService.getSeriesList(owner), HttpStatus.OK);
     }
 

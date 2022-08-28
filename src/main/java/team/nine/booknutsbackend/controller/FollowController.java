@@ -23,10 +23,10 @@ public class FollowController {
     private final UserService userService;
 
     //팔로우
-    @PutMapping("/{followingId}")
-    public ResponseEntity<Object> follow(@PathVariable Long followingId, Principal principal) {
+    @PutMapping("/{targetNickname}")
+    public ResponseEntity<Object> follow(@PathVariable String targetNickname, Principal principal) {
         User follower = userService.findUserByEmail(principal.getName());
-        User following = userService.findUserById(followingId);
+        User following = userService.findUserByNickname(targetNickname);
         followService.follow(following, follower);
 
         Map<String, String> map = new HashMap<>();
@@ -35,10 +35,10 @@ public class FollowController {
     }
 
     //언팔로우
-    @DeleteMapping("/{unfollowingId}")
-    public ResponseEntity<Object> unfollow(@PathVariable Long unfollowingId, Principal principal) {
+    @DeleteMapping("/{targetNickname}")
+    public ResponseEntity<Object> unfollow(@PathVariable String targetNickname, Principal principal) {
         User follower = userService.findUserByEmail(principal.getName());    //나(팔로워)
-        User unfollowing = userService.findUserById(unfollowingId);
+        User unfollowing = userService.findUserByNickname(targetNickname);
         followService.unfollow(unfollowing, follower);
 
         Map<String, String> map = new HashMap<>();
@@ -47,18 +47,18 @@ public class FollowController {
     }
 
     //팔로잉 리스트
-    @GetMapping("/followinglist/{userId}")
-    public ResponseEntity<List<FollowResponse>> findMyFollowingList(@PathVariable Long userId, Principal principal) {
+    @GetMapping("/followinglist/{nickname}")
+    public ResponseEntity<List<FollowResponse>> findMyFollowingList(@PathVariable String nickname, Principal principal) {
         User currentLoginId = userService.findUserByEmail(principal.getName());
-        User user = userService.findUserById(userId);
+        User user = userService.findUserByNickname(nickname);
         return new ResponseEntity<>(followService.getMyFollowingList(user), HttpStatus.OK);
     }
 
     //팔로워 리스트
-    @GetMapping("/followerlist/{userId}")
-    public ResponseEntity<List<FollowResponse>> findMyFollowerList(@PathVariable Long userId, Principal principal) {
+    @GetMapping("/followerlist/{nickname}")
+    public ResponseEntity<List<FollowResponse>> findMyFollowerList(@PathVariable String nickname, Principal principal) {
         User currentLoginId = userService.findUserByEmail(principal.getName());
-        User user = userService.findUserById(userId);
+        User user = userService.findUserByNickname(nickname);
         return new ResponseEntity<>(followService.getMyFollowerList(user), HttpStatus.OK);
     }
 

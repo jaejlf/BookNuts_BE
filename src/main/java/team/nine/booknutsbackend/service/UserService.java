@@ -43,10 +43,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    //ID로 유저 정보 조회
+    //닉네임으로 유저 정보 조회
     @Transactional(readOnly = true)
-    public User findUserById(Long id) {
-        User user = userRepository.findById(id)
+    public User findUserByNickname(String nickname) {
+        User user = userRepository.findByNickname(nickname)
                 .orElseThrow(UserNotFoundException::new);
         if (!user.isEnabled()) throw new UserNotFoundException();
 
