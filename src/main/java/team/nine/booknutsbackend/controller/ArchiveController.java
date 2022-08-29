@@ -28,13 +28,13 @@ public class ArchiveController {
     private final ArchiveService archiveService;
     private final UserService userService;
 
-    @GetMapping("/list/{userId}")
-    public ResponseEntity<Object> getArchiveList(@PathVariable Long userId) {
-        User user = userService.getUserById(userId);
+    @GetMapping("/list/{nickname}")
+    public ResponseEntity<Object> getArchiveList(@PathVariable String nickname) {
+        User user = userService.getUserByNickname(nickname);
         List<ArchiveResponse> archiveList = archiveService.getArchiveList(user);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok(userId + "번 유저의 아카이브 목록 조회", archiveList));
+                .body(ResultResponse.ok("유저 '" + nickname + "'의 아카이브 목록 조회", archiveList));
     }
 
     @PostMapping("/create")

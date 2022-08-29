@@ -60,7 +60,7 @@ public class UserService {
 
     @Transactional
     public AuthUserResponse login(LoginRequest loginRequest) {
-        User user = getUser(loginRequest.getId());
+        User user = customUserDetailService.loadUserByUsername(loginRequest.getId());
         checkPasswordMatching(loginRequest.getPassword(), user);
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
@@ -78,8 +78,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserById(Long userId) {
-        return getUser(userId);
+    public User getUserByNickname(String nickname) {
+        User user = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
+        if (!user.isEnabled()) throw new UsernameNotFoundException(USER_NOT_FOUND.getMsg());
+        return user;
     }
 
     @Transactional(readOnly = true)
@@ -105,21 +108,10 @@ public class UserService {
         userRepository.save(user);
     }
 
-    private User getUser(String id) {
-        return customUserDetailService.loadUserByUsername(id);
-    }
-
     private void checkPasswordMatching(String inputPw, User user) {
         if (!passwordEncoder.matches(inputPw, user.getPassword())) {
             throw new IllegalArgumentException(PASSWORD_ERROR.getMsg());
         }
-    }
-
-    private User getUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
-        if (!user.isEnabled()) throw new UsernameNotFoundException(USER_NOT_FOUND.getMsg());
-        return user;
     }
 
     private String getCheckedRefreshToken(ReissueRequest tokenRequest, User user) {

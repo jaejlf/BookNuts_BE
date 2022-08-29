@@ -5,10 +5,10 @@ import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
-    Optional<Follow> findByFollowingAndFollower(User unfollowing, User follower);
+    Follow findByFollowingAndFollower(User following, User follower);
+    boolean existsByFollowingAndFollower(User following, User follower);
     List<Follow> findByFollower(User curUser);
     List<Follow> findByFollowing(User curUser);
     void deleteAllByFollower(User user);

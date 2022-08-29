@@ -8,12 +8,8 @@ import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.FollowResponse;
 import team.nine.booknutsbackend.repository.FollowRepository;
 
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 
 @RequiredArgsConstructor
@@ -24,19 +20,18 @@ public class FollowService {
     private final UserService userService;
 
     @Transactional
-    public void follow(User me, User target) {
-        checkFollowEnable(me, target);
-        Follow follow = new Follow(
-                userService.getUserById(me.getUserId()),
-                userService.getUserById(target.getUserId())
-        );
-        followRepository.save(follow);
-    }
-
-    @Transactional
-    public void unfollow(User me, User target) {
-        Follow follow = getFollow(me, target);
-        followRepository.delete(follow);
+    public String clickFollow(User me, User target) {
+        if (followRepository.existsByFollowingAndFollower(me, target)) {
+            followRepository.delete(followRepository.findByFollowingAndFollower(me, target));
+            return "언팔로우";
+        } else {
+            Follow follow = new Follow(
+                    userService.getUserByNickname(me.getNickname()),
+                    userService.getUserByNickname(target.getNickname())
+            );
+            followRepository.save(follow);
+            return "팔로우";
+        }
     }
 
     @Transactional(readOnly = true)
@@ -62,20 +57,6 @@ public class FollowService {
     @Transactional
     public void deleteAllFollow(User user) {
         followRepository.deleteAllByFollower(user);
-    }
-
-    private void checkFollowEnable(User me, User target) {
-        if (followRepository.findByFollowingAndFollower(me, target).isPresent()) {
-            throw new EntityExistsException(ALREADY_FOLLOWING.getMsg());
-        }
-        if (me == target) {
-            throw new IllegalArgumentException(FOLLOW_ERROR.getMsg());
-        }
-    }
-
-    private Follow getFollow(User me, User target) {
-        return followRepository.findByFollowingAndFollower(me, target)
-                .orElseThrow(() -> new EntityNotFoundException(FOLLOW_NOT_FOUND.getMsg()));
     }
 
 }

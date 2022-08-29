@@ -32,13 +32,13 @@ public class UserController {
                 .body(ResultResponse.ok("현재 로그인된 유저 정보 조회", userResponse));
     }
 
-    @GetMapping("/profile/{userId}")
-    public ResponseEntity<Object> getUserProfile(@PathVariable Long userId,
+    @GetMapping("/profile/{nickname}")
+    public ResponseEntity<Object> getUserProfile(@PathVariable String nickname,
                                                  @AuthenticationPrincipal User me) {
-        User target = userService.getUserById(userId);
+        User target = userService.getUserByNickname(nickname);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok(userId + "번 유저 프로필 조회", UserProfileResponse.of(me, target)));
+                .body(ResultResponse.ok("유저 '" + nickname + "'의 프로필 조회", UserProfileResponse.of(me, target)));
     }
 
     @PatchMapping("/update/img")

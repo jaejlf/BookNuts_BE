@@ -25,11 +25,7 @@ public enum ErrorMessage {
     DEBATE_USER_EXCEED("인원 초과로 참여할 수 없습니다."),
     LOCKED_ROOM("토론이 진행 중이거나 종료되어 참여할 수 없습니다."),
     STATUS_NUM_ERROR("상태값은 토론 진행 중(=1) 또는 토론 종료(=2) 여야 합니다."),
-    DEBATE_TYPE_NUM_ERROR("타입 값은 텍스트 채팅(=0) 또는 음성 채팅(=1) 이어야 합니다."),
-
-    ALREADY_FOLLOWING("이미 팔로우 중인 계정입니다."),
-    FOLLOW_NOT_FOUND("팔로우하고 있지 않은 계정입니다."),
-    FOLLOW_ERROR("본인 계정은 팔로우할 수 없습니다.");
+    DEBATE_TYPE_NUM_ERROR("타입 값은 텍스트 채팅(=0) 또는 음성 채팅(=1) 이어야 합니다.");
 
     private final String msg;
 

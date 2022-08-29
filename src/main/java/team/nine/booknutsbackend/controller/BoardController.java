@@ -45,13 +45,13 @@ public class BoardController {
                 .body(ResultResponse.ok(BoardType.getBoardType(type) + " 게시글 목록 조회", boardList));
     }
 
-    @GetMapping("/list/user/{userId}")
-    public ResponseEntity<Object> getBoardListByUser(@PathVariable Long userId) {
-        User user = userService.getUserById(userId);
+    @GetMapping("/list/user/{nickname}")
+    public ResponseEntity<Object> getBoardListByUser(@PathVariable String nickname) {
+        User user = userService.getUserByNickname(nickname);
         List<BoardResponse> boardList = boardService.getBoardListByUser(user);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok(userId + "번 유저가 작성한 게시글 목록 조회", boardList));
+                .body(ResultResponse.ok("유저 '" + nickname + "'(이)가 작성한 게시글 목록 조회", boardList));
     }
 
     @GetMapping("/{boardId}")

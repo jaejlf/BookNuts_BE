@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Optional<User> findByLoginId(String loginId);
+    Optional<User> findByNickname(String nickname);
     boolean existsByNickname(String nickname);
     boolean existsByLoginId(String loginId);
     List<User> findAllByEnabledAndRequestedDeleteAtBetween(boolean enabled, LocalDateTime startTime, LocalDateTime endTime);

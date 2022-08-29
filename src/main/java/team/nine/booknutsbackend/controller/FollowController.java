@@ -22,42 +22,32 @@ public class FollowController {
     private final FollowService followService;
     private final UserService userService;
 
-    @PutMapping("/{followingId}")
-    public ResponseEntity<Object> follow(@PathVariable Long followingId,
-                                         @AuthenticationPrincipal User me) {
-        User target = userService.getUserById(followingId);
-        followService.follow(me, target);
+    @PutMapping("/{targetNickname}")
+    public ResponseEntity<Object> clickFollow(@PathVariable String targetNickname,
+                                              @AuthenticationPrincipal User me) {
+        User target = userService.getUserByNickname(targetNickname);
+        String result = followService.clickFollow(me, target);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok(followingId + "번 유저 팔로우"));
+                .body(ResultResponse.ok("유저 '" + targetNickname + "' " + result));
     }
 
-    @DeleteMapping("/{unfollowingId}")
-    public ResponseEntity<Object> unfollow(@PathVariable Long unfollowingId,
-                                           @AuthenticationPrincipal User me) {
-        User target = userService.getUserById(unfollowingId);
-        followService.unfollow(me, target);
-        return ResponseEntity
-                .status(OK)
-                .body(ResultResponse.ok(unfollowingId + "번 유저 언팔로우"));
-    }
-
-    @GetMapping("/followinglist/{userId}")
-    public ResponseEntity<Object> getFollowingList(@PathVariable Long userId) {
-        User user = userService.getUserById(userId);
+    @GetMapping("/followinglist/{nickname}")
+    public ResponseEntity<Object> getFollowingList(@PathVariable String nickname) {
+        User user = userService.getUserByNickname(nickname);
         List<FollowResponse> followingList = followService.getFollowingList(user);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok(userId + "번 유저의 팔로잉 목록", followingList));
+                .body(ResultResponse.ok("유저 '" + nickname + "'의 팔로잉 목록", followingList));
     }
 
-    @GetMapping("/followerlist/{userId}")
-    public ResponseEntity<Object> findMyFollowerList(@PathVariable Long userId) {
-        User user = userService.getUserById(userId);
+    @GetMapping("/followerlist/{nickname}")
+    public ResponseEntity<Object> findMyFollowerList(@PathVariable String nickname) {
+        User user = userService.getUserByNickname(nickname);
         List<FollowResponse> followerList = followService.getMyFollowerList(user);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok(userId + "번 유저의 팔로워 목록", followerList));
+                .body(ResultResponse.ok("유저 '" + nickname + "'의 팔로워 목록", followerList));
     }
 
 }
