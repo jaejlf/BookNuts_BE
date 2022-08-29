@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import static team.nine.booknutsbackend.enumerate.BoardType.*;
-import static team.nine.booknutsbackend.exception.ErrorMessage.*;
+import static team.nine.booknutsbackend.exception.ErrorMessage.BOARD_NOT_FOUND;
+import static team.nine.booknutsbackend.exception.ErrorMessage.MOD_DEL_NO_AUTH;
 
 @RequiredArgsConstructor
 @Service
@@ -44,7 +45,7 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public List<BoardResponse> getBoardListByType(User user, int type) {
-       List<Board> boardList = getBoardList(user, getBoardType(type));
+        List<Board> boardList = getBoardList(user, getBoardType(type));
         List<BoardResponse> boardResponseList = new ArrayList<>();
         for (Board board : boardList) {
             boardResponseList.add(BoardResponse.of(board, user));

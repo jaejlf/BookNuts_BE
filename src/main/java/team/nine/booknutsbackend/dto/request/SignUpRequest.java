@@ -15,5 +15,4 @@ public class SignUpRequest {
     @NotBlank String username;
     @NotBlank String nickname;
     @NotBlank String email;
-    String profileImgUrl;
 }
