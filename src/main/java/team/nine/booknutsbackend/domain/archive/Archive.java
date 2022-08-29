@@ -9,8 +9,8 @@ import team.nine.booknutsbackend.dto.request.ArchiveRequest;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -39,7 +39,7 @@ public class Archive {
 
     @OneToMany(mappedBy = "archive", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JsonIgnore
-    private List<ArchiveBoard> archiveBoardList = new ArrayList<>();
+    private Set<ArchiveBoard> archiveBoardList = new HashSet<>();
 
     public Archive(ArchiveRequest archiveRequest, User user, String imgUrl) {
         this.title = archiveRequest.getTitle();

@@ -5,7 +5,7 @@ import lombok.Getter;
 import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Builder
@@ -30,7 +30,7 @@ public class UserProfileResponse {
     }
 
     private static Boolean getIsFollow(User me, User target) {
-        List<Follow> followList = me.getFollowerList();
+        Set<Follow> followList = me.getFollowerList();
         for (Follow follow : followList) {
             if (follow.getFollower() == target) return true;
         }

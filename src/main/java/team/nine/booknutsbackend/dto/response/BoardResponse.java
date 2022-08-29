@@ -8,8 +8,8 @@ import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Builder
@@ -54,7 +54,7 @@ public class BoardResponse {
     }
 
     private static Boolean getIsNuts(Board board, User writer) {
-        List<Nuts> nutsList = writer.getNutsList();
+        Set<Nuts> nutsList = writer.getNutsList();
         for (Nuts nuts : nutsList) {
             if (nuts.getBoard().equals(board)) return true;
         }
@@ -62,7 +62,7 @@ public class BoardResponse {
     }
 
     private static Boolean getIsHeart(Board board, User writer) {
-        List<Heart> hearts = writer.getHeartList();
+        Set<Heart> hearts = writer.getHeartList();
         for (Heart heart : hearts) {
             if (heart.getBoard().equals(board)) return true;
         }
@@ -70,7 +70,7 @@ public class BoardResponse {
     }
 
     private static Boolean getIsArchived(Board board, User writer) {
-        List<ArchiveBoard> archiveBoards = writer.getArchiveBoardList();
+        Set<ArchiveBoard> archiveBoards = writer.getArchiveBoardList();
         for (ArchiveBoard archiveBoard : archiveBoards) {
             if (archiveBoard.getBoard().equals(board)) return true;
         }

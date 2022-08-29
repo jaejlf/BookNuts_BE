@@ -5,7 +5,7 @@ import lombok.Getter;
 import team.nine.booknutsbackend.domain.series.Series;
 import team.nine.booknutsbackend.domain.series.SeriesBoard;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Builder
@@ -30,7 +30,7 @@ public class SeriesResponse {
     }
 
     private static int getTotalNuts(Series series) {
-        List<SeriesBoard> seriesBoardList = series.getSeriesBoardList();
+        Set<SeriesBoard> seriesBoardList = series.getSeriesBoardList();
         int totalNuts = 0;
         for (SeriesBoard seriesBoard : seriesBoardList) {
             totalNuts += seriesBoard.getBoard().getNutsList().size();

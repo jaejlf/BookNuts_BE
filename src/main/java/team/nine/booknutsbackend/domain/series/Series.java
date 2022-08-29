@@ -7,8 +7,8 @@ import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.SeriesRequest;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static javax.persistence.FetchType.LAZY;
 
@@ -36,7 +36,7 @@ public class Series {
 
     @OneToMany(mappedBy = "series", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JsonIgnore
-    private List<SeriesBoard> seriesBoardList = new ArrayList<>();
+    private Set<SeriesBoard> seriesBoardList = new HashSet<>();
 
     public Series(SeriesRequest seriesRequest, User user, String imgUrl) {
         this.title = seriesRequest.getTitle();

@@ -15,9 +15,7 @@ import team.nine.booknutsbackend.enumerate.Role;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static team.nine.booknutsbackend.enumerate.Role.ROLE_USER;
 
@@ -68,23 +66,23 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "owner")
     @JsonIgnore
-    private List<ArchiveBoard> archiveBoardList = new ArrayList<>();
+    private Set<ArchiveBoard> archiveBoardList = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private List<Heart> heartList = new ArrayList<>();
+    private Set<Heart> heartList = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private List<Nuts> nutsList = new ArrayList<>();
+    private Set<Nuts> nutsList = new HashSet<>();
 
     @OneToMany(mappedBy = "follower")
     @JsonIgnore
-    private List<Follow> followerList = new ArrayList<>();
+    private Set<Follow> followerList = new HashSet<>();
 
     @OneToMany(mappedBy = "following")
     @JsonIgnore
-    private List<Follow> followingList = new ArrayList<>();
+    private Set<Follow> followingList = new HashSet<>();
 
     @Override
     @JsonIgnore
