@@ -34,7 +34,7 @@ public class Series {
     @JoinColumn(name = "owner")
     private User owner;
 
-    @OneToMany(mappedBy = "series")
+    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<SeriesBoard> seriesBoardList = new ArrayList<>();
 

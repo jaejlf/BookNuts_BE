@@ -75,9 +75,6 @@ public class ArchiveService {
     public void deleteArchive(Long archiveId, User user) {
         Archive archive = getArchive(archiveId);
         checkAuth(archive, user);
-
-        List<ArchiveBoard> archiveBoardList = getBoardsInArchive(archive);
-        archiveBoardRepository.deleteAll(archiveBoardList);
         archiveRepository.delete(archive);
         awsS3Service.deleteImg(archive.getImgUrl());  //기존 이미지 버킷에서 삭제
     }
@@ -107,8 +104,6 @@ public class ArchiveService {
     public void deleteAllArchive(User user) {
         List<Archive> archiveList = archiveRepository.findAllByOwner(user);
         for (Archive archive : archiveList) {
-            List<ArchiveBoard> archiveBoards = getBoardsInArchive(archive);
-            archiveBoardRepository.deleteAll(archiveBoards);
             awsS3Service.deleteImg(archive.getImgUrl());  //기존 이미지 버킷에서 삭제
         }
         archiveRepository.deleteAll(archiveList);
