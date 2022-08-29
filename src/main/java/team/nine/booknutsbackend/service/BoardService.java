@@ -13,7 +13,6 @@ import team.nine.booknutsbackend.exception.user.NoAuthException;
 import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.FollowRepository;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static team.nine.booknutsbackend.enumerate.BoardType.*;
-import static team.nine.booknutsbackend.exception.ErrorMessage.BOARD_NOT_FOUND;
 import static team.nine.booknutsbackend.exception.ErrorMessage.MOD_DEL_NO_AUTH;
 
 @RequiredArgsConstructor
@@ -47,9 +45,7 @@ public class BoardService {
     @Transactional(readOnly = true)
     public List<BoardResponse> getBoardListByType(User user, int type) {
         List<Board> boardList = getBoardList(user, getBoardType(type));
-        List<BoardResponse> boardResponseList = entityToDto(boardList, user);
-        Collections.reverse(boardResponseList); //최신순
-        return boardResponseList;
+        return entityToDto(boardList, user);
     }
 
     @Transactional(readOnly = true)
@@ -68,8 +64,7 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public Board getBoard(Long boardId) {
-        return boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException(BOARD_NOT_FOUND.getMsg()));
+        return boardRepository.findBoardById(boardId);
     }
 
     @Transactional
@@ -109,16 +104,16 @@ public class BoardService {
     //오늘 추천 = 1
     //임시로, 모든 게시글 리턴하도록 구현
     private List<Board> get1Boards() {
-        return boardRepository.findAll();
+        return boardRepository.findAllBoard();
     }
 
     //독립 출판 = 2
     private List<Board> get2Boards() {
-        return boardRepository.findByBookGenre("독립서적");
+        return boardRepository.findBoardByGenre("독립서적");
     }
 
     private List<Board> getBoardListByWriter(User user) {
-        return boardRepository.findByWriter(user);
+        return boardRepository.findBoardByWriter(user);
     }
 
     private List<Board> getBoardList(User user, BoardType boardType) {

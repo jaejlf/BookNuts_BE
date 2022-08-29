@@ -14,7 +14,6 @@ public enum ErrorMessage {
     BOARD_ALREADY_EXIST("이미 존재하는 게시글입니다."),
     BOARD_TYPE_NUM_ERROR("type은 0 ~ 2 사이의 값이어야합니다."),
 
-    BOARD_NOT_FOUND("존재하지 않는 게시글입니다."),
     ARCHIVE_NOT_FOUND("존재하지 않는 아카이브입니다."),
     SERIES_NOT_FOUND("존재하지 않는 시리즈입니다."),
     COMMENT_NOT_FOUND("존재하지 않는 댓글입니다."),

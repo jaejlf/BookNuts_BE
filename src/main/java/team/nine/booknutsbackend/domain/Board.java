@@ -11,8 +11,8 @@ import team.nine.booknutsbackend.domain.series.SeriesBoard;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static javax.persistence.FetchType.LAZY;
 
@@ -52,19 +52,19 @@ public class Board {
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<Nuts> nutsList = new ArrayList<>();
+    private Set<Nuts> nutsList = new HashSet<>();
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<Heart> heartList = new ArrayList<>();
+    private Set<Heart> heartList = new HashSet<>();
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<ArchiveBoard> archiveBoards = new ArrayList<>();
+    private Set<ArchiveBoard> archiveBoards = new HashSet<>();
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<SeriesBoard> seriesBoards = new ArrayList<>();
+    private Set<SeriesBoard> seriesBoards = new HashSet<>();
 
     public Board(String title, String content, String bookTitle, String bookAuthor, String bookImgUrl, String bookGenre, User user) {
         this.title = title;

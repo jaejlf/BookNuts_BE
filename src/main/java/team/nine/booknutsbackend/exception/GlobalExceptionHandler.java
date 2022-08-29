@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -81,6 +82,15 @@ public class GlobalExceptionHandler {
                 .status(NOT_FOUND)
                 .body(ErrorResponse.error(NOT_FOUND.value(), e.getClass().getSimpleName(), e.getMessage()));
     }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<Object> emptyResultDataAccessExceptionHandler(EmptyResultDataAccessException e) {
+        errorLogging(e);
+        return ResponseEntity
+                .status(NOT_FOUND)
+                .body(ErrorResponse.error(NOT_FOUND.value(), e.getClass().getSimpleName(), e.getMessage()));
+    }
+
 
     @ExceptionHandler(CannotEnterException.class)
     public ResponseEntity<Object> handleCannotEnterException(CannotEnterException e) {
