@@ -17,10 +17,10 @@ import team.nine.booknutsbackend.repository.ArchiveRepository;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
@@ -36,10 +36,7 @@ public class ArchiveService {
     @Transactional(readOnly = true)
     public List<ArchiveResponse> getArchiveList(User user) {
         List<Archive> archiveList = archiveRepository.findAllByOwner(user);
-        List<ArchiveResponse> archiveResponseList = new ArrayList<>();
-        for (Archive archive : archiveList) {
-            archiveResponseList.add(ArchiveResponse.of(archive));
-        }
+        List<ArchiveResponse> archiveResponseList = entityToDto(archiveList);
         Collections.reverse(archiveResponseList); //최신순
         return archiveResponseList;
     }
@@ -58,10 +55,7 @@ public class ArchiveService {
     public List<BoardResponse> getBoardsInArchive(Long archiveId, User user) {
         Archive archive = getArchive(archiveId);
         List<ArchiveBoard> archiveBoardList = getBoardsInArchive(archive);
-        List<BoardResponse> boardResponseList = new ArrayList<>();
-        for (ArchiveBoard archiveBoard : archiveBoardList) {
-            boardResponseList.add(BoardResponse.of(archiveBoard.getBoard(), user));
-        }
+        List<BoardResponse> boardResponseList = entityToDto(archiveBoardList, user);
         Collections.reverse(boardResponseList); //최신순
         return boardResponseList;
     }
@@ -137,6 +131,14 @@ public class ArchiveService {
         if (archiveBoardRepository.findByBoardAndOwner(board, user).isPresent()) {
             throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
         }
+    }
+
+    private List<ArchiveResponse> entityToDto(List<Archive> archiveList) {
+        return archiveList.stream().map(ArchiveResponse::of).collect(Collectors.toList());
+    }
+
+    private List<BoardResponse> entityToDto(List<ArchiveBoard> archiveBoardList, User user) {
+        return archiveBoardList.stream().map(x -> BoardResponse.of(x.getBoard(), user)).collect(Collectors.toList());
     }
 
 }

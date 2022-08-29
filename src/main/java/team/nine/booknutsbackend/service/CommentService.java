@@ -14,6 +14,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static team.nine.booknutsbackend.exception.ErrorMessage.COMMENT_NOT_FOUND;
 import static team.nine.booknutsbackend.exception.ErrorMessage.MOD_DEL_NO_AUTH;
@@ -48,19 +49,13 @@ public class CommentService {
         List<Comment> parentCommentList = commentRepository.findByBoardAndParent(board, null);
 
         List<Comment> commentList = new ArrayList<>();
-        List<CommentResponse> commentResponseList = new ArrayList<>();
-
         for (Comment comment : parentCommentList) {
             commentList.add(comment);
             List<Comment> childCommentList = commentRepository.findByParent(comment);
             if (childCommentList != null) commentList.addAll(childCommentList);
         }
 
-        for (Comment comment : commentList) {
-            commentResponseList.add(CommentResponse.of(comment));
-        }
-
-        return commentResponseList;
+        return entityToDto(commentList);
     }
 
     @Transactional
@@ -88,6 +83,10 @@ public class CommentService {
     private void checkReCommentEnable(Long commentId, Board board) {
         commentRepository.findByBoardAndCommentId(board, commentId)
                 .orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND.getMsg()));
+    }
+
+    private List<CommentResponse> entityToDto(List<Comment> commentList) {
+        return commentList.stream().map(CommentResponse::of).collect(Collectors.toList());
     }
 
 }

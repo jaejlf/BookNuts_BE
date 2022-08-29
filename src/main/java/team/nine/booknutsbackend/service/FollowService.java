@@ -8,8 +8,8 @@ import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.response.FollowResponse;
 import team.nine.booknutsbackend.repository.FollowRepository;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -37,26 +37,26 @@ public class FollowService {
     @Transactional(readOnly = true)
     public List<FollowResponse> getFollowingList(User user) {
         List<Follow> followList = followRepository.findByFollower(user);
-        List<FollowResponse> followResponseList = new ArrayList<>();
-        for (Follow follow : followList) {
-            followResponseList.add(FollowResponse.of(follow.getFollowing()));
-        }
-        return followResponseList;
+        return followingToDto(followList);
     }
 
     @Transactional(readOnly = true)
     public List<FollowResponse> getMyFollowerList(User user) {
         List<Follow> followList = followRepository.findByFollowing(user);
-        List<FollowResponse> followResponseList = new ArrayList<>();
-        for (Follow follow : followList) {
-            followResponseList.add(FollowResponse.of(follow.getFollower()));
-        }
-        return followResponseList;
+        return followerToDto(followList);
     }
 
     @Transactional
     public void deleteAllFollow(User user) {
         followRepository.deleteAllByFollower(user);
+    }
+
+    private List<FollowResponse> followingToDto(List<Follow> followList) {
+        return followList.stream().map(x -> FollowResponse.of(x.getFollowing())).collect(Collectors.toList());
+    }
+
+    private List<FollowResponse> followerToDto(List<Follow> followList) {
+        return followList.stream().map(x -> FollowResponse.of(x.getFollower())).collect(Collectors.toList());
     }
 
 }

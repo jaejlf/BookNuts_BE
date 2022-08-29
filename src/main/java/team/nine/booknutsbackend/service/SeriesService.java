@@ -17,10 +17,10 @@ import team.nine.booknutsbackend.repository.SeriesRepository;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
@@ -36,10 +36,7 @@ public class SeriesService {
     @Transactional(readOnly = true)
     public List<SeriesResponse> getSeriesList(User user) {
         List<Series> seriesList = seriesRepository.findAllByOwner(user);
-        List<SeriesResponse> seriesResponseList = new ArrayList<>();
-        for (Series series : seriesList) {
-            seriesResponseList.add(SeriesResponse.of(series));
-        }
+        List<SeriesResponse> seriesResponseList = entityToDto(seriesList);
         Collections.reverse(seriesResponseList); //최신순
         return seriesResponseList;
     }
@@ -66,10 +63,7 @@ public class SeriesService {
     public List<BoardResponse> getBoardsInSeries(Long seriesId, User user) {
         Series series = getSeries(seriesId);
         List<SeriesBoard> seriesBoardList = seriesBoardRepository.findBySeries(series);
-        List<BoardResponse> boardList = new ArrayList<>();
-        for (SeriesBoard seriesBoard : seriesBoardList) {
-            boardList.add(BoardResponse.of(seriesBoard.getBoard(), user));
-        }
+        List<BoardResponse> boardList = entityToDto(seriesBoardList, user);
         Collections.reverse(boardList); //최신순
         return boardList;
     }
@@ -131,6 +125,14 @@ public class SeriesService {
     private void checkAddBoardEnable(Series series, Board board) {
         if (seriesBoardRepository.findByBoardAndSeries(board, series).isPresent())
             throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
+    }
+
+    private List<SeriesResponse> entityToDto(List<Series> seriesList) {
+        return seriesList.stream().map(SeriesResponse::of).collect(Collectors.toList());
+    }
+
+    private List<BoardResponse> entityToDto(List<SeriesBoard> seriesBoardList, User user) {
+        return seriesBoardList.stream().map(x -> BoardResponse.of(x.getBoard(), user)).collect(Collectors.toList());
     }
 
 }

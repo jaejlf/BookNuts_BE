@@ -18,6 +18,7 @@ import team.nine.booknutsbackend.repository.DebateUserRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static team.nine.booknutsbackend.enumerate.DebateStatus.*;
 import static team.nine.booknutsbackend.enumerate.DebateType.ALL;
@@ -143,22 +144,13 @@ public class DebateService {
 
     private List<DebateRoomResponse> getCustomDebateRoomList(DebateType type) {
         List<DebateRoom> debateRoomList = getDebateRoomList(type, READY);
-        List<DebateRoomResponse> debateRoomResponseList = new ArrayList<>();
-        int count = 0;
-        for (DebateRoom debateRoom : debateRoomList) {
-            debateRoomResponseList.add(DebateRoomResponse.of(debateRoom));
-            count++;
-            if (count == 3) break; //임의로, '토론 대기 중' 상태인 3개의 토론을 반환
-        }
-        return debateRoomResponseList;
+        List<DebateRoomResponse> debateRoomResponseList = entityToDto(debateRoomList);
+        return debateRoomResponseList.subList(0, 3); //임의로, '토론 대기 중' 상태인 3개의 토론을 반환
     }
 
     private List<DebateRoomResponse> getDebateRoomResponses(DebateType type, DebateStatus debateStatus) {
         List<DebateRoom> debateRoomList = getDebateRoomList(type, debateStatus);
-        List<DebateRoomResponse> debateRoomResponseList = new ArrayList<>();
-        for (DebateRoom debateRoom : debateRoomList) {
-            debateRoomResponseList.add(DebateRoomResponse.of(debateRoom));
-        }
+        List<DebateRoomResponse> debateRoomResponseList = entityToDto(debateRoomList);
         Collections.reverse(debateRoomResponseList); //최신순
         return debateRoomResponseList;
     }
@@ -166,6 +158,10 @@ public class DebateService {
     private List<DebateRoom> getDebateRoomList(DebateType type, DebateStatus status) {
         if (type == ALL) return debateRoomRepository.findByStatus(status);
         else return debateRoomRepository.findByTypeAndStatus(type, status);
+    }
+
+    private List<DebateRoomResponse> entityToDto(List<DebateRoom> debateRoomList) {
+        return debateRoomList.stream().map(DebateRoomResponse::of).collect(Collectors.toList());
     }
 
 }

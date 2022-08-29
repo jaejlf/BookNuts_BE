@@ -14,8 +14,8 @@ import team.nine.booknutsbackend.repository.DebateRoomRepository;
 import team.nine.booknutsbackend.repository.UserRepository;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static team.nine.booknutsbackend.service.SearchSpecs.*;
 
@@ -36,11 +36,7 @@ public class SearchService {
                 .or(likeBookAuthor(keyword));
 
         List<Board> boardList = boardRepository.findAll(spec);
-        List<BoardResponse> boardResponseList = new ArrayList<>();
-        for (Board board : boardList) {
-            boardResponseList.add(BoardResponse.of(board, user));
-        }
-        return boardResponseList;
+        return entityToDto(boardList, user);
     }
 
     @Transactional
@@ -50,22 +46,25 @@ public class SearchService {
                 .or(likeBookTitle(keyword))
                 .or(likeBookAuthor(keyword));
         List<DebateRoom> debateRoomList = debateRoomRepository.findAll(spec);
-        List<DebateRoomResponse> debateRoomResponseList = new ArrayList<>();
-
-        for (DebateRoom room : debateRoomList) {
-            debateRoomResponseList.add(DebateRoomResponse.of(room));
-        }
-        return debateRoomResponseList;
+        return entityToDto(debateRoomList);
     }
 
     @Transactional
     public List<UserProfileResponse> searchUser(String keyword, User me) {
         List<User> userList = userRepository.findAllByNicknameContaining(keyword);
-        List<UserProfileResponse> userProfileResponseList = new ArrayList<>();
-        for (User target : userList) {
-            userProfileResponseList.add(UserProfileResponse.of(me, target));
-        }
-        return userProfileResponseList;
+        return entityToDto(me, userList);
+    }
+
+    private List<BoardResponse> entityToDto(List<Board> boardList, User user) {
+        return boardList.stream().map(x -> BoardResponse.of(x, user)).collect(Collectors.toList());
+    }
+
+    private List<DebateRoomResponse> entityToDto(List<DebateRoom> debateRoomList) {
+        return debateRoomList.stream().map(DebateRoomResponse::of).collect(Collectors.toList());
+    }
+
+    private List<UserProfileResponse> entityToDto(User me, List<User> userList) {
+        return userList.stream().map(x -> UserProfileResponse.of(me, x)).collect(Collectors.toList());
     }
 
 }

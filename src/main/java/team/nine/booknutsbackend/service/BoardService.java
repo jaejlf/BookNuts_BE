@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static team.nine.booknutsbackend.enumerate.BoardType.*;
 import static team.nine.booknutsbackend.exception.ErrorMessage.BOARD_NOT_FOUND;
@@ -46,10 +47,7 @@ public class BoardService {
     @Transactional(readOnly = true)
     public List<BoardResponse> getBoardListByType(User user, int type) {
         List<Board> boardList = getBoardList(user, getBoardType(type));
-        List<BoardResponse> boardResponseList = new ArrayList<>();
-        for (Board board : boardList) {
-            boardResponseList.add(BoardResponse.of(board, user));
-        }
+        List<BoardResponse> boardResponseList = entityToDto(boardList, user);
         Collections.reverse(boardResponseList); //최신순
         return boardResponseList;
     }
@@ -57,10 +55,7 @@ public class BoardService {
     @Transactional(readOnly = true)
     public List<BoardResponse> getBoardListByUser(User user) {
         List<Board> boardList = getBoardListByWriter(user);
-        List<BoardResponse> boardResponseList = new ArrayList<>();
-        for (Board board : boardList) {
-            boardResponseList.add(BoardResponse.of(board, user));
-        }
+        List<BoardResponse> boardResponseList = entityToDto(boardList, user);
         Collections.reverse(boardResponseList); //최신순
         return boardResponseList;
     }
@@ -132,6 +127,10 @@ public class BoardService {
         else if (boardType == TODAY) boardList = get1Boards();
         else boardList = get2Boards();
         return boardList;
+    }
+
+    private List<BoardResponse> entityToDto(List<Board> boardList, User user) {
+        return boardList.stream().map(x -> BoardResponse.of(x, user)).collect(Collectors.toList());
     }
 
 }
