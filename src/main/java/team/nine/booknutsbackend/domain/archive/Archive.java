@@ -37,7 +37,7 @@ public class Archive {
     @Column(nullable = false)
     private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-    @OneToMany(mappedBy = "archive", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "archive", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JsonIgnore
     private List<ArchiveBoard> archiveBoardList = new ArrayList<>();
 

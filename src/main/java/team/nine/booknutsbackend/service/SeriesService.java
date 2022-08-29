@@ -72,14 +72,16 @@ public class SeriesService {
     public void deleteSeries(Long seriesId, User user) {
         Series series = getSeries(seriesId);
         checkAuth(series, user);
-        seriesRepository.delete(series);
         awsS3Service.deleteImg(series.getImgUrl());  //기존 이미지 버킷에서 삭제
+        seriesBoardRepository.deleteAllBySeriesId(seriesId);
+        seriesRepository.delete(series);
     }
 
     @Transactional
     public void addBoardToSeries(Long seriesId, Long boardId, User user) {
         Series series = getSeries(seriesId);
         checkAuth(series, user);
+
         Board board = boardService.getBoard(boardId);
         checkAddBoardEnable(series, board);
 
@@ -103,8 +105,9 @@ public class SeriesService {
         List<Series> seriesList = seriesRepository.findAllByOwner(user);
         for (Series series : seriesList) {
             awsS3Service.deleteImg(series.getImgUrl());  //기존 이미지 버킷에서 삭제
+            seriesBoardRepository.deleteAllBySeriesId(series.getSeriesId());
+            seriesRepository.delete(series);
         }
-        seriesRepository.deleteAll(seriesList);
     }
 
     private Series getSeries(Long seriesId) {
