@@ -15,7 +15,7 @@
 
 ## 🛠 기술 스택
 - `Spring Boot(Java)` 를 사용하여 API 를 개발하였고, `JPA` 기술을 사용하였습니다.
-- 데이터베이스로는 `AWS RDS(MySQL)` 를 사용하였고, `AWS EC2` 를 통해 서버 배포를 진행하였습니다.
+- 데이터베이스로는 `AWS RDS(MySQL)`, `Redis` 를 사용하였고, `AWS EC2` 를 통해 서버 배포를 진행하였습니다.
 - 이미지 업로드를 위해 `AWS S3` 버킷을 사용하였습니다.
 - 협업 및 코드 버전 관리를 위해 `Github`, API 문서 관리를 위해 `Postman`과 `Notion`을 사용하였습니다.
 - `Github Actions`, `CodeDeploy` 를 사용해 CI/CD 파이프라인을 구축하였습니다.
@@ -23,9 +23,10 @@
 <br><br>
 
 ## 👩‍💻 개발 내용
-- 회원 - JWT + Spring Security를 통한 로그인, 이메일 인증
+- 회원 - JWT + Spring Security를 통한 로그인
 - Access Token + Refresh Token 구현
-- 커뮤니티 기능 (게시글, 댓글, 공감 등)
+- 이메일 인증 기능
+- 커뮤니티 기능 (게시글, 댓글/대댓글, 공감 등)
 - 토론 관련 기능 개발 (토론장 개설, 참여, 상태 변경)
 - 시리즈 - 게시글 그룹핑을 통한 시리즈 발행/추가/삭제
 - 아카이브 - 게시글 아카이빙/추가/삭제
@@ -41,9 +42,10 @@
 <br><br>
 
 ## 🧩 서비스 아키텍처
-![image](https://user-images.githubusercontent.com/78673570/187071785-5b83103b-c2fe-4761-8876-e39ebf0e7a83.png)
+![image](https://user-images.githubusercontent.com/78673570/187163536-6ecd4d73-49b1-47e6-94bd-5ce785cbe357.png)
 
 ### CI/CD Pipeline
+
 1. 개발 완료 후 main 브랜치에 Push (or Pull Request 전송)
 2. Github Actions 동작
 3. main 브랜치 Build 
@@ -55,7 +57,7 @@
 <br><br>
 
 ## 💾 ERD Diagram
-![image](https://user-images.githubusercontent.com/78673570/181485477-3b45ecf7-e193-456f-ba14-a8d3e9c8c6ac.png)
+![image](https://user-images.githubusercontent.com/78673570/187163417-de1dd8e8-fdcb-4e1b-bfb0-9e38c7cdc1c3.png)
 
 <br><br>
 
