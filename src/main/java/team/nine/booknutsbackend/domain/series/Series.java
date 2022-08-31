@@ -53,4 +53,13 @@ public class Series {
         this.content = content;
     }
 
+    public int getTotalNuts(Series series) {
+        Set<SeriesBoard> seriesBoardList = series.getSeriesBoardList();
+        int totalNuts = 0;
+        for (SeriesBoard seriesBoard : seriesBoardList) {
+            totalNuts += seriesBoard.getBoard().getNutsList().size();
+        }
+        return totalNuts;
+    }
+
 }

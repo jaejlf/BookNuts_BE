@@ -146,4 +146,12 @@ public class User implements UserDetails {
         this.loginId = null;
     }
 
+    public boolean isFollow(User me, User target) {
+        Set<Follow> followList = me.getFollowerList();
+        for (Follow follow : followList) {
+            if (follow.getFollower() == target) return true;
+        }
+        return false;
+    }
+
 }

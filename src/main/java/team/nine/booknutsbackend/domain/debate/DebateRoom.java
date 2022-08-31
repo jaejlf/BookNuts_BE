@@ -13,6 +13,7 @@ import team.nine.booknutsbackend.enumerate.DebateStatus;
 import team.nine.booknutsbackend.enumerate.DebateType;
 
 import javax.persistence.*;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
@@ -90,6 +91,18 @@ public class DebateRoom {
     public void updateCurUser(int curYesUser, int curNoUser) {
         this.curYesUser = curYesUser;
         this.curNoUser = curNoUser;
+    }
+
+    public String getTimeFromNow(DebateRoom room) {
+        LocalDateTime createdAt = room.getCreatedAt();
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(createdAt, now);
+
+        if (duration.toDaysPart() > 0) return duration.toDaysPart() + "일 전";
+        if (duration.toHoursPart() > 0) return duration.toHoursPart() + "시간 전";
+        if (duration.toMinutesPart() > 0) return duration.toMinutesPart() + "분 전";
+
+        return "방금 전";
     }
 
 }

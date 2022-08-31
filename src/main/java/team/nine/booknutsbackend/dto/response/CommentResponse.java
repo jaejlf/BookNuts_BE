@@ -27,14 +27,9 @@ public class CommentResponse {
                 .content(comment.getContent())
                 .createdDate(comment.getCreatedDate())
                 .writer(comment.getWriter().getNickname())
-                .parentId(getParent(comment))
+                .parentId(comment.getParent(comment))
                 .boardId(comment.getBoard().getBoardId())
                 .build();
-    }
-
-    private static Long getParent(Comment comment) {
-        if (comment.getParent() == null) return null;
-        else return comment.getParent().getCommentId();
     }
 
 }

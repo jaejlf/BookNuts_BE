@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import static team.nine.booknutsbackend.exception.ErrorMessage.*;
 
 @RequiredArgsConstructor
+@Slf4j
 @Service
 public class SeriesService {
 
@@ -54,7 +56,10 @@ public class SeriesService {
 
         for (Long boardId : seriesRequest.getBoardIdlist()) {
             Board board = boardService.getBoard(boardId);
-            if (board.getWriter() != series.getOwner()) continue;
+            if (!board.getWriter().getNickname().equals(series.getOwner().getNickname())) {
+                log.warn(boardId + "번 게시글은 본인이 작성한 게시글이 아니므로 추가하지 않는다");
+                continue;
+            }
             SeriesBoard seriesBoard = new SeriesBoard(series, board);
             seriesBoardRepository.save(seriesBoard);
         }

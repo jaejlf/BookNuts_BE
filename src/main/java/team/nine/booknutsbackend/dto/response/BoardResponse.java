@@ -6,13 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
-import team.nine.booknutsbackend.domain.reaction.Heart;
-import team.nine.booknutsbackend.domain.reaction.Nuts;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @Builder
@@ -51,35 +47,11 @@ public class BoardResponse {
                 .nutsCnt(board.getNutsList().size())
                 .heartCnt(board.getHeartList().size())
                 .archiveCnt(board.getArchiveBoards().size())
-                .isNuts(getIsNuts(board, writer))
-                .isHeart(getIsHeart(board, writer))
-                .isArchived(getIsArchived(board, writer))
+                .isNuts(board.isNuts(board, writer))
+                .isHeart(board.isHeart(board, writer))
+                .isArchived(board.isArchived(board, writer))
                 .curUser(Objects.equals(board.getWriter().getUserId(), writer.getUserId()))
                 .build();
-    }
-
-    private static Boolean getIsNuts(Board board, User writer) {
-        Set<Nuts> nutsList = writer.getNutsList();
-        for (Nuts nuts : nutsList) {
-            if (nuts.getBoard().equals(board)) return true;
-        }
-        return false;
-    }
-
-    private static Boolean getIsHeart(Board board, User writer) {
-        Set<Heart> hearts = writer.getHeartList();
-        for (Heart heart : hearts) {
-            if (heart.getBoard().equals(board)) return true;
-        }
-        return false;
-    }
-
-    private static Boolean getIsArchived(Board board, User writer) {
-        Set<ArchiveBoard> archiveBoards = writer.getArchiveBoardList();
-        for (ArchiveBoard archiveBoard : archiveBoards) {
-            if (archiveBoard.getBoard().equals(board)) return true;
-        }
-        return false;
     }
 
 }

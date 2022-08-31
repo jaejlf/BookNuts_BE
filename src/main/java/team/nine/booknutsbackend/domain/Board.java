@@ -91,4 +91,28 @@ public class Board {
         this.content = content;
     }
 
+    public boolean isNuts(Board board, User user) {
+        Set<Nuts> nutsList = user.getNutsList();
+        for (Nuts nuts : nutsList) {
+            if (nuts.getBoard().equals(board)) return true;
+        }
+        return false;
+    }
+
+    public boolean isHeart(Board board, User user) {
+        Set<Heart> hearts = user.getHeartList();
+        for (Heart heart : hearts) {
+            if (heart.getBoard().equals(board)) return true;
+        }
+        return false;
+    }
+
+    public boolean isArchived(Board board, User user) {
+        Set<ArchiveBoard> archiveBoards = user.getArchiveBoardList();
+        for (ArchiveBoard archiveBoard : archiveBoards) {
+            if (archiveBoard.getBoard().equals(board)) return true;
+        }
+        return false;
+    }
+
 }

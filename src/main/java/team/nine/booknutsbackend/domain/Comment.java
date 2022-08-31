@@ -59,4 +59,9 @@ public class Comment {
         this.content = null;
     }
 
+    public Long getParent(Comment comment) {
+        if (comment.getParent() == null) return null;
+        else return comment.getParent().getCommentId();
+    }
+
 }
