@@ -7,6 +7,8 @@ import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.dto.request.BoardRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -33,71 +35,61 @@ class BoardServiceTest extends CommonServiceTest {
         BoardResponse result = boardService.writeBoard(boardRequest, user);
 
         //then
-        BoardResponse expected = BoardResponse.of(new Board(
-                boardRequest.getTitle(),
-                boardRequest.getContent(),
-                boardRequest.getBookTitle(),
-                boardRequest.getBookAuthor(),
-                boardRequest.getBookImgUrl(),
-                boardRequest.getBookGenre(),
-                user
-        ), user);
-
         assertAll(
-                () -> assertThat(result.getTitle()).isEqualTo(expected.getTitle()),
-                () -> assertThat(result.getContent()).isEqualTo(expected.getContent()),
-                () -> assertThat(result.getBookTitle()).isEqualTo(expected.getBookTitle()),
-                () -> assertThat(result.getBookAuthor()).isEqualTo(expected.getBookAuthor()),
-                () -> assertThat(result.getBookImgUrl()).isEqualTo(expected.getBookImgUrl()),
-                () -> assertThat(result.getBookGenre()).isEqualTo(expected.getBookGenre()),
-                () -> assertThat(result.getWriter()).isEqualTo(expected.getWriter())
+                () -> assertThat(result.getTitle()).isEqualTo(boardRequest.getTitle()),
+                () -> assertThat(result.getContent()).isEqualTo(boardRequest.getContent()),
+                () -> assertThat(result.getBookTitle()).isEqualTo(boardRequest.getBookTitle()),
+                () -> assertThat(result.getBookAuthor()).isEqualTo(boardRequest.getBookAuthor()),
+                () -> assertThat(result.getBookImgUrl()).isEqualTo(boardRequest.getBookImgUrl()),
+                () -> assertThat(result.getBookGenre()).isEqualTo(boardRequest.getBookGenre())
         );
     }
 
-    @DisplayName("게시글 목록 조회")
+    @DisplayName("'나의 구독' 게시글 목록 조회")
     @Test
-    void getBoardListByType() {
-//        //given
-//        int type = 1;
-//
-//        //when
-//        List<BoardResponse> result = boardService.getBoardListByType(user, type);
-//
-//        //then
-//        List<Board> expected = boardRepository.findAll();
-//        assertThat(result.size()).isEqualTo(expected.size());
+    void get0Boards() {
+        //given & when
+        List<Board> result = boardService.get0Boards(user);
+
+        //then
+        assertThat(result.size()).isEqualTo(0);
+    }
+
+    @DisplayName("'오늘 추천' 게시글 목록 조회")
+    @Test
+    void get1Boards() {
+        //given & when
+        List<Board> result = boardService.get1Boards();
+
+        //then
+        List<Board> expected = boardRepository.findAll();
+        assertThat(result.size()).isEqualTo(expected.size());
+    }
+
+    @DisplayName("'독립 출판' 게시글 목록 조회")
+    @Test
+    void get2Boards() {
+        //given & when
+        List<Board> result = boardService.get2Boards();
+
+        //then
+        List<Board> expected = boardRepository.findBoardByGenre("독립서적");
+        assertThat(result.size()).isEqualTo(expected.size());
     }
 
     @DisplayName("특정 유저의 게시글 목록 조회")
     @Test
     void getBoardListByUser() {
-//        //given & when
-//        List<BoardResponse> result = boardService.getBoardListByUser(user);
-//
-//        //then
-//        List<Board> expected = boardRepository.findBoardByWriter(user);
-//        assertThat(result.size()).isEqualTo(expected.size());
-    }
+        //before
+        boardRepository.save(new Board(
+                "dum", "dum", "dum", "dum", "dum", "dum", user
+        ));
 
-    @DisplayName("게시글 조회")
-    @Test
-    void getBoardOne() {
-//        //given
-//        long boardId = 1L;
-//
-//        //when
-//        BoardResponse result = boardService.getBoardOne(boardId, user);
-//
-//        //then
-//        Optional<Board> expected = boardRepository.findById(1L);
-//        assertAll(
-//                () -> assertThat(result.getTitle()).isEqualTo(expected.get().getTitle()),
-//                () -> assertThat(result.getContent()).isEqualTo(expected.get().getContent()),
-//                () -> assertThat(result.getBookTitle()).isEqualTo(expected.get().getBookTitle()),
-//                () -> assertThat(result.getBookAuthor()).isEqualTo(expected.get().getBookAuthor()),
-//                () -> assertThat(result.getBookImgUrl()).isEqualTo(expected.get().getBookImgUrl()),
-//                () -> assertThat(result.getBookGenre()).isEqualTo(expected.get().getBookGenre())
-//        );
+        //given & when
+        List<Board> result = boardService.getBoardListByUser(user);
+
+        //then
+        assertThat(result.size()).isEqualTo(1);
     }
 
 }

@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.request.ArchiveRequest;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -48,9 +47,9 @@ public class Archive {
     @JsonIgnore
     private Set<ArchiveBoard> archiveBoardList = new HashSet<>();
 
-    public Archive(ArchiveRequest archiveRequest, User user, String imgUrl) {
-        this.title = archiveRequest.getTitle();
-        this.content = archiveRequest.getContent();
+    public Archive(String title, String content, User user, String imgUrl) {
+        this.title = title;
+        this.content = content;
         this.owner = user;
         this.imgUrl = imgUrl;
     }

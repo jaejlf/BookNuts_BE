@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.repository.ArchiveRepository;
 import team.nine.booknutsbackend.repository.BoardRepository;
+import team.nine.booknutsbackend.repository.CommentRepository;
 import team.nine.booknutsbackend.repository.UserRepository;
 
 import javax.transaction.Transactional;
@@ -20,6 +22,8 @@ public class CommonServiceTest {
     @Autowired BoardRepository boardRepository;
     @Autowired UserRepository userRepository;
     @Autowired PasswordEncoder passwordEncoder;
+    @Autowired ArchiveRepository archiveRepository;
+    @Autowired CommentRepository commentRepository;
 
     User user;
 

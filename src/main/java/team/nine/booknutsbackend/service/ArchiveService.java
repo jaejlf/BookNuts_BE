@@ -41,7 +41,8 @@ public class ArchiveService {
     @Transactional
     public ArchiveResponse createArchive(MultipartFile file, ArchiveRequest archiveRequest, User user) {
         Archive archive = new Archive(
-                archiveRequest,
+                archiveRequest.getTitle(),
+                archiveRequest.getContent(),
                 user,
                 awsS3Service.uploadImg(file, "archive-")
         );
