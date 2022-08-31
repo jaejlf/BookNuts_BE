@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,6 @@ import team.nine.booknutsbackend.repository.ArchiveRepository;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,15 +30,12 @@ public class ArchiveService {
 
     private final ArchiveRepository archiveRepository;
     private final ArchiveBoardRepository archiveBoardRepository;
-    private final BoardService boardService;
     private final AwsS3Service awsS3Service;
 
     @Transactional(readOnly = true)
-    public List<ArchiveResponse> getArchiveList(User user) {
-        List<Archive> archiveList = archiveRepository.findAllByOwner(user);
-        List<ArchiveResponse> archiveResponseList = entityToDto(archiveList);
-        Collections.reverse(archiveResponseList); //최신순
-        return archiveResponseList;
+    @Cacheable(key = "#user.nickname", value = "getArchiveList")
+    public List<Archive> getArchiveList(User user) {
+        return archiveRepository.findAllByOwner(user);
     }
 
     @Transactional
@@ -52,18 +49,12 @@ public class ArchiveService {
     }
 
     @Transactional(readOnly = true)
-    public List<BoardResponse> getBoardsInArchive(Long archiveId, User user) {
-        Archive archive = getArchive(archiveId);
-        List<ArchiveBoard> archiveBoardList = getBoardsInArchive(archive);
-        List<BoardResponse> boardResponseList = entityToDto(archiveBoardList, user);
-        Collections.reverse(boardResponseList); //최신순
-        return boardResponseList;
+    public List<ArchiveBoard> getBoardsInArchive(Archive archive) {
+        return archiveBoardRepository.findByArchive(archive);
     }
 
     @Transactional
-    public void addBoardToArchive(Long archiveId, Long boardId, User user) {
-        Archive archive = getArchive(archiveId);
-        Board board = boardService.getBoard(boardId);
+    public void addBoardToArchive(Archive archive, Board board, User user) {
         checkAuth(archive, user);
         checkAddBoardEnable(user, board);
 
@@ -72,18 +63,15 @@ public class ArchiveService {
     }
 
     @Transactional
-    public void deleteArchive(Long archiveId, User user) {
-        Archive archive = getArchive(archiveId);
+    public void deleteArchive(Archive archive, User user) {
         checkAuth(archive, user);
         awsS3Service.deleteImg(archive.getImgUrl());  //기존 이미지 버킷에서 삭제
-        archiveBoardRepository.deleteAllByArchiveId(archiveId);
+        archiveBoardRepository.deleteAllByArchiveId(archive.getArchiveId());
         archiveRepository.delete(archive);
     }
 
     @Transactional
-    public void deleteBoardInArchive(Long archiveId, Long boardId, User user) {
-        Archive archive = getArchive(archiveId);
-        Board board = boardService.getBoard(boardId);
+    public void deleteBoardInArchive(Archive archive, Board board, User user) {
         checkAuth(archive, user);
 
         ArchiveBoard archiveBoard = archiveBoardRepository.findByArchiveAndBoard(archive, board);
@@ -91,8 +79,7 @@ public class ArchiveService {
     }
 
     @Transactional
-    public ArchiveResponse updateArchive(Long archiveId, Map<String, String> modRequest, User user) {
-        Archive archive = getArchive(archiveId);
+    public ArchiveResponse updateArchive(Archive archive, Map<String, String> modRequest, User user) {
         checkAuth(archive, user);
 
         if (modRequest.get("title") != null) archive.updateTitle(modRequest.get("title"));
@@ -111,17 +98,15 @@ public class ArchiveService {
         }
     }
 
-    private Archive getArchive(Long archiveId) {
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#archiveId", value = "getArchive")
+    public Archive getArchive(Long archiveId) {
         return archiveRepository.findById(archiveId)
                 .orElseThrow(() -> new EntityNotFoundException(ARCHIVE_NOT_FOUND.getMsg()));
     }
 
     private void checkAuth(Archive archive, User user) {
-        if (archive.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
-    }
-
-    private List<ArchiveBoard> getBoardsInArchive(Archive archive) {
-        return archiveBoardRepository.findByArchive(archive);
+        if (!archive.getOwner().getNickname().equals(user.getNickname())) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
     }
 
     private void checkAddBoardEnable(User user, Board board) {
@@ -130,11 +115,11 @@ public class ArchiveService {
         }
     }
 
-    private List<ArchiveResponse> entityToDto(List<Archive> archiveList) {
+    public List<ArchiveResponse> entityToDto(List<Archive> archiveList) {
         return archiveList.stream().map(ArchiveResponse::of).collect(Collectors.toList());
     }
 
-    private List<BoardResponse> entityToDto(List<ArchiveBoard> archiveBoardList, User user) {
+    public List<BoardResponse> entityToDto(List<ArchiveBoard> archiveBoardList, User user) {
         return archiveBoardList.stream().map(x -> BoardResponse.of(x.getBoard(), user)).collect(Collectors.toList());
     }
 

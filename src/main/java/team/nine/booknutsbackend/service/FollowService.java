@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Follow;
@@ -35,13 +36,15 @@ public class FollowService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#user.nickname", value = "getFollowingList")
     public List<FollowResponse> getFollowingList(User user) {
         List<Follow> followList = followRepository.findByFollower(user);
         return followingToDto(followList);
     }
 
     @Transactional(readOnly = true)
-    public List<FollowResponse> getMyFollowerList(User user) {
+    @Cacheable(key = "#user.nickname", value = "getFollowerList")
+    public List<FollowResponse> getFollowerList(User user) {
         List<Follow> followList = followRepository.findByFollowing(user);
         return followerToDto(followList);
     }
@@ -51,11 +54,11 @@ public class FollowService {
         followRepository.deleteAllByFollower(user);
     }
 
-    private List<FollowResponse> followingToDto(List<Follow> followList) {
+    public List<FollowResponse> followingToDto(List<Follow> followList) {
         return followList.stream().map(x -> FollowResponse.of(x.getFollowing())).collect(Collectors.toList());
     }
 
-    private List<FollowResponse> followerToDto(List<Follow> followList) {
+    public List<FollowResponse> followerToDto(List<Follow> followList) {
         return followList.stream().map(x -> FollowResponse.of(x.getFollower())).collect(Collectors.toList());
     }
 

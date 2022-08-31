@@ -1,7 +1,9 @@
 package team.nine.booknutsbackend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.Follow;
 import team.nine.booknutsbackend.domain.User;
 
@@ -9,6 +11,8 @@ import java.util.Set;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserProfileResponse {
 
     Long userId;

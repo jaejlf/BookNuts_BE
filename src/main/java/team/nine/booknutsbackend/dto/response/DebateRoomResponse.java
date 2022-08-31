@@ -1,7 +1,9 @@
 package team.nine.booknutsbackend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.debate.DebateRoom;
 import team.nine.booknutsbackend.enumerate.DebateStatus;
 import team.nine.booknutsbackend.enumerate.DebateType;
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DebateRoomResponse {
 
     Long roomId;

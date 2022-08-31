@@ -1,5 +1,10 @@
 package team.nine.booknutsbackend.domain.debate;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
@@ -17,6 +22,7 @@ import static team.nine.booknutsbackend.enumerate.DebateType.getDebateType;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class DebateRoom {
 
     @Id
@@ -60,6 +66,8 @@ public class DebateRoom {
     @JoinColumn(name = "owner")
     private User owner;
 
+    @JsonSerialize(using= LocalDateTimeSerializer.class)
+    @JsonDeserialize(using= LocalDateTimeDeserializer.class)
     @Column(nullable = false)
     private final LocalDateTime createdAt = LocalDateTime.now();
 

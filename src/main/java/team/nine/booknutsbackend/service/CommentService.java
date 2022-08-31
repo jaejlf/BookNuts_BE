@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Board;
@@ -24,28 +25,22 @@ import static team.nine.booknutsbackend.exception.ErrorMessage.MOD_DEL_NO_AUTH;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final BoardService boardService;
 
     @Transactional
-    public CommentResponse writeParentComment(Map<String, String> commentRequest, Long boardId, User user) {
-        Board board = boardService.getBoard(boardId);
+    public CommentResponse writeParentComment(Map<String, String> commentRequest, Board board, User user) {
         Comment comment = new Comment(commentRequest.get("content"), user, board, null);
         return CommentResponse.of(commentRepository.save(comment));
     }
 
     @Transactional
-    public CommentResponse writeChildComment(Map<String, String> commentRequest, Long boardId, Long commentId, User user) {
-        Board board = boardService.getBoard(boardId);
-        checkReCommentEnable(commentId, board);
-
-        Comment parent = getComment(commentId);
+    public CommentResponse writeChildComment(Map<String, String> commentRequest, Board board, Comment parent, User user) {
+        checkReCommentEnable(parent.getCommentId(), board);
         Comment comment = new Comment(commentRequest.get("content"), user, board, parent);
         return CommentResponse.of(commentRepository.save(comment));
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getCommentList(Long boardId) {
-        Board board = boardService.getBoard(boardId);
+    public List<CommentResponse> getCommentList(Board board) {
         List<Comment> parentCommentList = commentRepository.findByBoardAndParent(board, null);
 
         List<Comment> commentList = new ArrayList<>();
@@ -59,8 +54,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long commentId, User user) {
-        Comment comment = getComment(commentId);
+    public void deleteComment(Comment comment, User user) {
         checkAuth(user, comment);
 
         if ((comment.getParent() != null) || (comment.getChildren().size() == 0)) {
@@ -71,13 +65,15 @@ public class CommentService {
         }
     }
 
-    private void checkAuth(User user, Comment comment) {
-        if (comment.getWriter() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
-    }
-
-    private Comment getComment(Long commentId) {
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#commentId", value = "getComment")
+    public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND.getMsg()));
+    }
+
+    private void checkAuth(User user, Comment comment) {
+        if (!comment.getWriter().getNickname().equals(user.getNickname())) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
     }
 
     private void checkReCommentEnable(Long commentId, Board board) {
@@ -85,7 +81,7 @@ public class CommentService {
                 .orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND.getMsg()));
     }
 
-    private List<CommentResponse> entityToDto(List<Comment> commentList) {
+    public List<CommentResponse> entityToDto(List<Comment> commentList) {
         return commentList.stream().map(CommentResponse::of).collect(Collectors.toList());
     }
 

@@ -44,7 +44,7 @@ public class FollowController {
     @GetMapping("/followerlist/{nickname}")
     public ResponseEntity<Object> findMyFollowerList(@PathVariable String nickname) {
         User user = userService.getUserByNickname(nickname);
-        List<FollowResponse> followerList = followService.getMyFollowerList(user);
+        List<FollowResponse> followerList = followService.getFollowerList(user);
         return ResponseEntity
                 .status(OK)
                 .body(ResultResponse.ok("유저 '" + nickname + "'의 팔로워 목록", followerList));

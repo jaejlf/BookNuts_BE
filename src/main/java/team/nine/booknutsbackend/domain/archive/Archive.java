@@ -1,6 +1,11 @@
 package team.nine.booknutsbackend.domain.archive;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
@@ -8,13 +13,13 @@ import team.nine.booknutsbackend.dto.request.ArchiveRequest;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Archive {
 
     @Id
@@ -34,8 +39,10 @@ public class Archive {
     @Column(length = 300)
     private String imgUrl;
 
+    @JsonSerialize(using= LocalDateTimeSerializer.class)
+    @JsonDeserialize(using= LocalDateTimeDeserializer.class)
     @Column(nullable = false)
-    private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    private LocalDateTime createdDate = LocalDateTime.now();
 
     @OneToMany(mappedBy = "archive", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JsonIgnore

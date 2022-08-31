@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,34 +35,26 @@ public class DebateService {
     private final AwsS3Service awsS3Service;
 
     @Transactional
-    public DebateRoomResponse createRoom(MultipartFile file, DebateRoomRequest debateRoomRequest, User user) {
+    public DebateRoom createRoom(MultipartFile file, DebateRoomRequest debateRoomRequest, User user) {
         DebateRoom debateRoom = new DebateRoom(
                 debateRoomRequest,
                 user,
                 awsS3Service.uploadImg(file, "debate-")
         );
-        return DebateRoomResponse.of(debateRoomRepository.save(debateRoom));
+        return debateRoomRepository.save(debateRoom);
     }
 
     @Transactional
-    public DebateRoomResponse enterRoom(Long roomId, boolean opinion, User user) {
-        DebateRoom debateRoom = getRoom(roomId);
-        checkRoomEnterEnable(user, debateRoom, opinion);
+    public DebateRoomResponse enterRoom(DebateRoom room, boolean opinion, User user) {
+        checkRoomEnterEnable(user, room, opinion);
 
-        DebateUser debateUser = new DebateUser(user, debateRoom, opinion);
+        DebateUser debateUser = new DebateUser(user, room, opinion);
         debateUserRepository.save(debateUser);
-        return DebateRoomResponse.of(updateUserCount(debateRoom));
+        return DebateRoomResponse.of(updateUserCount(room));
     }
 
     @Transactional(readOnly = true)
-    public DebateRoomResponse getRoomOne(Long roomId) {
-        DebateRoom debateRoom = getRoom(roomId);
-        return DebateRoomResponse.of(debateRoom);
-    }
-
-    @Transactional(readOnly = true)
-    public Map<String, Boolean> canEnter(Long roomId) {
-        DebateRoom room = getRoom(roomId);
+    public Map<String, Boolean> canEnter(DebateRoom room) {
         int sideUser = room.getMaxUser() / 2;
         int curYesUser = room.getCurYesUser();
         int curNoUser = room.getCurNoUser();
@@ -73,23 +66,22 @@ public class DebateService {
     }
 
     @Transactional
-    public void exitRoom(Long roomId, User user) {
-        DebateRoom debateRoom = getRoom(roomId);
-        DebateUser debateUser = getDebateUser(debateRoom, user);
+    public void exitRoom(DebateRoom room, User user) {
+        DebateUser debateUser = getDebateUser(room, user);
         debateUserRepository.delete(debateUser);
-        updateUserCount(debateRoom);
+        updateUserCount(room);
     }
 
     @Transactional
-    public DebateRoomResponse changeStatus(Long roomId, int status, User user) {
-        DebateRoom room = getRoom(roomId);
+    public DebateRoomResponse changeStatus(DebateRoom room, int status, User user) {
         checkAuth(room, user);
         checkChangeEnable(status, room);
         room.changeStatus(getStatusByCode(status));
         return DebateRoomResponse.of(debateRoomRepository.save(room));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#type", value = "getRoomListByType")
     public Map<String, List<DebateRoomResponse>> getRoomListByType(int type) {
         DebateType debateType = getDebateType(type);
         Map<String, List<DebateRoomResponse>> map = new LinkedHashMap<>();
@@ -99,7 +91,9 @@ public class DebateService {
         return map;
     }
 
-    private DebateRoom getRoom(Long roomId) {
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#roomId", value = "getRoom")
+    public DebateRoom getRoom(Long roomId) {
         return debateRoomRepository.findById(roomId)
                 .orElseThrow(() -> new EntityNotFoundException(ROOM_NOT_FOUND.getMsg()));
     }
@@ -130,7 +124,7 @@ public class DebateService {
     }
 
     private void checkAuth(DebateRoom room, User user) {
-        if (!Objects.equals(room.getOwner().getUserId(), user.getUserId())) {
+        if (!Objects.equals(room.getOwner().getNickname(), user.getNickname())) {
             throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
         }
     }
@@ -145,7 +139,7 @@ public class DebateService {
     private List<DebateRoomResponse> getCustomDebateRoomList(DebateType type) {
         List<DebateRoom> debateRoomList = getDebateRoomList(type, READY);
         List<DebateRoomResponse> debateRoomResponseList = entityToDto(debateRoomList);
-        return debateRoomResponseList.subList(0, 3); //임의로, '토론 대기 중' 상태인 3개의 토론을 반환
+        return new ArrayList<>(debateRoomResponseList.subList(0, 3)); //임의로, '토론 대기 중' 상태인 3개의 토론을 반환
     }
 
     private List<DebateRoomResponse> getDebateRoomResponses(DebateType type, DebateStatus debateStatus) {
@@ -160,7 +154,7 @@ public class DebateService {
         else return debateRoomRepository.findByTypeAndStatus(type, status);
     }
 
-    private List<DebateRoomResponse> entityToDto(List<DebateRoom> debateRoomList) {
+    public List<DebateRoomResponse> entityToDto(List<DebateRoom> debateRoomList) {
         return debateRoomList.stream().map(DebateRoomResponse::of).collect(Collectors.toList());
     }
 

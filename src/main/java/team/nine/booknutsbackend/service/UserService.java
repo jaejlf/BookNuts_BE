@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -78,17 +79,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#nickname", value = "getUserByNickname")
     public User getUserByNickname(String nickname) {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
         if (!user.isEnabled()) throw new UsernameNotFoundException(USER_NOT_FOUND.getMsg());
         return user;
-    }
-
-    @Transactional(readOnly = true)
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
     }
 
     @Transactional
@@ -112,6 +108,11 @@ public class UserService {
         if (!passwordEncoder.matches(inputPw, user.getPassword())) {
             throw new IllegalArgumentException(PASSWORD_ERROR.getMsg());
         }
+    }
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
     }
 
     private String getCheckedRefreshToken(ReissueRequest tokenRequest, User user) {

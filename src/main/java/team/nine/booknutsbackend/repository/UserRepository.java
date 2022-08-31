@@ -1,5 +1,6 @@
 package team.nine.booknutsbackend.repository;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import team.nine.booknutsbackend.domain.User;
 
@@ -14,5 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByNickname(String nickname);
     boolean existsByLoginId(String loginId);
     List<User> findAllByEnabledAndRequestedDeleteAtBetween(boolean enabled, LocalDateTime startTime, LocalDateTime endTime);
-    List<User> findAllByNicknameContaining(String nickname);
+    List<User> findAllByNicknameContaining(@Param("keyword") String nickname);
 }

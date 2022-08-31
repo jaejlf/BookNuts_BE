@@ -15,7 +15,9 @@ import team.nine.booknutsbackend.enumerate.Role;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import static team.nine.booknutsbackend.enumerate.Role.ROLE_USER;
 

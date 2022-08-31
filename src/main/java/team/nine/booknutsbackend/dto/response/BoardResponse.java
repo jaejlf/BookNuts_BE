@@ -1,25 +1,30 @@
 package team.nine.booknutsbackend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BoardResponse {
 
     Long boardId;
     String title;
     String content;
     String writer;
-    String createdDate;
+    LocalDateTime createdDate;
     String bookTitle;
     String bookAuthor;
     String bookImgUrl;

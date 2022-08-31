@@ -1,16 +1,22 @@
 package team.nine.booknutsbackend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.Comment;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentResponse {
 
     Long commentId;
     String content;
-    String createdDate;
+    LocalDateTime createdDate;
     String writer;
     Long boardId;
     Long parentId;

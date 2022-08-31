@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +35,7 @@ public class SeriesService {
     private final AwsS3Service awsS3Service;
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#user.nickname", value = "getSeriesList")
     public List<SeriesResponse> getSeriesList(User user) {
         List<Series> seriesList = seriesRepository.findAllByOwner(user);
         List<SeriesResponse> seriesResponseList = entityToDto(seriesList);
@@ -60,29 +62,21 @@ public class SeriesService {
     }
 
     @Transactional(readOnly = true)
-    public List<BoardResponse> getBoardsInSeries(Long seriesId, User user) {
-        Series series = getSeries(seriesId);
-        List<SeriesBoard> seriesBoardList = seriesBoardRepository.findBySeries(series);
-        List<BoardResponse> boardList = entityToDto(seriesBoardList, user);
-        Collections.reverse(boardList); //최신순
-        return boardList;
+    public List<SeriesBoard> getBoardsInSeries(Series series) {
+        return seriesBoardRepository.findBySeries(series);
     }
 
     @Transactional
-    public void deleteSeries(Long seriesId, User user) {
-        Series series = getSeries(seriesId);
+    public void deleteSeries(Series series, User user) {
         checkAuth(series, user);
         awsS3Service.deleteImg(series.getImgUrl());  //기존 이미지 버킷에서 삭제
-        seriesBoardRepository.deleteAllBySeriesId(seriesId);
+        seriesBoardRepository.deleteAllBySeriesId(series.getSeriesId());
         seriesRepository.delete(series);
     }
 
     @Transactional
-    public void addBoardToSeries(Long seriesId, Long boardId, User user) {
-        Series series = getSeries(seriesId);
+    public void addBoardToSeries(Series series, Board board, User user) {
         checkAuth(series, user);
-
-        Board board = boardService.getBoard(boardId);
         checkAddBoardEnable(series, board);
 
         SeriesBoard seriesBoard = new SeriesBoard(series, board);
@@ -90,8 +84,7 @@ public class SeriesService {
     }
 
     @Transactional
-    public Series updateSeries(Long seriesId, Map<String, String> modRequest, User user) {
-        Series series = getSeries(seriesId);
+    public Series updateSeries(Series series, Map<String, String> modRequest, User user) {
         checkAuth(series, user);
 
         if (modRequest.get("title") != null) series.updateTitle(modRequest.get("title"));
@@ -110,13 +103,15 @@ public class SeriesService {
         }
     }
 
-    private Series getSeries(Long seriesId) {
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#seriesId", value = "getSeries")
+    public Series getSeries(Long seriesId) {
         return seriesRepository.findById(seriesId)
                 .orElseThrow(() -> new EntityNotFoundException(SERIES_NOT_FOUND.getMsg()));
     }
 
     private void checkAuth(Series series, User user) {
-        if (series.getOwner() != user) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+        if (!series.getOwner().getNickname().equals(user.getNickname())) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
     }
 
     private void checkAddBoardEnable(Series series, Board board) {
@@ -124,11 +119,11 @@ public class SeriesService {
             throw new EntityExistsException(BOARD_ALREADY_EXIST.getMsg());
     }
 
-    private List<SeriesResponse> entityToDto(List<Series> seriesList) {
+    public List<SeriesResponse> entityToDto(List<Series> seriesList) {
         return seriesList.stream().map(SeriesResponse::of).collect(Collectors.toList());
     }
 
-    private List<BoardResponse> entityToDto(List<SeriesBoard> seriesBoardList, User user) {
+    public List<BoardResponse> entityToDto(List<SeriesBoard> seriesBoardList, User user) {
         return seriesBoardList.stream().map(x -> BoardResponse.of(x.getBoard(), user)).collect(Collectors.toList());
     }
 

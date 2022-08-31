@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import team.nine.booknutsbackend.domain.Board;
@@ -28,42 +29,41 @@ public class SearchService {
     private final UserRepository userRepository;
 
     @Transactional
-    public List<BoardResponse> searchBoard(String keyword, User user) {
+    @Cacheable(key = "#keyword", value = "searchBoard")
+    public List<Board> searchBoard(String keyword) {
         Specification<Board> spec = Specification
                 .where(likeTitle(keyword))
                 .or(likeContent(keyword))
                 .or(likeBookTitle(keyword))
                 .or(likeBookAuthor(keyword));
-
-        List<Board> boardList = boardRepository.findAll(spec);
-        return entityToDto(boardList, user);
+        return boardRepository.findAll(spec);
     }
 
     @Transactional
-    public List<DebateRoomResponse> searchRoom(String keyword) {
+    @Cacheable(key = "#keyword", value = "searchRoom")
+    public List<DebateRoom> searchRoom(String keyword) {
         Specification<DebateRoom> spec = Specification
                 .where(likeTopic(keyword))
                 .or(likeBookTitle(keyword))
                 .or(likeBookAuthor(keyword));
-        List<DebateRoom> debateRoomList = debateRoomRepository.findAll(spec);
-        return entityToDto(debateRoomList);
+        return debateRoomRepository.findAll(spec);
     }
 
     @Transactional
-    public List<UserProfileResponse> searchUser(String keyword, User me) {
-        List<User> userList = userRepository.findAllByNicknameContaining(keyword);
-        return entityToDto(me, userList);
+    @Cacheable(key = "#keyword", value = "searchUser")
+    public List<User> searchUser(String keyword) {
+        return userRepository.findAllByNicknameContaining(keyword);
     }
 
-    private List<BoardResponse> entityToDto(List<Board> boardList, User user) {
+    public List<BoardResponse> entityToDto(List<Board> boardList, User user) {
         return boardList.stream().map(x -> BoardResponse.of(x, user)).collect(Collectors.toList());
     }
 
-    private List<DebateRoomResponse> entityToDto(List<DebateRoom> debateRoomList) {
+    public List<DebateRoomResponse> entityToDto(List<DebateRoom> debateRoomList) {
         return debateRoomList.stream().map(DebateRoomResponse::of).collect(Collectors.toList());
     }
 
-    private List<UserProfileResponse> entityToDto(User me, List<User> userList) {
+    public List<UserProfileResponse> entityToDto(User me, List<User> userList) {
         return userList.stream().map(x -> UserProfileResponse.of(me, x)).collect(Collectors.toList());
     }
 
