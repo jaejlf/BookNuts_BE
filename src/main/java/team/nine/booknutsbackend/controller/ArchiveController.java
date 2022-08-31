@@ -39,10 +39,9 @@ public class ArchiveController {
         User user = userService.getUserByNickname(nickname);
         List<Archive> archiveList = archiveService.getArchiveList(user);
         List<ArchiveResponse> archiveResponseList = archiveService.entityToDto(archiveList);
-        Collections.reverse(archiveResponseList); //최신순
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok("유저 '" + nickname + "'의 아카이브 목록 조회", archiveList));
+                .body(ResultResponse.ok("유저 '" + nickname + "'의 아카이브 목록 조회", archiveResponseList));
     }
 
     @PostMapping("/create")

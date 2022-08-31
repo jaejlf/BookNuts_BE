@@ -19,7 +19,6 @@ import team.nine.booknutsbackend.repository.SeriesRepository;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,11 +37,8 @@ public class SeriesService {
 
     @Transactional(readOnly = true)
     @Cacheable(key = "#user.nickname", value = "getSeriesList")
-    public List<SeriesResponse> getSeriesList(User user) {
-        List<Series> seriesList = seriesRepository.findAllByOwner(user);
-        List<SeriesResponse> seriesResponseList = entityToDto(seriesList);
-        Collections.reverse(seriesResponseList); //최신순
-        return seriesResponseList;
+    public List<Series> getSeriesList(User user) {
+        return seriesRepository.findAllByOwner(user);
     }
 
     @Transactional

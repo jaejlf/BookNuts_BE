@@ -37,10 +37,11 @@ public class SeriesController {
     @GetMapping("/list/{nickname}")
     public ResponseEntity<Object> getSeriesList(@PathVariable String nickname) {
         User user = userService.getUserByNickname(nickname);
-        List<SeriesResponse> seriesList = seriesService.getSeriesList(user);
+        List<Series> seriesList = seriesService.getSeriesList(user);
+        List<SeriesResponse> seriesResponseList = seriesService.entityToDto(seriesList);
         return ResponseEntity
                 .status(OK)
-                .body(ResultResponse.ok("유저 '" + nickname + "'의 시리즈 목록 조회", seriesList));
+                .body(ResultResponse.ok("유저 '" + nickname + "'의 시리즈 목록 조회", seriesResponseList));
     }
 
     @PostMapping("/create")
