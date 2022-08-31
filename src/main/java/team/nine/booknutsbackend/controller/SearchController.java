@@ -16,6 +16,7 @@ import team.nine.booknutsbackend.dto.response.ResultResponse;
 import team.nine.booknutsbackend.dto.response.UserProfileResponse;
 import team.nine.booknutsbackend.service.SearchService;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -41,6 +42,7 @@ public class SearchController {
     public ResponseEntity<Object> searchRoom(@RequestParam String keyword) {
         List<DebateRoom> debateRoomList = searchService.searchRoom(keyword);
         List<DebateRoomResponse> debateRoomResponseList = searchService.entityToDto(debateRoomList);
+        Collections.reverse(debateRoomResponseList); //최신순
         return ResponseEntity
                 .status(OK)
                 .body(ResultResponse.ok("'" + keyword + "' 검색 결과 (토론방)", debateRoomResponseList));
@@ -51,6 +53,7 @@ public class SearchController {
                                              @AuthenticationPrincipal User user) {
         List<User> userList = searchService.searchUser(keyword);
         List<UserProfileResponse> userProfileResponseList = searchService.entityToDto(user, userList);
+        Collections.reverse(userProfileResponseList); //최신순
         return ResponseEntity
                 .status(OK)
                 .body(ResultResponse.ok("'" + keyword + "' 검색 결과 (유저)", userProfileResponseList));
