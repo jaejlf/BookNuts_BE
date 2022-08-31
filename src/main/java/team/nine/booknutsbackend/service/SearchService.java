@@ -31,12 +31,7 @@ public class SearchService {
     @Transactional
     @Cacheable(key = "#keyword", value = "searchBoard")
     public List<Board> searchBoard(String keyword) {
-        Specification<Board> spec = Specification
-                .where(likeTitle(keyword))
-                .or(likeContent(keyword))
-                .or(likeBookTitle(keyword))
-                .or(likeBookAuthor(keyword));
-        return boardRepository.findAll(spec);
+        return boardRepository.findBoardLikeKeyword(keyword);
     }
 
     @Transactional

@@ -10,4 +10,5 @@ public interface CustomBoardRepository {
     List<Board> findBoardByGenre(String genre);
     List<Board> findAllBoard();
     Board findBoardById(Long boardId);
+    List<Board> findBoardLikeKeyword(String keyword);
 }

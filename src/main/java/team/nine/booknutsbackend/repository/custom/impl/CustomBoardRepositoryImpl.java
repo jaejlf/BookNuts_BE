@@ -58,4 +58,19 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository {
                         .getSingleResult();
     }
 
+    @Override
+    public List<Board> findBoardLikeKeyword(String keyword) {
+        return em.createQuery("select distinct b from Board b " +
+                        "left join fetch b.writer " +
+                        "left join fetch b.nutsList left join fetch b.heartList " +
+                        "left join fetch b.archiveBoards left join fetch b.seriesBoards " +
+                        "where b.title like :keyword  " +
+                        "or b.content like :keyword " +
+                        "or b.bookTitle like :keyword " +
+                        "or b.bookAuthor like :keyword " +
+                        "order by b.boardId desc", Board.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .getResultList();
+    }
+
 }
