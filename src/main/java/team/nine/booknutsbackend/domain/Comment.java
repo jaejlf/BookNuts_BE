@@ -1,20 +1,24 @@
 package team.nine.booknutsbackend.domain;
 
-import lombok.Builder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Comment {
 
     @Id
@@ -24,23 +28,40 @@ public class Comment {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @JsonSerialize(using= LocalDateTimeSerializer.class)
+    @JsonDeserialize(using= LocalDateTimeDeserializer.class)
     @Column(nullable = false)
-    private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    private final LocalDateTime createdDate = LocalDateTime.now();
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "writer")
-    private User user;
+    private User writer;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "parentId")
     private Comment parent;
 
-    @Builder.Default
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
-    private List<Comment> children = new ArrayList<>();
+    private Set<Comment> children = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "boardId")
     private Board board;
+
+    public Comment(String content, User user, Board board, Comment parent) {
+        this.content = content;
+        this.writer = user;
+        this.board = board;
+        this.parent = parent;
+    }
+
+    public void clearContent() {
+        this.content = null;
+    }
+
+    public Long getParent(Comment comment) {
+        if (comment.getParent() == null) return null;
+        else return comment.getParent().getCommentId();
+    }
 
 }

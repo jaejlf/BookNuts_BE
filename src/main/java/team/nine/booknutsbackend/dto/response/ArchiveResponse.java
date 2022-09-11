@@ -1,11 +1,17 @@
 package team.nine.booknutsbackend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.archive.Archive;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ArchiveResponse {
 
     Long archiveId;
@@ -13,9 +19,9 @@ public class ArchiveResponse {
     String content;
     String imgUrl;
     int archiveCnt;
-    String createdAt;
+    LocalDateTime createdAt;
 
-    public static ArchiveResponse archiveResponse(Archive archive) {
+    public static ArchiveResponse of(Archive archive) {
         return ArchiveResponse.builder()
                 .archiveId(archive.getArchiveId())
                 .title(archive.getTitle())

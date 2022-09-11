@@ -1,7 +1,6 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -17,20 +16,15 @@ import java.util.Random;
 @Service
 public class EmailAuthService {
 
-    @Autowired
     JavaMailSender javaMailSender;
-
     private final RedisService redisService;
 
-    //static으로 선언했으지만 db에 컬럼 추가하는 방식으로 변경 예정
     public String authcode = createKey();
 
-    //메세지 내용 생성
     private MimeMessage createMessage(String to) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
-
-        message.addRecipients(Message.RecipientType.TO, to); //보내는 대상
-        message.setSubject("Booknuts 회원가입 이메일 인증"); //제목
+        message.addRecipients(Message.RecipientType.TO, to);
+        message.setSubject("Booknuts 회원가입 이메일 인증");
 
         String msgg = "";
         msgg += "<div style='margin:100px;'>";
@@ -46,39 +40,34 @@ public class EmailAuthService {
         msgg += "CODE : <strong>";
         msgg += authcode + "</strong><div><br/> ";
         msgg += "</div>";
-        message.setText(msgg, "utf-8", "html"); //내용
-        message.setFrom(new InternetAddress("!!!!!!!!!!application-email.properties의 email address와 일치시키기!!!!!!!")); //보내는 사람
+        message.setText(msgg, "utf-8", "html");
+        message.setFrom(new InternetAddress("sender's email"));
         return message;
     }
 
-    //인증 코드 발급
     public static String createKey() {
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         Random rnd = new Random();
 
-        for (int i = 0; i < 8; i++) { // 인증코드 8자리
-            int index = rnd.nextInt(3); // 0~2 까지 랜덤
+        for (int i = 0; i < 8; i++) {
+            int index = rnd.nextInt(3);
 
             switch (index) {
                 case 0:
-                    key.append((char) ((int) (rnd.nextInt(26)) + 97));
-                    //  a~z  (ex. 1+97=98 => (char)98 = 'b')
+                    key.append((char) (rnd.nextInt(26) + 97));
                     break;
                 case 1:
-                    key.append((char) ((int) (rnd.nextInt(26)) + 65));
-                    //  A~Z
+                    key.append((char) (rnd.nextInt(26) + 65));
                     break;
                 case 2:
                     key.append((rnd.nextInt(10)));
-                    // 0~9
                     break;
             }
         }
         return key.toString();
     }
 
-    //인증코드 이메일 전송
-    public String sendSimpleMessage(String to) throws MessagingException {
+    public String sendAuthCode(String to) throws MessagingException {
         MimeMessage message = createMessage(to);
         try {
             javaMailSender.send(message);
@@ -90,8 +79,7 @@ public class EmailAuthService {
         return authcode;
     }
 
-    //redis 코드와 비교
-    public Boolean confirmEmailCode(String email, String code) {
+    public Boolean confirmAuthCode(String email, String code) {
         String redisCode = redisService.getValues(email);
         return redisCode.equals(code);
     }

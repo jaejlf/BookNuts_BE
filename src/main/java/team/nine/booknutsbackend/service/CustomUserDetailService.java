@@ -2,14 +2,16 @@ package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.exception.user.UserNotFoundException;
 import team.nine.booknutsbackend.repository.UserRepository;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.USER_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
@@ -26,10 +28,9 @@ public class CustomUserDetailService implements UserDetailsService {
         Matcher matcher = pattern.matcher(id);
 
         User user;
-        if (matcher.matches()) user = userRepository.findByEmail(id).orElseThrow(UserNotFoundException::new);
-        else user = userRepository.findByLoginId(id).orElseThrow(UserNotFoundException::new);
-        if (!user.isEnabled()) throw new UserNotFoundException();
-
+        if (matcher.matches()) user = userRepository.findByEmail(id).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
+        else user = userRepository.findByLoginId(id).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
+        if (!user.isEnabled()) throw new UsernameNotFoundException(USER_NOT_FOUND.getMsg());
         return user;
     }
 

@@ -1,14 +1,17 @@
 package team.nine.booknutsbackend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.debate.DebateRoom;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
+import team.nine.booknutsbackend.enumerate.DebateStatus;
+import team.nine.booknutsbackend.enumerate.DebateType;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DebateRoomResponse {
 
     Long roomId;
@@ -19,14 +22,14 @@ public class DebateRoomResponse {
     String topic;
     String coverImgUrl;
     String timeFromNow;
-    int type;
+    DebateType type;
     int maxUser;
     int curYesUser;
     int curNoUser;
-    int status;
+    DebateStatus status;
     String owner;
 
-    public static DebateRoomResponse roomResponse(DebateRoom room) {
+    public static DebateRoomResponse of(DebateRoom room) {
         return DebateRoomResponse.builder()
                 .roomId(room.getDebateRoomId())
                 .bookTitle(room.getBookTitle())
@@ -35,7 +38,7 @@ public class DebateRoomResponse {
                 .bookGenre(room.getBookGenre())
                 .topic(room.getTopic())
                 .coverImgUrl(room.getCoverImgUrl())
-                .timeFromNow(getTimeFromNow(room))
+                .timeFromNow(room.getTimeFromNow(room))
                 .type(room.getType())
                 .maxUser(room.getMaxUser())
                 .curYesUser(room.getCurYesUser())
@@ -45,15 +48,4 @@ public class DebateRoomResponse {
                 .build();
     }
 
-    private static String getTimeFromNow(DebateRoom room) {
-        LocalDateTime createdAt = room.getCreatedAt();
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(createdAt, now);
-
-        if (duration.toDaysPart() > 0) return duration.toDaysPart() + "일 전";
-        if (duration.toHoursPart() > 0) return duration.toHoursPart() + "시간 전";
-        if (duration.toMinutesPart() > 0) return duration.toMinutesPart() + "분 전";
-
-        return "방금 전";
-    }
 }

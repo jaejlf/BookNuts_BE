@@ -28,8 +28,4 @@ public class RedisService {
         return values.get(key);
     }
 
-    public void deleteValues(String key) {
-        redisTemplate.delete(key);
-    }
-
 }

@@ -1,11 +1,15 @@
 package team.nine.booknutsbackend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FollowResponse {
 
     Long userId;
@@ -14,7 +18,7 @@ public class FollowResponse {
     String nickname;
     String email;
 
-    public static FollowResponse followUserResponse(User user) {
+    public static FollowResponse of(User user) {
         return FollowResponse.builder()
                 .userId(user.getUserId())
                 .loginId(user.getLoginId())

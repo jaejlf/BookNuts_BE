@@ -1,21 +1,26 @@
 package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.dto.request.BoardRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
+import team.nine.booknutsbackend.dto.response.ResultResponse;
+import team.nine.booknutsbackend.enumerate.BoardType;
 import team.nine.booknutsbackend.service.BoardService;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.validation.Valid;
-import java.security.Principal;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static team.nine.booknutsbackend.enumerate.BoardType.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,53 +30,70 @@ public class BoardController {
     private final BoardService boardService;
     private final UserService userService;
 
-    //게시글 작성
     @PostMapping("/write")
-    public ResponseEntity<BoardResponse> writePost(@RequestBody @Valid BoardRequest board, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        Board newBoard = boardService.writePost(BoardRequest.boardRequest(board, user));
-        return new ResponseEntity<>(BoardResponse.boardResponse(newBoard, user), HttpStatus.CREATED);
+    public ResponseEntity<Object> writeBoard(@RequestBody @Valid BoardRequest boardRequest,
+                                             @AuthenticationPrincipal User user) {
+        BoardResponse newBoard = boardService.writeBoard(boardRequest, user);
+        return ResponseEntity
+                .status(CREATED)
+                .body(ResultResponse.create("게시글 작성", newBoard));
     }
 
-    //게시글 목록 조회
-    //나의 구독 = 0, 오늘 추천 = 1, 독립 출판 = 2
-    @GetMapping("/list/{type}")
-    public ResponseEntity<List<BoardResponse>> getBoard(@PathVariable int type, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(boardService.getBoard(user, type), HttpStatus.OK);
+    @GetMapping("/list/type/{type}")
+    public ResponseEntity<Object> getBoardListByType(@PathVariable int type,
+                                                     @AuthenticationPrincipal User user) {
+        BoardType boardType = getBoardType(type);
+
+        List<Board> boardList;
+        if (boardType == MY) boardList = boardService.get0Boards(user);
+        else if (boardType == TODAY) boardList = boardService.get1Boards();
+        else boardList = boardService.get2Boards();
+
+        List<BoardResponse> boardResponseList = boardService.entityToDto(boardList, user);
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok(BoardType.getBoardType(type) + " 게시글 목록 조회", boardResponseList));
     }
 
-    //특정 유저의 게시글 목록 조회
-    @GetMapping("/post/{nickname}")
-    public ResponseEntity<List<BoardResponse>> getBoardList(@PathVariable String nickname) {
-        User owner = userService.findUserByNickname(nickname);
-        return new ResponseEntity<>(boardService.getBoardList(owner), HttpStatus.OK);
+    @GetMapping("/list/user/{nickname}")
+    public ResponseEntity<Object> getBoardListByUser(@PathVariable String nickname) {
+        User user = userService.getUserByNickname(nickname);
+        List<Board> boardList = boardService.getBoardListByUser(user);
+        List<BoardResponse> boardResponseList = boardService.entityToDto(boardList, user);
+        Collections.reverse(boardResponseList); //최신순
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok("유저 '" + nickname + "'(이)가 작성한 게시글 목록 조회", boardList));
     }
 
-    //특정 게시글 조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> getPost(@PathVariable Long boardId, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(BoardResponse.boardResponse(boardService.getPost(boardId), user), HttpStatus.OK);
+    public ResponseEntity<Object> getBoardOne(@PathVariable Long boardId,
+                                              @AuthenticationPrincipal User user) {
+        Board board = boardService.getBoard(boardId);
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok(boardId + "번 게시글 조회", BoardResponse.of(board, user)));
     }
 
-    //게시글 수정
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> updatePost(@PathVariable Long boardId, @RequestBody BoardRequest boardRequest, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        Board updateBoard = boardService.updatePost(boardId, boardRequest, user);
-        return new ResponseEntity<>(BoardResponse.boardResponse(updateBoard, user), HttpStatus.OK);
+    public ResponseEntity<Object> updateBoard(@PathVariable Long boardId,
+                                              @RequestBody Map<String, String> modRequest,
+                                              @AuthenticationPrincipal User user) {
+        Board board = boardService.getBoard(boardId);
+        BoardResponse updatedBoard = boardService.updateBoard(board, modRequest, user);
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.update(boardId + "번 게시글 수정", updatedBoard));
     }
 
-    //게시글 삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Object> deletePost(@PathVariable Long boardId, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        boardService.deletePost(boardId, user);
-
-        Map<String, String> map = new HashMap<>();
-        map.put("result", "삭제 완료");
-        return new ResponseEntity<>(map, HttpStatus.OK);
+    public ResponseEntity<Object> deleteBoard(@PathVariable Long boardId,
+                                              @AuthenticationPrincipal User user) {
+        Board board = boardService.getBoard(boardId);
+        boardService.deleteBoard(board, user);
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok(boardId + "번 게시글 삭제"));
     }
 
 }

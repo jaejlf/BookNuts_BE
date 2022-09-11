@@ -1,25 +1,26 @@
 package team.nine.booknutsbackend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
-import team.nine.booknutsbackend.domain.reaction.Heart;
-import team.nine.booknutsbackend.domain.reaction.Nuts;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BoardResponse {
 
     Long boardId;
     String title;
     String content;
     String writer;
-    String createdDate;
+    LocalDateTime createdDate;
     String bookTitle;
     String bookAuthor;
     String bookImgUrl;
@@ -32,12 +33,12 @@ public class BoardResponse {
     Boolean isArchived;
     Boolean curUser;
 
-    public static BoardResponse boardResponse(Board board, User user) {
+    public static BoardResponse of(Board board, User writer) {
         return BoardResponse.builder()
                 .boardId(board.getBoardId())
                 .title(board.getTitle())
                 .content(board.getContent())
-                .writer(board.getUser().getNickname())
+                .writer(board.getWriter().getNickname())
                 .createdDate(board.getCreatedDate())
                 .bookTitle(board.getBookTitle())
                 .bookAuthor(board.getBookAuthor())
@@ -46,35 +47,11 @@ public class BoardResponse {
                 .nutsCnt(board.getNutsList().size())
                 .heartCnt(board.getHeartList().size())
                 .archiveCnt(board.getArchiveBoards().size())
-                .isNuts(getIsNuts(board, user))
-                .isHeart(getIsHeart(board, user))
-                .isArchived(getIsArchived(board, user))
-                .curUser(Objects.equals(board.getUser().getUserId(), user.getUserId()))
+                .isNuts(board.isNuts(board, writer))
+                .isHeart(board.isHeart(board, writer))
+                .isArchived(board.isArchived(board, writer))
+                .curUser(Objects.equals(board.getWriter().getUserId(), writer.getUserId()))
                 .build();
-    }
-
-    private static Boolean getIsNuts(Board board, User user) {
-        List<Nuts> nutsList = user.getNutsList();
-        for (Nuts nuts : nutsList) {
-            if (nuts.getBoard().equals(board)) return true;
-        }
-        return false;
-    }
-
-    private static Boolean getIsHeart(Board board, User user) {
-        List<Heart> hearts = user.getHearts();
-        for (Heart heart : hearts) {
-            if (heart.getBoard().equals(board)) return true;
-        }
-        return false;
-    }
-
-    private static Boolean getIsArchived(Board board, User user) {
-        List<ArchiveBoard> archiveBoards = user.getArchiveBoards();
-        for (ArchiveBoard archiveBoard : archiveBoards) {
-            if (archiveBoard.getBoard().equals(board)) return true;
-        }
-        return false;
     }
 
 }

@@ -1,6 +1,7 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import team.nine.booknutsbackend.domain.Board;
@@ -14,8 +15,8 @@ import team.nine.booknutsbackend.repository.DebateRoomRepository;
 import team.nine.booknutsbackend.repository.UserRepository;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static team.nine.booknutsbackend.service.SearchSpecs.*;
 
@@ -28,50 +29,37 @@ public class SearchService {
     private final UserRepository userRepository;
 
     @Transactional
-    public List<BoardResponse> searchBoard(String keyword, User user) {
-        Specification<Board> spec = Specification
-                .where(likeTitle(keyword))
-                .or(likeContent(keyword))
-                .or(likeBookTitle(keyword))
-                .or(likeBookAuthor(keyword));
-
-        List<Board> boards = boardRepository.findAll(spec);
-        List<BoardResponse> boardDtoList = new ArrayList<>();
-
-        for (Board board : boards) {
-            boardDtoList.add(BoardResponse.boardResponse(board, user));
-        }
-
-        return boardDtoList;
+    @Cacheable(key = "#keyword", value = "searchBoard")
+    public List<Board> searchBoard(String keyword) {
+        return boardRepository.findBoardLikeKeyword(keyword);
     }
 
     @Transactional
-    public List<DebateRoomResponse> searchRoom(String keyword) {
+    @Cacheable(key = "#keyword", value = "searchRoom")
+    public List<DebateRoom> searchRoom(String keyword) {
         Specification<DebateRoom> spec = Specification
                 .where(likeTopic(keyword))
                 .or(likeBookTitle(keyword))
                 .or(likeBookAuthor(keyword));
-
-        List<DebateRoom> rooms = debateRoomRepository.findAll(spec);
-        List<DebateRoomResponse> roomDtoList = new ArrayList<>();
-
-        for (DebateRoom room : rooms) {
-            roomDtoList.add(DebateRoomResponse.roomResponse(room));
-        }
-
-        return roomDtoList;
+        return debateRoomRepository.findAll(spec);
     }
 
     @Transactional
-    public List<UserProfileResponse> searchUser(String keyword, User curUser) {
-        List<User> users = userRepository.findAllByNicknameContaining(keyword);
-        List<UserProfileResponse> userProfileDto = new ArrayList<>();
+    @Cacheable(key = "#keyword", value = "searchUser")
+    public List<User> searchUser(String keyword) {
+        return userRepository.findAllByNicknameContaining(keyword);
+    }
 
-        for (User targetUser : users) {
-            userProfileDto.add(UserProfileResponse.userProfileResponse(curUser, targetUser));
-        }
+    public List<BoardResponse> entityToDto(List<Board> boardList, User user) {
+        return boardList.stream().map(x -> BoardResponse.of(x, user)).collect(Collectors.toList());
+    }
 
-        return userProfileDto;
+    public List<DebateRoomResponse> entityToDto(List<DebateRoom> debateRoomList) {
+        return debateRoomList.stream().map(DebateRoomResponse::of).collect(Collectors.toList());
+    }
+
+    public List<UserProfileResponse> entityToDto(User me, List<User> userList) {
+        return userList.stream().map(x -> UserProfileResponse.of(me, x)).collect(Collectors.toList());
     }
 
 }

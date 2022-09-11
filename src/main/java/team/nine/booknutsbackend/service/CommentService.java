@@ -1,98 +1,88 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.Comment;
 import team.nine.booknutsbackend.domain.User;
-import team.nine.booknutsbackend.dto.request.CommentRequest;
 import team.nine.booknutsbackend.dto.response.CommentResponse;
-import team.nine.booknutsbackend.exception.board.BoardNotFoundException;
-import team.nine.booknutsbackend.exception.comment.CommentNotFoundException;
 import team.nine.booknutsbackend.exception.user.NoAuthException;
-import team.nine.booknutsbackend.repository.BoardRepository;
 import team.nine.booknutsbackend.repository.CommentRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.COMMENT_NOT_FOUND;
+import static team.nine.booknutsbackend.exception.ErrorMessage.MOD_DEL_NO_AUTH;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final BoardRepository boardRepository;
 
-    //댓글 작성
     @Transactional
-    public Comment writeComment(Comment comment) {
-        return commentRepository.save(comment);
+    public CommentResponse writeParentComment(Map<String, String> commentRequest, Board board, User user) {
+        Comment comment = new Comment(commentRequest.get("content"), user, board, null);
+        return CommentResponse.of(commentRepository.save(comment));
     }
 
-    //대댓글 작성
     @Transactional
-    public Comment writeReComment(Comment comment) {
-        return commentRepository.save(comment);
+    public CommentResponse writeChildComment(Map<String, String> commentRequest, Board board, Comment parent, User user) {
+        checkReCommentEnable(parent.getCommentId(), board);
+        Comment comment = new Comment(commentRequest.get("content"), user, board, parent);
+        return CommentResponse.of(commentRepository.save(comment));
     }
 
-    //댓글 한 개 조회
     @Transactional(readOnly = true)
-    public Comment getComment(Long commentId) {
-        return commentRepository.findById(commentId)
-                .orElseThrow(CommentNotFoundException::new);
-    }
-
-    //게시글 별 댓글 리스트 조회
-    @Transactional(readOnly = true)
-    public List<CommentResponse> getCommentList(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(BoardNotFoundException::new);
-        List<Comment> comments = commentRepository.findByBoard(board);
+    public List<CommentResponse> getCommentList(Board board) {
+        List<Comment> parentCommentList = commentRepository.findByBoardAndParent(board, null);
 
         List<Comment> commentList = new ArrayList<>();
-        List<CommentResponse> commentResponseList = new ArrayList<>();
-
-        for (Comment comment : comments) {
-            if (comment.getParent() == null) {
-                commentList.add(comment);
-                List<Comment> childComment = commentRepository.findByParent(comment);
-                if (childComment != null) commentList.addAll(childComment);
-            }
+        for (Comment comment : parentCommentList) {
+            commentList.add(comment);
+            List<Comment> childCommentList = commentRepository.findByParent(comment);
+            if (childCommentList != null) commentList.addAll(childCommentList);
         }
 
-        for (Comment comment : commentList) {
-            commentResponseList.add(CommentResponse.commentResponse(comment));
-        }
-
-        return commentResponseList;
+        return entityToDto(commentList);
     }
 
-    //댓글 수정
     @Transactional
-    public Comment updateComment(Long commentId, CommentRequest commentRequest, User user) {
-        Comment comment = getComment(commentId);
-        if (comment.getUser() != user) throw new NoAuthException();
+    public void deleteComment(Comment comment, User user) {
+        checkAuth(user, comment);
 
-        comment.setContent(commentRequest.getContent());
-
-        return commentRepository.save(comment);
-
-    }
-
-    //댓글 삭제
-    @Transactional
-    public void deleteComment(Long commentId, User user) {
-        Comment comment = getComment(commentId);
-        if (comment.getUser() != user) throw new NoAuthException();
-
-        //자식 댓글인 경우 & 자식이 없는 부모 댓글인 경우
         if ((comment.getParent() != null) || (comment.getChildren().size() == 0)) {
             commentRepository.delete(comment);
-        } else { //자식이 있는 부모 댓글인 경우
-            comment.setContent(null);
+        } else {
+            comment.clearContent();
             commentRepository.save(comment);
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#commentId", value = "getComment")
+    public Comment getComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND.getMsg()));
+    }
+
+    private void checkAuth(User user, Comment comment) {
+        if (!comment.getWriter().getNickname().equals(user.getNickname())) throw new NoAuthException(MOD_DEL_NO_AUTH.getMsg());
+    }
+
+    private void checkReCommentEnable(Long commentId, Board board) {
+        commentRepository.findByBoardAndCommentId(board, commentId)
+                .orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND.getMsg()));
+    }
+
+    public List<CommentResponse> entityToDto(List<Comment> commentList) {
+        return commentList.stream().map(CommentResponse::of).collect(Collectors.toList());
     }
 
 }

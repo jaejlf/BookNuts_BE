@@ -1,8 +1,13 @@
 package team.nine.booknutsbackend.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
@@ -10,15 +15,15 @@ import team.nine.booknutsbackend.domain.series.SeriesBoard;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Board {
 
     @Id
@@ -31,8 +36,10 @@ public class Board {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @JsonSerialize(using= LocalDateTimeSerializer.class)
+    @JsonDeserialize(using= LocalDateTimeDeserializer.class)
     @Column(nullable = false)
-    private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    private final LocalDateTime createdDate = LocalDateTime.now();
 
     @Column(length = 100, nullable = false)
     private String bookTitle;
@@ -48,22 +55,64 @@ public class Board {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "writer")
-    private User user;
+    private User writer;
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<Nuts> nutsList = new ArrayList<>();
+    private Set<Nuts> nutsList = new HashSet<>();
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<Heart> heartList = new ArrayList<>();
+    private Set<Heart> heartList = new HashSet<>();
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<ArchiveBoard> archiveBoards = new ArrayList<>();
+    private Set<ArchiveBoard> archiveBoards = new HashSet<>();
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     @JsonIgnore
-    private List<SeriesBoard> seriesBoards = new ArrayList<>();
+    private Set<SeriesBoard> seriesBoards = new HashSet<>();
+
+    public Board(String title, String content, String bookTitle, String bookAuthor, String bookImgUrl, String bookGenre, User user) {
+        this.title = title;
+        this.content = content;
+        this.bookTitle = bookTitle;
+        this.bookAuthor = bookAuthor;
+        this.bookImgUrl = bookImgUrl;
+        this.bookGenre = bookGenre;
+        this.writer = user;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public boolean isNuts(Board board, User user) {
+        Set<Nuts> nutsList = user.getNutsList();
+        for (Nuts nuts : nutsList) {
+            if (nuts.getBoard().equals(board)) return true;
+        }
+        return false;
+    }
+
+    public boolean isHeart(Board board, User user) {
+        Set<Heart> hearts = user.getHeartList();
+        for (Heart heart : hearts) {
+            if (heart.getBoard().equals(board)) return true;
+        }
+        return false;
+    }
+
+    public boolean isArchived(Board board, User user) {
+        Set<ArchiveBoard> archiveBoards = user.getArchiveBoardList();
+        for (ArchiveBoard archiveBoard : archiveBoards) {
+            if (archiveBoard.getBoard().equals(board)) return true;
+        }
+        return false;
+    }
 
 }

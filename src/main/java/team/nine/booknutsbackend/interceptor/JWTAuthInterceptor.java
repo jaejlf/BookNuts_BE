@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import team.nine.booknutsbackend.config.JwtTokenProvider;
-import team.nine.booknutsbackend.exception.user.ExpiredTokenException;
+import team.nine.booknutsbackend.exception.user.ExpiredAccessTokenException;
 import team.nine.booknutsbackend.exception.user.InvalidTokenException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +23,7 @@ public class JWTAuthInterceptor implements HandlerInterceptor {
 
         String token = jwtTokenProvider.resolveToken(request);
         if (!jwtTokenProvider.validateToken(token)) {
-            throw new ExpiredTokenException();
+            throw new ExpiredAccessTokenException();
         }
 
         return true;

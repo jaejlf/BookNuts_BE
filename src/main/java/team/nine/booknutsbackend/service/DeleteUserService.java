@@ -25,33 +25,18 @@ public class DeleteUserService {
     private final ArchiveService archiveService;
     private final UserRepository userRepository;
 
-    //회원 탈퇴
     @Transactional
     public void deleteAccount(User user) {
-
-        //프로필 이미지 버킷에서 삭제
         awsS3Service.deleteImg(user.getProfileImgUrl());
-
-        //팔로우 삭제
         followService.deleteAllFollow(user);
-
-        //시리즈, 아카이브 삭제
         seriesService.deleteAllSeries(user);
         archiveService.deleteAllArchive(user);
-
-        //공감, 넛츠 삭제
         reactionService.deleteAllReaction(user);
-
-        //유저 이용 불가 처리
-        user.setUsername(null);
-        user.setNickname(null);
-        user.setRefreshToken("");
-        user.setProfileImgUrl("");
-        user.setEnabled(false);
-        user.setRequestedDeleteAt(LocalDateTime.now());
+        user.disableUser(); //유저 이용 불가 처리
         userRepository.save(user);
     }
 
+    //회원 탈퇴 스케쥴러
     //탈퇴 요청 후 30일(한 달) 뒤, 이메일/로그인 아이디 정보 삭제
     @Transactional
     @Scheduled(cron = "0 0 22 * * *") //매일 22:00:00 (초, 분, 시, 일, 월, 주)
@@ -65,10 +50,9 @@ public class DeleteUserService {
 
         List<User> userList = userRepository.findAllByEnabledAndRequestedDeleteAtBetween(false, startDatetime, endDatetime);
         for (User user : userList) {
-            user.setEmail(null);
-            user.setLoginId(null);
+            user.clearUser(); //이메일 & 로그인 아이디 완전 삭제
             userRepository.save(user);
-            log.info("userId = " + user.getUserId() + " 정보 삭제 완료");
+            log.info(user.getUserId() + "번 유저 정보 삭제 완료");
         }
     }
 

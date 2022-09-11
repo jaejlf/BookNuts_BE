@@ -1,19 +1,29 @@
 package team.nine.booknutsbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import team.nine.booknutsbackend.config.JwtTokenProvider;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.dto.request.LoginRequest;
+import team.nine.booknutsbackend.dto.request.ReissueRequest;
+import team.nine.booknutsbackend.dto.request.SignUpRequest;
+import team.nine.booknutsbackend.dto.response.AuthUserResponse;
+import team.nine.booknutsbackend.dto.response.TokenResponse;
+import team.nine.booknutsbackend.dto.response.UserResponse;
+import team.nine.booknutsbackend.exception.user.ExpiredRefreshTokenException;
 import team.nine.booknutsbackend.exception.user.InvalidTokenException;
-import team.nine.booknutsbackend.exception.user.PasswordErrorException;
-import team.nine.booknutsbackend.exception.user.UserNotFoundException;
 import team.nine.booknutsbackend.repository.UserRepository;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static team.nine.booknutsbackend.exception.ErrorMessage.PASSWORD_ERROR;
+import static team.nine.booknutsbackend.exception.ErrorMessage.USER_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
@@ -24,89 +34,109 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AwsS3Service awsS3Service;
+    private final RedisService redisService;
 
-    //회원가입
     @Transactional
-    public User join(MultipartFile file, User user) {
-        user.setProfileImgUrl(awsS3Service.uploadImg(file, user.getNickname() + "-"));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public UserResponse join(MultipartFile file, SignUpRequest signUpRequest) {
+        User user = new User(
+                signUpRequest.getLoginId(),
+                passwordEncoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getUsername(),
+                signUpRequest.getNickname(),
+                signUpRequest.getEmail(),
+                awsS3Service.uploadImg(file, signUpRequest.getNickname() + "-")
+        );
+        return UserResponse.of(userRepository.save(user));
     }
 
-    //로그인
-    @Transactional
-    public User login(String id, String password) {
-        User user = findUserByEmail(id);
-        if (!passwordEncoder.matches(password, user.getPassword())) throw new PasswordErrorException();
-
-        user.setRefreshToken(jwtTokenProvider.createRefreshToken(user.getEmail()));
-        return userRepository.save(user);
-    }
-
-    //닉네임으로 유저 정보 조회
     @Transactional(readOnly = true)
-    public User findUserByNickname(String nickname) {
-        User user = userRepository.findByNickname(nickname)
-                .orElseThrow(UserNotFoundException::new);
-        if (!user.isEnabled()) throw new UserNotFoundException();
-
-        return user;
-    }
-
-    //이메일 또는 로그인 아이디로 유저 정보 조회 (UserDetailService - loadUserByUsername)
-    @Transactional(readOnly = true)
-    public User findUserByEmail(String id) {
-        return customUserDetailService.loadUserByUsername(id);
-    }
-
-    //유저 닉네임 중복 체크
-    @Transactional(readOnly = true)
-    public boolean checkNicknameDuplication(String nickname) {
+    public boolean checkNicknameDuplicate(String nickname) {
         return userRepository.existsByNickname(nickname);
     }
 
-    //유저 로그인 아이디 중복 체크
     @Transactional(readOnly = true)
-    public boolean checkLoginIdDuplication(String loginId) {
+    public boolean checkLoginIdDuplicate(String loginId) {
         return userRepository.existsByLoginId(loginId);
     }
 
-    //토큰 재발급
     @Transactional
-    public Object tokenReIssue(String refreshToken) {
-        User user = userRepository.findByRefreshToken(refreshToken) //db에 해당 refresh token이 존재하지 않는 경우
-                .orElseThrow(InvalidTokenException::new);
-        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
+    public AuthUserResponse login(LoginRequest loginRequest) {
+        User user = customUserDetailService.loadUserByUsername(loginRequest.getId());
+        checkPasswordMatching(loginRequest.getPassword(), user);
 
-        //refresh token 만료 기간 체크 -> 2일 이하로 남은 경우 재발급
-        long validTime = jwtTokenProvider.getValidTime(refreshToken);
-        if (validTime <= 172800000) {
-            refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
-            user.setRefreshToken(refreshToken);
-            userRepository.save(user);
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+
+        return AuthUserResponse.of(user, accessToken, refreshToken);
+    }
+
+    @Transactional
+    public TokenResponse tokenReIssue(ReissueRequest reissueRequest) {
+        User user = getUserByEmail(reissueRequest.getEmail());
+        String refreshToken = getCheckedRefreshToken(reissueRequest, user);
+        String accessToken = jwtTokenProvider.createAccessToken(reissueRequest.getEmail());
+        return TokenResponse.of(accessToken, refreshToken);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#nickname", value = "getUserByNickname")
+    public User getUserByNickname(String nickname) {
+        User user = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
+        if (!user.isEnabled()) throw new UsernameNotFoundException(USER_NOT_FOUND.getMsg());
+        return user;
+    }
+
+    @Transactional
+    public UserResponse updateProfileImg(MultipartFile file, User user) {
+        awsS3Service.deleteImg(user.getProfileImgUrl());  //기존 이미지 버킷에서 삭제
+        user.updateProfileImgUrl(awsS3Service.uploadImg(file, user.getNickname() + "-"));
+        return UserResponse.of(userRepository.save(user));
+    }
+
+    @Transactional
+    public void updatePassword(Map<String, String> password, User user) {
+        String oldPw = password.get("oldPw");
+        String newPw = password.get("newPw");
+
+        checkPasswordMatching(oldPw, user);
+        user.updatePassword(passwordEncoder.encode(newPw));
+        userRepository.save(user);
+    }
+
+    private void checkPasswordMatching(String inputPw, User user) {
+        if (!passwordEncoder.matches(inputPw, user.getPassword())) {
+            throw new IllegalArgumentException(PASSWORD_ERROR.getMsg());
+        }
+    }
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMsg()));
+    }
+
+    private String getCheckedRefreshToken(ReissueRequest tokenRequest, User user) {
+
+        //리프레쉬 토큰 유효성 체크
+        String refreshToken = tokenRequest.getRefreshToken();
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new ExpiredRefreshTokenException();
         }
 
-        Map<String, String> map = new HashMap<>();
-        map.put("accessToken", accessToken);
-        map.put("refreshToken", refreshToken);
+        //DB에 저장된 refresh 토큰과 일치하는지 체크
+        String email = tokenRequest.getEmail();
+        String storedRefreshToken = redisService.getValues("token-" + user.getEmail());
+        if (!Objects.equals(storedRefreshToken, refreshToken)) {
+            throw new InvalidTokenException();
+        }
 
-        return map;
-    }
+        //토큰 만료 기간이 2일 이내로 남았을 경우 재발급
+        Long remainTime = jwtTokenProvider.getValidTime(refreshToken);
+        if (remainTime <= 172800000) {
+            refreshToken = jwtTokenProvider.createRefreshToken(email);
+        }
+        return refreshToken;
 
-    //프로필 이미지 업데이트
-    @Transactional
-    public User updateProfileImg(MultipartFile file, User user) {
-        awsS3Service.deleteImg(user.getProfileImgUrl());  //기존 이미지 버킷에서 삭제
-        user.setProfileImgUrl(awsS3Service.uploadImg(file, "profile-"));
-        return userRepository.save(user);
-    }
-
-    //비밀번호 재설정
-    @Transactional
-    public void updatePassword(String oldPw, String newPw, User user) {
-        if (!passwordEncoder.matches(oldPw, user.getPassword())) throw new PasswordErrorException();
-        user.setPassword(passwordEncoder.encode(newPw));
-        userRepository.save(user);
     }
 
 }

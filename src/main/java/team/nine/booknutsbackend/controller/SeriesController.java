@@ -1,23 +1,29 @@
 package team.nine.booknutsbackend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import team.nine.booknutsbackend.domain.Board;
 import team.nine.booknutsbackend.domain.User;
 import team.nine.booknutsbackend.domain.series.Series;
+import team.nine.booknutsbackend.domain.series.SeriesBoard;
 import team.nine.booknutsbackend.dto.request.SeriesRequest;
 import team.nine.booknutsbackend.dto.response.BoardResponse;
+import team.nine.booknutsbackend.dto.response.ResultResponse;
 import team.nine.booknutsbackend.dto.response.SeriesResponse;
+import team.nine.booknutsbackend.service.BoardService;
 import team.nine.booknutsbackend.service.SeriesService;
 import team.nine.booknutsbackend.service.UserService;
 
 import javax.validation.Valid;
-import java.security.Principal;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,58 +32,71 @@ public class SeriesController {
 
     private final SeriesService seriesService;
     private final UserService userService;
+    private final BoardService boardService;
 
-    //특정 유저의 시리즈 목록 조회
     @GetMapping("/list/{nickname}")
-    public ResponseEntity<List<SeriesResponse>> getSeriesList(@PathVariable String nickname) {
-        User owner = userService.findUserByNickname(nickname);
-        return new ResponseEntity<>(seriesService.getSeriesList(owner), HttpStatus.OK);
+    public ResponseEntity<Object> getSeriesList(@PathVariable String nickname) {
+        User user = userService.getUserByNickname(nickname);
+        List<Series> seriesList = seriesService.getSeriesList(user);
+        List<SeriesResponse> seriesResponseList = seriesService.entityToDto(seriesList);
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok("유저 '" + nickname + "'의 시리즈 목록 조회", seriesResponseList));
     }
 
-    //시리즈 발행
     @PostMapping("/create")
-    public ResponseEntity<SeriesResponse> createSeries(@RequestPart(value = "file", required = false) MultipartFile file,
-                                                       @RequestPart(value = "series") @Valid SeriesRequest seriesRequest, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        Series newSeries = seriesService.createSeries(file, SeriesRequest.seriesRequest(seriesRequest, user), seriesRequest.getBoardIdlist());
-        return new ResponseEntity<>(SeriesResponse.seriesResponse(newSeries), HttpStatus.CREATED);
+    public ResponseEntity<Object> createSeries(@RequestPart(value = "file", required = false) MultipartFile file,
+                                               @RequestPart(value = "series") @Valid SeriesRequest seriesRequest,
+                                               @AuthenticationPrincipal User user) {
+        SeriesResponse newSeries = seriesService.createSeries(file, seriesRequest, user);
+        return ResponseEntity
+                .status(CREATED)
+                .body(ResultResponse.create("시리즈 발행", newSeries));
     }
 
-    //특정 시리즈 내의 게시글 조회
     @GetMapping("/{seriesId}")
-    public ResponseEntity<List<BoardResponse>> getSeriesBoards(@PathVariable Long seriesId, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        return new ResponseEntity<>(seriesService.getSeriesBoards(seriesId, user), HttpStatus.OK);
+    public ResponseEntity<Object> getBoardsInSeries(@PathVariable Long seriesId,
+                                                    @AuthenticationPrincipal User user) {
+        Series series = seriesService.getSeries(seriesId);
+        List<SeriesBoard> seriesBoardList = seriesService.getBoardsInSeries(series);
+        List<BoardResponse> boardResponseList = seriesService.entityToDto(seriesBoardList, user);
+        Collections.reverse(boardResponseList); //최신순
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok(seriesId + "번 시리즈 내의 게시글 목록 조회", boardResponseList));
     }
 
-    //시리즈 삭제
     @DeleteMapping("/{seriesId}")
-    public ResponseEntity<Object> deleteSeries(@PathVariable Long seriesId, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        seriesService.deleteSeries(seriesId, user);
-
-        Map<String, String> map = new HashMap<>();
-        map.put("result", "삭제 완료");
-        return new ResponseEntity<>(map, HttpStatus.OK);
+    public ResponseEntity<Object> deleteSeries(@PathVariable Long seriesId,
+                                               @AuthenticationPrincipal User user) {
+        Series series = seriesService.getSeries(seriesId);
+        seriesService.deleteSeries(series, user);
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok(seriesId + "번 시리즈 삭제"));
     }
 
-    //시리즈에 게시글 추가
     @PatchMapping("/add/{seriesId}/{boardId}")
-    public ResponseEntity<Object> addPostToSeries(@PathVariable Long seriesId, @PathVariable Long boardId, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        seriesService.addPostToSeries(seriesId, boardId, user);
-
-        Map<String, String> map = new HashMap<>();
-        map.put("result", "추가 완료");
-        return new ResponseEntity<>(map, HttpStatus.OK);
+    public ResponseEntity<Object> addBoardToSeries(@PathVariable Long seriesId,
+                                                   @PathVariable Long boardId,
+                                                   @AuthenticationPrincipal User user) {
+        Series series = seriesService.getSeries(seriesId);
+        Board board = boardService.getBoard(boardId);
+        seriesService.addBoardToSeries(series, board, user);
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok(seriesId + "번 시리즈에 " + boardId + "번 게시글 추가"));
     }
 
-    //시리즈 수정
     @PatchMapping("/{seriesId}")
-    public ResponseEntity<SeriesResponse> updateArchive(@PathVariable Long seriesId, @RequestBody SeriesRequest seriesRequest, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        Series updateSeries = seriesService.updateSeries(seriesId, seriesRequest, user);
-        return new ResponseEntity<>(SeriesResponse.seriesResponse(updateSeries), HttpStatus.OK);
+    public ResponseEntity<Object> updateArchive(@PathVariable Long seriesId,
+                                                @RequestBody Map<String, String> modRequest,
+                                                @AuthenticationPrincipal User user) {
+        Series series = seriesService.getSeries(seriesId);
+        Series updatedSeries = seriesService.updateSeries(series, modRequest, user);
+        return ResponseEntity
+                .status(OK)
+                .body(ResultResponse.ok(seriesId + "번 시리즈 수정", updatedSeries));
     }
 
 }

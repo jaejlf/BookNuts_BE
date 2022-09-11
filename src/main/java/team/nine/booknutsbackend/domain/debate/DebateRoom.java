@@ -1,17 +1,29 @@
 package team.nine.booknutsbackend.domain.debate;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import team.nine.booknutsbackend.domain.User;
+import team.nine.booknutsbackend.dto.request.DebateRoomRequest;
+import team.nine.booknutsbackend.enumerate.DebateStatus;
+import team.nine.booknutsbackend.enumerate.DebateType;
 
 import javax.persistence.*;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
+import static team.nine.booknutsbackend.enumerate.DebateStatus.READY;
+import static team.nine.booknutsbackend.enumerate.DebateType.getDebateType;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DebateRoom {
 
     @Id
@@ -36,8 +48,8 @@ public class DebateRoom {
     @Column(length = 300, nullable = false)
     private String coverImgUrl;
 
-    @Column(length = 100, nullable = false)
-    private int type; //0 : 채팅, 1 : 음성
+    @Enumerated(EnumType.STRING)
+    private DebateType type;
 
     @Column(length = 100, nullable = false)
     private int maxUser; //총 토론 참여자 수 (2,4,6,8)
@@ -48,14 +60,49 @@ public class DebateRoom {
     @Column(length = 100, nullable = false)
     private int curNoUser; //현재 참여한 반대 유저 수
 
-    @Column(length = 100, nullable = false)
-    private int status = 0; //0 : 토론 대기 중, 1 : 토론 진행 중, 2 : 토론 종료
+    @Enumerated(EnumType.STRING)
+    private DebateStatus status = READY;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "owner")
     private User owner;
 
+    @JsonSerialize(using= LocalDateTimeSerializer.class)
+    @JsonDeserialize(using= LocalDateTimeDeserializer.class)
     @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private final LocalDateTime createdAt = LocalDateTime.now();
+
+    public DebateRoom(DebateRoomRequest debateRoomRequest, User user, String coverImgUrl) {
+        this.bookTitle = debateRoomRequest.getBookTitle();
+        this.bookAuthor = debateRoomRequest.getBookAuthor();
+        this.bookImgUrl = debateRoomRequest.getBookImgUrl();
+        this.bookGenre = debateRoomRequest.getBookGenre();
+        this.topic = debateRoomRequest.getTopic();
+        this.type = getDebateType(debateRoomRequest.getType());
+        this.maxUser = debateRoomRequest.getMaxUser();
+        this.owner = user;
+        this.coverImgUrl = coverImgUrl;
+    }
+
+    public void changeStatus(DebateStatus status) {
+        this.status = status;
+    }
+
+    public void updateCurUser(int curYesUser, int curNoUser) {
+        this.curYesUser = curYesUser;
+        this.curNoUser = curNoUser;
+    }
+
+    public String getTimeFromNow(DebateRoom room) {
+        LocalDateTime createdAt = room.getCreatedAt();
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(createdAt, now);
+
+        if (duration.toDaysPart() > 0) return duration.toDaysPart() + "일 전";
+        if (duration.toHoursPart() > 0) return duration.toHoursPart() + "시간 전";
+        if (duration.toMinutesPart() > 0) return duration.toMinutesPart() + "분 전";
+
+        return "방금 전";
+    }
 
 }

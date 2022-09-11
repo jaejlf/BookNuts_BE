@@ -2,27 +2,29 @@ package team.nine.booknutsbackend.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import team.nine.booknutsbackend.domain.archive.ArchiveBoard;
 import team.nine.booknutsbackend.domain.reaction.Heart;
 import team.nine.booknutsbackend.domain.reaction.Nuts;
+import team.nine.booknutsbackend.enumerate.Role;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
+
+import static team.nine.booknutsbackend.enumerate.Role.ROLE_USER;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(value = {"authorities"})
 public class User implements UserDetails {
 
@@ -48,47 +50,41 @@ public class User implements UserDetails {
     private String email;
 
     @Column(length = 300)
-    private String refreshToken = "";
-
-    @Column(length = 300)
     private String profileImgUrl;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Builder.Default
-    private List<String> roles = new ArrayList<>();
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-    }
+    @Enumerated(EnumType.STRING)
+    private Role role = ROLE_USER;
 
     @Column(nullable = false)
     private boolean enabled = true;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
 
     @Column
     private LocalDateTime requestedDeleteAt;
 
     @OneToMany(mappedBy = "owner")
     @JsonIgnore
-    private List<ArchiveBoard> archiveBoards = new ArrayList<>();
+    private Set<ArchiveBoard> archiveBoardList = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private List<Heart> hearts = new ArrayList<>();
+    private Set<Heart> heartList = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private List<Nuts> nutsList = new ArrayList<>();
+    private Set<Nuts> nutsList = new HashSet<>();
 
     @OneToMany(mappedBy = "follower")
     @JsonIgnore
-    private List<Follow> followers = new ArrayList<>();
+    private Set<Follow> followerList = new HashSet<>();
 
     @OneToMany(mappedBy = "following")
     @JsonIgnore
-    private List<Follow> followings = new ArrayList<>();
+    private Set<Follow> followingList = new HashSet<>();
 
     @Override
     @JsonIgnore
@@ -119,5 +115,43 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return enabled;
     } //계정 활성화 여부 (true : 활성화)
+
+    public User(String loginId, String password, String username, String nickname, String email, String profileImgUrl) {
+        this.loginId = loginId;
+        this.password = password;
+        this.username = username;
+        this.nickname = nickname;
+        this.email = email;
+        this.profileImgUrl = profileImgUrl;
+    }
+
+    public void updateProfileImgUrl(String profileImgUrl) {
+        this.profileImgUrl = profileImgUrl;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void disableUser() {
+        this.username = null;
+        this.nickname = null;
+        this.profileImgUrl = "";
+        this.enabled = false;
+        this.requestedDeleteAt = LocalDateTime.now();
+    }
+
+    public void clearUser() {
+        this.email = null;
+        this.loginId = null;
+    }
+
+    public boolean isFollow(User me, User target) {
+        Set<Follow> followList = me.getFollowerList();
+        for (Follow follow : followList) {
+            if (follow.getFollower() == target) return true;
+        }
+        return false;
+    }
 
 }
