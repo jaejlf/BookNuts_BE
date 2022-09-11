@@ -33,11 +33,12 @@
 - 팔로우 & 팔로잉
 - 이미지 업로드 (프로필, 아카이브, 시리즈, 토론 커버 이미지)
 - Logback을 통한 로그 기록
+- Redis 캐시 적용을 통한 조회 성능 개선
 
 <br><br>
 
 ## 📑 문서
-- [API Documentation] [booknuts-apis](https://documenter.getpostman.com/view/18461572/UzJQpDsB)
+- [API Documentation] [booknuts-apis](https://documenter.getpostman.com/view/18461572/VUqoReGx)
 
 <br><br>
 
@@ -64,7 +65,7 @@
 ## 🏷 Release Version
 
 - [release/v1](https://github.com/jaejlf/BookNuts_Backend/releases/tag/v1) - 베타 버전 배포를 위한 주요 기능 구현
-- release/v2 - 리팩토링 및 테스트 코드 작성
+- [release/v2](https://github.com/jaejlf/BookNuts_Backend/releases/tag/v2) - 리팩토링 및 테스트 코드 작성
 
 <br><br>
 
